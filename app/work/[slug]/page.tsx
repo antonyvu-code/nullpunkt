@@ -55,6 +55,17 @@ export default async function CaseStudy({ params }: Props) {
           {p.title}
         </h1>
         <p className="mt-6 max-w-xl leading-relaxed text-muted">{p.oneLiner}</p>
+        {p.liveUrl && (
+          <a
+            href={p.liveUrl}
+            target="_blank"
+            rel="noopener"
+            className="hud accent-t mt-8 inline-block border px-6 py-3.5 text-ink no-underline transition-colors hover:border-accent hover:text-accent"
+            style={{ borderColor: "var(--line)" }}
+          >
+            VIEW LIVE — {p.liveUrl.replace("https://", "")} ↗
+          </a>
+        )}
       </header>
 
       {p.plates[0] && (

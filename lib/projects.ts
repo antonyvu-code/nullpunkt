@@ -14,10 +14,14 @@ export type Project = {
   stack: string[];
   oneLiner: string;
   metaLine: string;
+  liveUrl?: string;
   metrics: Metric[];
   plates: Plate[];
   sections: { heading: string; body: string[] }[];
 };
+
+/** Deployed experiments that don't have a full case study (yet). */
+export type FieldNote = { name: string; url: string; note: string };
 
 /** Zero state — the page's own "no accent". Keep in sync with --accent in globals.css. */
 export const zeroAccent = "#f2f0eb";
@@ -36,6 +40,7 @@ export const projects: Project[] = [
     oneLiner:
       "An ocean-lifestyle brand told as one continuous page, where every section is an instrument you can touch.",
     metaLine: "ONE-PAGE · 6 LANG · CANVAS",
+    liveUrl: "https://nullpunkt-rosi.vercel.app",
     metrics: [
       { label: "Languages", value: "6" },
       { label: "Canvas instruments", value: "3" },
@@ -89,6 +94,7 @@ export const projects: Project[] = [
     oneLiner:
       "A Hannover roofing company's 2013 TYPO3 site rebuilt twice: once as “Schiefer & Kupfer”, once in a borrowed design language — same content, two systems.",
     metaLine: "CLIENT · WCAG AA · 2 VERSIONS",
+    liveUrl: "https://nullpunkt-gutjahr.vercel.app",
     metrics: [
       { label: "Accessibility", value: "WCAG 2.1 AA" },
       { label: "Design versions", value: "2" },
@@ -145,6 +151,7 @@ export const projects: Project[] = [
     oneLiner:
       "A dark SaaS landing page where one motif — the EKG pulse line — carries the logo, the dividers and the hero chart.",
     metaLine: "SAAS · NEXT 16 · MOTION",
+    liveUrl: "https://nullpunkt-pulse.vercel.app",
     metrics: [
       { label: "Motion layers", value: "2" },
       { label: "Reduced-motion coverage", value: "100%" },
@@ -192,6 +199,7 @@ export const projects: Project[] = [
     oneLiner:
       "Up to 100,000 particles morphing between a sphere, an ocean, a glyph and a vortex — at 60 fps, interruptible mid-flight.",
     metaLine: "WEBGL · 100K PTS · 60 FPS",
+    liveUrl: "https://nullpunkt-particle-field.vercel.app",
     metrics: [
       { label: "Particles", value: "100K" },
       { label: "Frame rate", value: "60 FPS" },
@@ -245,6 +253,7 @@ export const projects: Project[] = [
     oneLiner:
       "A fictional Berlin architecture studio — the Nullpunkt style with its polarity inverted: paper-white ground, ink text, one warm gray accent.",
     metaLine: "STUDIO · DE/EN · INVERTED",
+    liveUrl: "https://nullpunkt-mono.vercel.app",
     metrics: [
       { label: "Static pages", value: "26" },
       { label: "Locales", value: "2" },
@@ -298,6 +307,7 @@ export const projects: Project[] = [
     oneLiner:
       "An independent electronic label and 24-hour radio built to prove a single claim: a page can carry exactly one saturated colour and let that colour mean “alive”.",
     metaLine: "RADIO · SINGLE-SIGNAL · VITE",
+    liveUrl: "https://nullpunkt-oscillate.vercel.app",
     metrics: [
       { label: "Saturated colours", value: "1" },
       { label: "Signal contrast", value: "5.5 : 1" },
@@ -348,6 +358,7 @@ export const projects: Project[] = [
     oneLiner:
       "A floating city for 5,000 residents, marketed like an engineered product — the whole district is generated from code, and the page around it behaves like its naval blueprint.",
     metaLine: "FLOATING CITY · 0 GLB · 183 KB",
+    liveUrl: "https://nullpunkt-lilypad.vercel.app",
     metrics: [
       { label: "Payload, gzipped", value: "183 KB" },
       { label: "Model files", value: "0" },
@@ -386,4 +397,20 @@ export const projects: Project[] = [
       },
     ],
   },
+];
+
+export const fieldNotes: FieldNote[] = [
+  { name: "FIELD SCAN", url: "https://nullpunkt-field-scan.vercel.app", note: "The daily digest as a signal console" },
+  { name: "CASCADE", url: "https://nullpunkt-cascade.vercel.app", note: "A playable outage — keyboard-driven incident" },
+  { name: "ONE BIT FROM HOME", url: "https://nullpunkt-one-bit.vercel.app", note: "Two colors; signal strength is resolution" },
+  { name: "INSPECT MODE", url: "https://nullpunkt-inspect-mode.vercel.app", note: "Raw HTML compiles itself into a page" },
+  { name: "BLOOM", url: "https://nullpunkt-bloom.vercel.app", note: "A garden grown from research mornings" },
+  { name: "CALIBRE", url: "https://nullpunkt-calibre.vercel.app", note: "A watch movement, exploded on scroll" },
+  { name: "COLOR FIELD", url: "https://nullpunkt-color-field.vercel.app", note: "Scroll-driven shader field, EXP.02" },
+  { name: "NUT & FEDER", url: "https://nullpunkt-nut-feder.vercel.app", note: "Furniture commerce with workshop drawings" },
+  { name: "SILLAGE", url: "https://nullpunkt-sillage.vercel.app", note: "A perfume label on a video hero" },
+  { name: "BLÜHWERK", url: "https://nullpunkt-bluhwerk.vercel.app", note: "Season-aware flowers for DACH" },
+  { name: "NITRO", url: "https://nullpunkt-nitro.vercel.app", note: "Figma to website, rebuild case 1" },
+  { name: "WHITEPACE", url: "https://nullpunkt-whitepace.vercel.app", note: "Figma to website, rebuild case 2" },
+  { name: "GUTJAHR V2", url: "https://nullpunkt-gutjahr-v2.vercel.app", note: "Same roofer, borrowed design language" },
 ];

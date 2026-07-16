@@ -1,4 +1,5 @@
 import { site } from "@/lib/site";
+import { fieldNotes, projects } from "@/lib/projects";
 import ProjectIndex from "@/components/ProjectIndex";
 
 const specs = [
@@ -44,12 +45,48 @@ export default function Home() {
       </section>
 
       <section id="index" aria-label="Project index" className="py-10" data-reveal>
-        <p className="hud hud-wide mb-6 text-accent accent-t">THE INDEX — 01–05</p>
+        <p className="hud hud-wide mb-6 text-accent accent-t">
+          THE INDEX — 01–{String(projects.length).padStart(2, "0")}
+        </p>
         <ProjectIndex />
         <p className="hud mt-4 text-muted/70">
-          POINT AT A LINE — THE PAGE BORROWS ITS COLOR. PLATES CAPTURED FROM THE RUNNING SITES;
-          LIVE DEMOS SHIP WITH DEPLOYMENT.
+          POINT AT A LINE — THE PAGE BORROWS ITS COLOR. EVERY EXPERIMENT IS DEPLOYED — THE LIVE
+          LINK SITS AT THE TOP OF EACH CASE.
         </p>
+      </section>
+
+      <section id="field-notes" aria-label="Uncatalogued experiments" className="py-16 md:py-24" data-reveal>
+        <p className="hud hud-wide mb-6 text-accent accent-t">
+          FIELD NOTES — LIVE, UNCATALOGUED
+        </p>
+        <h2 className="max-w-2xl text-2xl font-medium md:text-4xl">
+          Thirteen more experiments, deployed and running.
+        </h2>
+        <p className="mt-4 max-w-xl leading-relaxed text-muted">
+          Not everything has earned a write-up yet. These ship as-is — open them, they are the
+          argument.
+        </p>
+        <ul
+          className="mt-10 grid list-none gap-px p-0 md:grid-cols-2 lg:grid-cols-3"
+          style={{ background: "var(--line)" }}
+        >
+          {fieldNotes.map((f) => (
+            <li key={f.url} className="m-0 bg-bg p-0">
+              <a
+                href={f.url}
+                target="_blank"
+                rel="noopener"
+                className="group block h-full p-6 no-underline"
+              >
+                <span className="hud flex items-baseline justify-between gap-4 text-ink group-hover:text-accent">
+                  {f.name}
+                  <span aria-hidden="true">↗</span>
+                </span>
+                <span className="mt-2 block text-sm leading-relaxed text-muted">{f.note}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section id="hood" className="py-16 md:py-24" data-reveal>
