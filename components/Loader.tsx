@@ -56,11 +56,11 @@ export default function Loader() {
       <div className="relative h-16 w-16">
         <i className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2" style={{ background: "var(--line)" }} />
         <i className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2" style={{ background: "var(--line)" }} />
-        <i className="np-zero absolute left-1/2 top-1/2 h-2 w-2 rounded-full bg-ink" />
+        <i className="np-zero absolute left-1/2 top-1/2 h-2 w-2 rounded-full bg-flare" />
       </div>
       <p className="text-2xl font-medium tracking-tight">{site.name}</p>
       <div className="relative h-px w-44 overflow-hidden" style={{ background: "var(--line)" }}>
-        <div ref={barRef} className="absolute inset-0 origin-left bg-ink" style={{ transform: "scaleX(0)" }} />
+        <div ref={barRef} className="absolute inset-0 origin-left bg-flare" style={{ transform: "scaleX(0)" }} />
       </div>
       <p className="hud text-muted">
         CALIBRATING FROM ZERO — <span ref={countRef} className="text-ink" style={{ fontVariantNumeric: "tabular-nums" }}>000</span>%

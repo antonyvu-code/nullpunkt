@@ -9,6 +9,10 @@
   /* Zero state: the page has no accent of its own. The needle rests at ink
      until a project lends its color (see ProjectIndex / AccentSetter). */
   --accent: #f2f0eb;
+  /* Flare — the one FIXED signal colour (does not borrow like --accent). Used
+     for the boot readout, the selected markers, and the primary action, so the
+     page carries a constant orange note for contrast against the near-black. */
+  --flare: #ff4d1c;
   /* Full-bleed side gutter — the page runs edge-to-edge, this is the only
      margin. One value for header, main and footer so every edge aligns. */
   --gutter: clamp(1.25rem, 3vw, 4.5rem);
@@ -21,6 +25,7 @@
   --color-muted: var(--muted);
   --color-line: var(--line);
   --color-accent: var(--accent);
+  --color-flare: var(--flare);
   --font-sans: var(--font-instrument);
   --font-display: var(--font-bricolage);
   --font-mono: var(--font-spline-mono);
