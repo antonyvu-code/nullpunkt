@@ -59,7 +59,7 @@ export default function ProjectIndex() {
               >
                 {p.index}
               </span>
-              <span className="block border p-0.5" style={{ borderColor: "var(--line)" }}>
+              <span className="block overflow-hidden border p-0.5" style={{ borderColor: "var(--line)" }}>
                 {p.plates[0] ? (
                   <Image
                     src={p.plates[0].src}
@@ -67,7 +67,7 @@ export default function ProjectIndex() {
                     width={2400}
                     height={1500}
                     sizes="112px"
-                    className="block h-auto w-full opacity-60 grayscale transition duration-500 group-hover:opacity-100 group-hover:grayscale-0 group-focus-visible:opacity-100 group-focus-visible:grayscale-0 motion-reduce:transition-none"
+                    className="block h-auto w-full scale-100 opacity-60 grayscale transition duration-500 group-hover:scale-[1.05] group-hover:opacity-100 group-hover:grayscale-0 group-focus-visible:opacity-100 group-focus-visible:grayscale-0 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                   />
                 ) : (
                   // No plate shot yet — hold the slot at the same 16:10 ratio so the

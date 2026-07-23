@@ -1,6 +1,7 @@
 import { site } from "@/lib/site";
 import { fieldNotes, projects } from "@/lib/projects";
 import ProjectIndex from "@/components/ProjectIndex";
+import Selected from "@/components/Selected";
 import FieldNotes from "@/components/FieldNotes";
 import Scope from "@/components/Scope";
 import HeroIntro from "@/components/HeroIntro";
@@ -121,6 +122,8 @@ export default function Home() {
         </div>
         <HeroIntro />
       </section>
+
+      <Selected />
 
       {/* THE INDEX — kept full-width; its own columns carry the Swiss structure. */}
       <section id="index" aria-label="Project index" className="py-10" data-reveal>
