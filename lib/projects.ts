@@ -1,6 +1,22 @@
-export type Metric = { label: string; value: string };
+/**
+ * A reading off the work. `source` says HOW the number was measured — without it
+ * the page must not claim the number is measured. Never invent a source; leave it
+ * undefined and the UI will render the number plainly instead.
+ */
+export type Metric = { label: string; value: string; source?: string };
 
 export type Plate = { src: string; caption: string };
+
+/** Side-by-side proof for rebuilds: the supplied design against what shipped. */
+export type Comparison = {
+  before: string;
+  after: string;
+  beforeLabel: string;
+  afterLabel: string;
+};
+
+/** LAB = self-initiated concept. REBUILD = someone else's design, executed. */
+export type ProjectLabel = "LAB" | "REBUILD";
 
 export type Project = {
   slug: string;
@@ -8,16 +24,22 @@ export type Project = {
   title: string;
   year: string;
   accent: string;
+  label: ProjectLabel;
   kind: string;
   role: string;
   status: string;
+  /** For REBUILD only: what was handed over, so authorship is never ambiguous. */
+  given?: string;
   stack: string[];
   oneLiner: string;
   metaLine: string;
   liveUrl?: string;
+  comparison?: Comparison;
   metrics: Metric[];
   plates: Plate[];
   sections: { heading: string; body: string[] }[];
+  /** Partial German copy, kept for the DE layer. Body text stays English. */
+  de?: { title: string; oneLiner: string };
 };
 
 /** Deployed experiments that don't have a full case study (yet). */
@@ -33,9 +55,10 @@ export const projects: Project[] = [
     title: "ROSI Ocean Co.",
     year: "2026",
     accent: "#F5901E",
+    label: "LAB",
     kind: "Interactive one-page site",
     role: "Design, build, i18n",
-    status: "Lab — brand concept",
+    status: "Brand concept",
     stack: ["Custom .dc runtime", "Canvas 2D", "GSAP ScrollTrigger", "i18n EN/VI"],
     oneLiner:
       "An ocean-lifestyle brand told as one continuous page, where every section is an instrument you can touch.",
@@ -87,13 +110,16 @@ export const projects: Project[] = [
     title: "Gutjahr Dachtechnik",
     year: "2026",
     accent: "#B87450",
-    kind: "Client website redesign",
+    label: "LAB",
+    kind: "Unsolicited redesign study",
     role: "Redesign study, production-grade build",
-    status: "Study — two versions",
+    status: "Redesign study, two versions",
+    given:
+      "Gutjahr Dachtechnik is a real Hannover roofing company. This is an unsolicited study — not commissioned, not affiliated. Only the public content of their 2013 site was used.",
     stack: ["Static HTML/CSS/JS", "GSAP + SplitText", "Lenis", "WebP pipeline"],
     oneLiner:
       "A Hannover roofing company's 2013 TYPO3 site rebuilt twice: once as “Schiefer & Kupfer”, once in a borrowed design language — same content, two systems.",
-    metaLine: "CLIENT · WCAG AA · 2 VERSIONS",
+    metaLine: "REDESIGN STUDY · WCAG AA · 2 VERSIONS",
     liveUrl: "https://nullpunkt-gutjahr.vercel.app",
     metrics: [
       { label: "Accessibility", value: "WCAG 2.1 AA" },
@@ -144,9 +170,10 @@ export const projects: Project[] = [
     title: "Pulse Analytics",
     year: "2026",
     accent: "#6366F1",
+    label: "LAB",
     kind: "SaaS landing concept",
     role: "Design, build, motion system",
-    status: "Concept — not a real product",
+    status: "Product concept, not a real product",
     stack: ["Next.js 16", "Tailwind v4", "Framer Motion 12", "GSAP ScrollTrigger"],
     oneLiner:
       "A dark SaaS landing page where one motif — the EKG pulse line — carries the logo, the dividers and the hero chart.",
@@ -192,9 +219,10 @@ export const projects: Project[] = [
     title: "Particle Field EXP.01",
     year: "2026",
     accent: "#F5901E",
+    label: "LAB",
     kind: "WebGL experiment",
     role: "Everything — shader to HUD",
-    status: "Lab — running",
+    status: "Technical experiment",
     stack: ["Vite + TypeScript", "Three.js", "GSAP", "GLSL"],
     oneLiner:
       "Up to 100,000 particles morphing between a sphere, an ocean, a glyph and a vortex — at 60 fps, interruptible mid-flight.",
@@ -246,9 +274,10 @@ export const projects: Project[] = [
     title: "MONO Architekten",
     year: "2026",
     accent: "#8A8A83",
+    label: "LAB",
     kind: "Architecture studio concept",
     role: "Design, build, bilingual content",
-    status: "Concept — Berlin",
+    status: "Studio concept, Berlin",
     stack: ["Next.js 16 App Router", "GSAP + Lenis", "Self-built i18n DE/EN"],
     oneLiner:
       "A fictional Berlin architecture studio — the Nullpunkt style with its polarity inverted: paper-white ground, ink text, one warm gray accent.",
@@ -300,9 +329,10 @@ export const projects: Project[] = [
     title: "OSCILLATE",
     year: "2026",
     accent: "#FF4A1C",
+    label: "LAB",
     kind: "Label + radio concept",
     role: "Design, build, motion system",
-    status: "Concept — running",
+    status: "Interactive concept",
     stack: ["Vite + vanilla JS", "Canvas 2D waveform", "System type pairing", "HOT / COLD signal switch"],
     oneLiner:
       "An independent electronic label and 24-hour radio built to prove a single claim: a page can carry exactly one saturated colour and let that colour mean “alive”.",
@@ -351,9 +381,10 @@ export const projects: Project[] = [
     title: "LILYPAD",
     year: "2026",
     accent: "#FF5A3C",
+    label: "LAB",
     kind: "Speculative launch site",
     role: "Concept, design, build",
-    status: "Concept — running",
+    status: "Interactive concept",
     stack: ["Vite + vanilla JS", "Three.js — procedural", "GSAP 3.15 + SplitText", "Lenis"],
     oneLiner:
       "A floating city for 5,000 residents, marketed like an engineered product — the whole district is generated from code, and the page around it behaves like its naval blueprint.",
@@ -397,20 +428,263 @@ export const projects: Project[] = [
       },
     ],
   },
+  {
+    slug: "nitro",
+    index: "08",
+    title: "Nitro",
+    year: "2026",
+    accent: "#2DD4BF", // TODO(antony): xác nhận accent
+    label: "REBUILD",
+    kind: "Figma template → code",
+    role: "Build",
+    status: "Figma Community template",
+    given: "Design template from the Figma Community. Not my design — the build is the work.",
+    stack: ["HTML", "CSS", "GSAP"],
+    oneLiner: "Take someone else's design template and make it do in the browser exactly what it promises in the layout.",
+    metaLine: "FIGMA TEMPLATE → CODE · NO FRAMEWORK",
+    liveUrl: "https://nullpunkt-nitro.vercel.app",
+    comparison: { before: "nitro-figma", after: "nitro-a", beforeLabel: "SUPPLIED TEMPLATE", afterLabel: "MY BUILD" },
+    metrics: [
+      { label: "Sections", value: "9", source: "counted in the markup" },
+      { label: "Dependencies", value: "0", source: "no framework, no build step; GSAP the only library" },
+      { label: "Breakpoints", value: "3", source: "media queries in css/style.css" },
+    ],
+    plates: [], // TODO: chụp plates (nitro-a, nitro-b)
+    sections: [
+      {
+        heading: "The brief",
+        body: [
+          "Take someone else's design template and make it do in the browser exactly what it promises in the layout. No redesign, no ideas of my own — the template is the brief. I picked an agency website from the Figma Community that I did not design myself.",
+        ],
+      },
+      {
+        heading: "What I built",
+        body: [
+          "Nine sections from navigation to footer, as one continuous page.",
+          "Scroll choreography with GSAP and ScrollTrigger: parallax in the hero, staggered card entrances, a timeline for the process section.",
+          "Design tokens as CSS variables — colour, type scale, spacing — instead of values scattered through the sheet.",
+          "Mobile navigation, keyboard operation, skip link, visible focus.",
+          "A complete fallback for prefers-reduced-motion: without animation the page stays readable and complete.",
+        ],
+      },
+      {
+        heading: "Fidelity without the Figma file",
+        body: [
+          "What I had was not a Figma file but a compressed preview image of the template. So the precision had to be reverse-engineered from the picture: type scale measured off cap heights, the grid derived from recurring edge distances, colours picked from flat areas rather than gradients. The result is therefore not a pixel diff but a reconstructed system — which is more useful in practice: a set of tokens you can keep building on, rather than values copied once by eye. Give me the real file and you get more accuracy, not less.",
+        ],
+      },
+    ],
+    de: {
+      title: "Nitro",
+      oneLiner: "Eine fremde Designvorlage so umsetzen, dass sie im Browser exakt das tut, was sie im Layout verspricht.",
+    },
+  },
+  {
+    slug: "whitepace",
+    index: "09",
+    title: "Whitepace",
+    year: "2026",
+    accent: "#F5C518", // TODO(antony): xác nhận accent
+    label: "REBUILD",
+    kind: "Figma template → code",
+    role: "Build",
+    status: "Figma Community template",
+    given: "Design template from the Figma Community. Not my design — the build is the work.",
+    stack: ["HTML", "CSS", "GSAP"],
+    oneLiner: "The second case in the series: a SaaS landing page from the Figma Community — \"Whitepace\", project-management software — translated from a static template into a responsive, animated website.",
+    metaLine: "FIGMA TEMPLATE → CODE · 8 SECTIONS, 1:1",
+    liveUrl: "https://nullpunkt-whitepace.vercel.app",
+    metrics: [
+      { label: "Sections", value: "8", source: "counted in the markup" },
+      { label: "SVG instead of raster", value: "3 mockups", source: "dashboard, phone screen, app icons in components/" },
+      { label: "Breakpoints", value: "2", source: "940px / 560px in css/style.css" },
+    ],
+    plates: [], // TODO: chụp plates (whitepace-a, whitepace-b)
+    sections: [
+      {
+        heading: "The brief",
+        body: [
+          "The second case in the series: a SaaS landing page from the Figma Community — \"Whitepace\", project-management software — translated from a static template into a responsive, animated website. The bar: every section of the template shows up, nothing dropped or reinterpreted.",
+        ],
+      },
+      {
+        heading: "What I built",
+        body: [
+          "Eight sections from the sticky nav to a footer with newsletter validation.",
+          "Free/Enterprise pricing table with a real monthly↔yearly toggle — the price counts up with easing, not just a text swap.",
+          "Testimonial carousel with a GSAP fade and prev/next controls.",
+          "The template's UI mockups were raster images; I redrew them as inline SVG.",
+          "Skip link, visible focus, real WCAG contrast pairs, labelled illustrations, a full prefers-reduced-motion fallback.",
+        ],
+      },
+      {
+        heading: "Raster becomes vector",
+        body: [
+          "The dashboard and phone mockups in the original were flat PNGs — soft or oversized depending on screen size. I rebuilt them as inline SVG: lines, shapes and icons redrawn one by one instead of embedded as an image. The effect isn't cosmetic — the mockups stay crisp at any size, can be recoloured through CSS (the yellow accent reacts to the same custom properties as the rest of the page), and weigh a fraction of the original files.",
+        ],
+      },
+    ],
+    de: {
+      title: "Whitepace",
+      oneLiner: "Die zweite Fallstudie in der Reihe: eine SaaS-Landingpage aus der Figma Community — \"Whitepace\", Projektmanagement-Software — von der statischen Vorlage in eine responsive, animierte Website übersetzen.",
+    },
+  },
+  {
+    slug: "nut-feder",
+    index: "10",
+    title: "Nut & Feder",
+    year: "2026",
+    accent: "#C08A4E", // TODO(antony): xác nhận accent
+    label: "LAB",
+    kind: "E-commerce · furniture",
+    role: "Concept & build",
+    status: "E-commerce concept",
+    stack: ["Next.js 16", "Tailwind v4"],
+    oneLiner: "An e-commerce concept for a German furniture manufacturer: six pieces, each technically dimensioned rather than merely photographed — as if the workshop drawing opened directly in the browser.",
+    metaLine: "E-COMMERCE · FURNITURE · TO-SCALE SVG",
+    liveUrl: "https://nullpunkt-nut-feder.vercel.app",
+    metrics: [
+      { label: "Products", value: "6", source: "lib/products.ts" },
+      { label: "Scale system", value: "1 variable", source: "--mm in globals.css, 0.16 / 0.105 px per mm" },
+      { label: "Free-shipping threshold", value: "€2,500", source: "checkout logic, €120 freight waived above this" },
+    ],
+    plates: [], // TODO: chụp plates (nut-feder-a, nut-feder-b)
+    sections: [
+      {
+        heading: "The brief",
+        body: [
+          "An e-commerce concept for a German furniture manufacturer: six pieces, each technically dimensioned rather than merely photographed — as if the workshop drawing opened directly in the browser.",
+        ],
+      },
+      {
+        heading: "What I built",
+        body: [
+          "Six products as technical SVG drawings, viewBox set in real millimetres rather than pixels.",
+          "One scale variable (--mm) drives the entire site: pixels per millimetre, 0.16 on desktop, 0.105 on mobile.",
+          "Dimension lines draw themselves via pathLength and dash-offset — on hover or through a class toggle.",
+          "A wall-elevation view with a ground line and tape-measure marks every 500mm.",
+          "Material swaps recolour the drawing live per product, driven by a data attribute.",
+        ],
+      },
+      {
+        heading: "One variable carrying the whole scale",
+        body: [
+          "The obvious approach would have been to scale each drawing separately for desktop and mobile. Instead a single CSS variable, --mm, carries the site's entire scale: it sets pixels per millimetre, once for desktop (0.16) and once for mobile (0.105). Every drawing, every dimension line, every wall elevation calculates relative to that one number. Adding a new product means dropping in an SVG with real millimetre coordinates — the scaling happens on its own, at every breakpoint.",
+        ],
+      },
+    ],
+    de: {
+      title: "Nut & Feder",
+      oneLiner: "Ein E-Commerce-Konzept für eine deutsche Möbelmanufaktur: sechs Stücke, jedes technisch bemaßt statt nur fotografiert — als würde man den Werkstattplan direkt im Browser aufschlagen.",
+    },
+  },
+  {
+    slug: "calibre",
+    index: "11",
+    title: "Calibre",
+    year: "2026",
+    accent: "#C9A227", // TODO(antony): xác nhận accent
+    label: "LAB",
+    kind: "Brand · 3D",
+    role: "Concept & build",
+    status: "Brand concept",
+    stack: ["Three.js WebGPU/TSL", "GSAP"],
+    oneLiner: "A brand website for a high-end watch manufacture (concept brand): no pre-rendered video, but an actual 3D watch running live in the browser that literally comes apart as you scroll.",
+    metaLine: "BRAND · 3D · WEBGPU · LIVE-RENDERED",
+    liveUrl: "https://nullpunkt-calibre.vercel.app",
+    metrics: [
+      { label: "Balance frequency", value: "4Hz", source: "28,800 vph, mechanically correct beat rate in the code" },
+      { label: "Explode layers", value: "5", source: "glass, hands, dial, movement, case" },
+      { label: "Rendering", value: "WebGPU + TSL", source: "with automatic WebGL fallback when unsupported" },
+    ],
+    plates: [], // TODO: chụp plates (calibre-a, calibre-b)
+    sections: [
+      {
+        heading: "The brief",
+        body: [
+          "A brand website for a high-end watch manufacture (concept brand): no pre-rendered video, but an actual 3D watch running live in the browser that literally comes apart as you scroll.",
+        ],
+      },
+      {
+        heading: "What I built",
+        body: [
+          "Three.js with WebGPURenderer and TSL shaders, with an automatic fallback to WebGL when WebGPU isn't available.",
+          "\"Exploded movement\": scrolling separates the watch layer by layer — glass, hands, dial, movement, case.",
+          "The balance wheel beats at a true 4Hz (28,800 vibrations per hour) — not an arbitrary loop animation.",
+          "Drag-to-rotate: dragging horizontally spins the case around the world axis, via a pivot group cleanly separated from the scroll timeline.",
+          "A custom lighting setup: an environment map generated from a softbox scene for fine catchlights on metal.",
+        ],
+      },
+      {
+        heading: "Two motion sources, one state",
+        body: [
+          "Both scrolling and mouse-dragging needed to drive the same explode animation without stepping on each other. The fix: the timeline runs paused and is never played directly — it's a pure pose function. A single value (scrollP + boost, clamped to 0–1) drives its progress. Scrolling updates scrollP with its own smoothing, dragging adds a temporary boost that decays on release. The render loop only calls tl.progress() when the value actually changes — two input sources, one source of truth.",
+        ],
+      },
+    ],
+    de: {
+      title: "Calibre",
+      oneLiner: "Eine Markenwebsite für eine hochwertige Uhrenmanufaktur (Konzeptmarke): keine vorgerenderten Videos, sondern eine echte 3D-Uhr, die live im Browser läuft und sich beim Scrollen buchstäblich zerlegt.",
+    },
+  },
+  {
+    slug: "one-bit",
+    index: "12",
+    title: "One Bit From Home",
+    year: "2026",
+    accent: "#4ADE80", // TODO(antony): xác nhận accent
+    label: "LAB",
+    kind: "WebGL proof",
+    role: "Concept & build",
+    status: "Technical proof",
+    stack: ["Three.js WebGPU/TSL", "GSAP"],
+    oneLiner: "A personal technical experiment, not a client brief: how far can a single value be pushed as a storytelling device?",
+    metaLine: "WEBGL PROOF · 60FPS · TSL DITHER",
+    liveUrl: "https://nullpunkt-one-bit.vercel.app",
+    metrics: [
+      { label: "Colours", value: "2", source: "fixed in the colour system, no third tone" },
+      { label: "Dither cell size", value: "4×4 Bayer", source: "TSL node material, signalCurve() in src/content.js" },
+      { label: "Rendering", value: "WebGPU + TSL", source: "verified WebGL2 fallback tested via ?webgl flag" },
+    ],
+    plates: [], // TODO: chụp plates (one-bit-a, one-bit-b)
+    sections: [
+      {
+        heading: "The brief",
+        body: [
+          "A personal technical experiment, not a client brief: how far can a single value be pushed as a storytelling device? The story of a fictional probe signal from Earth to the heliopause, told in exactly two colours.",
+        ],
+      },
+      {
+        heading: "What I built",
+        body: [
+          "One value, signal (1.0 down to 0.05), drives everything: Bayer dither cell size, scanline dropout, HUD bitrate, revealed [REDACTED] text.",
+          "Dithering runs as a TSL node material directly on the GPU — two lines of math instead of a lookup table.",
+          "Automatic fallback from WebGPU to WebGL2 without the page becoming unreadable.",
+          "A BOOST button (also the B key) temporarily raises the signal to make noisy text readable.",
+          "A DSN-handshake boot sequence of roughly 2.8 seconds before the story itself, skippable with any input.",
+        ],
+      },
+      {
+        heading: "When the tab is invisible",
+        body: [
+          "Once a browser tab is fully hidden (not just backgrounded, but document.hidden), requestAnimationFrame stops firing entirely — screenshots hang, and the canvas can even collapse to 0×0. For debugging without a visible tab there's a dedicated dev middleware (/__capture in vite.config.js) that POSTs the current frame out as an image, plus a renderOnce() function that forces a single frame without depending on the rAF loop.",
+        ],
+      },
+    ],
+    de: {
+      title: "One Bit From Home",
+      oneLiner: "Ein persönliches Technik-Experiment, kein Kundenauftrag: wie weit lässt sich ein einziger Wert als Erzählmittel treiben?",
+    },
+  },
 ];
 
 export const fieldNotes: FieldNote[] = [
   { name: "FIELD SCAN", url: "https://nullpunkt-field-scan.vercel.app", note: "The daily digest as a signal console" },
   { name: "CASCADE", url: "https://nullpunkt-cascade.vercel.app", note: "A playable outage — keyboard-driven incident" },
-  { name: "ONE BIT FROM HOME", url: "https://nullpunkt-one-bit.vercel.app", note: "Two colors; signal strength is resolution" },
   { name: "INSPECT MODE", url: "https://nullpunkt-inspect-mode.vercel.app", note: "Raw HTML compiles itself into a page" },
   { name: "BLOOM", url: "https://nullpunkt-bloom.vercel.app", note: "A garden grown from research mornings" },
-  { name: "CALIBRE", url: "https://nullpunkt-calibre.vercel.app", note: "A watch movement, exploded on scroll" },
   { name: "COLOR FIELD", url: "https://nullpunkt-color-field.vercel.app", note: "Scroll-driven shader field, EXP.02" },
-  { name: "NUT & FEDER", url: "https://nullpunkt-nut-feder.vercel.app", note: "Furniture commerce with workshop drawings" },
   { name: "SILLAGE", url: "https://nullpunkt-sillage.vercel.app", note: "A perfume label on a video hero" },
   { name: "BLÜHWERK", url: "https://nullpunkt-bluhwerk.vercel.app", note: "Season-aware flowers for DACH" },
-  { name: "NITRO", url: "https://nullpunkt-nitro.vercel.app", note: "Figma to website, rebuild case 1" },
-  { name: "WHITEPACE", url: "https://nullpunkt-whitepace.vercel.app", note: "Figma to website, rebuild case 2" },
   { name: "GUTJAHR V2", url: "https://nullpunkt-gutjahr-v2.vercel.app", note: "Same roofer, borrowed design language" },
 ];

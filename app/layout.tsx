@@ -3,6 +3,7 @@ import { Bricolage_Grotesque, Space_Mono } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
 import Chrome from "@/components/Chrome";
+import Loader from "@/components/Loader";
 import SmoothScroll from "@/components/SmoothScroll";
 import Reveal from "@/components/Reveal";
 
@@ -20,15 +21,15 @@ const spaceMono = Space_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Nullpunkt — interface studio",
+    default: "Antony Vu — Frontend Engineer, Berlin · Nullpunkt",
     template: "%s — Nullpunkt",
   },
   description:
-    "Nullpunkt is a one-person interface studio. Five experiments, real readings, one borrowed accent at a time.",
+    "Antony Vu is a frontend engineer in Berlin. Nullpunkt is his lab: twelve case studies, real readings, one borrowed accent at a time. Open to remote frontend roles.",
   openGraph: {
-    title: "Nullpunkt — interface studio",
+    title: "Antony Vu — Frontend Engineer, Berlin · Nullpunkt",
     description:
-      "A one-person interface studio. Five experiments, real readings, one borrowed accent at a time.",
+      "Nullpunkt, the lab of Antony Vu. Twelve case studies, real readings, one borrowed accent at a time. Open to remote frontend roles.",
     siteName: "Nullpunkt",
     type: "website",
   },
@@ -36,11 +37,13 @@ export const metadata: Metadata = {
 
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  name: site.name,
-  description: "One-person interface design and engineering studio.",
+  "@type": "Person",
+  name: site.owner,
+  jobTitle: "Frontend Engineer",
+  address: { "@type": "PostalAddress", addressLocality: "Berlin", addressCountry: "DE" },
   email: site.email,
-  foundingDate: site.founded,
+  knowsLanguage: ["de", "en", "vi"],
+  url: "https://nullpunkt.vercel.app",
 };
 
 export default function RootLayout({
@@ -57,14 +60,15 @@ export default function RootLayout({
         >
           Skip to content
         </a>
+        <Loader />
         <SmoothScroll />
         <Reveal />
         <Chrome />
-        <main id="main" className="mx-auto w-full max-w-5xl px-6 pb-24 pt-28 md:px-10">
+        <main id="main" className="w-full px-[var(--gutter)] pb-24 pt-28">
           {children}
         </main>
         <footer
-          className="mx-auto w-full max-w-5xl border-t px-6 py-8 md:px-10"
+          className="w-full border-t px-[var(--gutter)] py-8"
           style={{ borderColor: "var(--line)" }}
         >
           <div className="hud flex flex-wrap items-center justify-between gap-4 text-muted">

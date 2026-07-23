@@ -4,9 +4,6 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { site } from "@/lib/site";
 
-const TICK = "pointer-events-none fixed z-50 h-3.5 w-3.5 accent-t";
-const TICK_COLOR = { borderColor: "color-mix(in srgb, var(--accent) 35%, transparent)" };
-
 export default function Chrome() {
   const timeRef = useRef<HTMLSpanElement>(null);
   const fpsRef = useRef<HTMLSpanElement>(null);
@@ -49,24 +46,28 @@ export default function Chrome() {
 
   return (
     <>
-      <div aria-hidden="true" className={`${TICK} left-3 top-3 border-l border-t`} style={TICK_COLOR} />
-      <div aria-hidden="true" className={`${TICK} right-3 top-3 border-r border-t`} style={TICK_COLOR} />
-      <div aria-hidden="true" className={`${TICK} bottom-3 left-3 border-b border-l`} style={TICK_COLOR} />
-      <div aria-hidden="true" className={`${TICK} bottom-3 right-3 border-b border-r`} style={TICK_COLOR} />
-
-      <header className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center justify-between px-6 py-4 md:px-10">
+      <header
+        className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center justify-between border-b px-[var(--gutter)] py-4 backdrop-blur-md"
+        style={{
+          borderColor: "var(--line)",
+          background: "color-mix(in srgb, var(--bg) 72%, transparent)",
+        }}
+      >
         <Link
           href="/"
           className="hud hud-wide accent-t pointer-events-auto text-ink no-underline hover:text-accent"
         >
           {site.wordmark}
         </Link>
-        <p aria-hidden="true" className="hud accent-t hidden text-muted sm:block">
+        <p aria-hidden="true" className="hud accent-t hidden text-muted md:block">
           <span ref={timeRef}>--:--:--</span>
           <span className="mx-2 opacity-50">·</span>
           FPS <span ref={fpsRef}>--</span>
           <span className="mx-2 opacity-50">·</span>
           SCR <span ref={scrRef}>000%</span>
+        </p>
+        <p className="hud accent-t hidden text-muted sm:block">
+          STATUS — <span className="text-accent">OPEN TO FRONTEND ROLES</span>
         </p>
       </header>
 

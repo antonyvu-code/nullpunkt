@@ -9,6 +9,9 @@
   /* Zero state: the page has no accent of its own. The needle rests at ink
      until a project lends its color (see ProjectIndex / AccentSetter). */
   --accent: #f2f0eb;
+  /* Full-bleed side gutter — the page runs edge-to-edge, this is the only
+     margin. One value for header, main and footer so every edge aligns. */
+  --gutter: clamp(1.25rem, 3vw, 4.5rem);
 }
 
 @theme inline {
@@ -25,6 +28,9 @@
 html {
   background: var(--bg);
   color: var(--ink);
+  /* The hero's full-bleed canvas is 100vw, which overshoots by the scrollbar
+     width — clip instead of growing a horizontal scrollbar. */
+  overflow-x: clip;
 }
 
 body {
@@ -62,9 +68,43 @@ body {
   letter-spacing: 0.22em;
 }
 
+/* Loader: the zero point snaps into the crosshair. */
+.np-zero {
+  transform: translate(-50%, -50%) scale(0);
+  animation: np-zero 0.5s 0.15s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+@keyframes np-zero {
+  to {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Field notes: the LIVE dot breathes on the page's current accent. */
+.np-pulse {
+  animation: np-pulse 1.6s ease-in-out infinite;
+}
+@keyframes np-pulse {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .accent-t,
   .accent-t * {
     transition: none;
+  }
+  .np-zero,
+  .np-pulse {
+    animation: none;
+  }
+  .np-zero {
+    transform: translate(-50%, -50%) scale(1);
   }
 }

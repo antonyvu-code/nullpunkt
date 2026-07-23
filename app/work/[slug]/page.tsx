@@ -49,12 +49,21 @@ export default async function CaseStudy({ params }: Props) {
 
       <header className="py-14 md:py-20" data-reveal>
         <p className="hud hud-wide text-accent">
-          NULLPUNKT — EXP.{p.index} · {p.status.toUpperCase()}
+          NULLPUNKT — EXP.{p.index} · {p.label} · {p.status.toUpperCase()}
         </p>
         <h1 className="mt-6 max-w-3xl text-4xl font-medium leading-[1.08] md:text-6xl">
           {p.title}
         </h1>
         <p className="mt-6 max-w-xl leading-relaxed text-muted">{p.oneLiner}</p>
+        {p.given && (
+          <p
+            className="mt-6 max-w-xl border-l-2 pl-4 text-sm leading-relaxed text-muted/80"
+            style={{ borderColor: "var(--accent)" }}
+          >
+            <span className="hud text-muted/70">SUPPLIED — </span>
+            {p.given}
+          </p>
+        )}
         {p.liveUrl && (
           <a
             href={p.liveUrl}
@@ -93,12 +102,18 @@ export default async function CaseStudy({ params }: Props) {
       </dl>
 
       <section aria-label="Readings" className="py-12 md:py-16" data-reveal>
-        <p className="hud hud-wide mb-8 text-accent">READINGS — MEASURED, NOT CLAIMED</p>
+        {/* The claim is only made when the numbers can back it up. */}
+        <p className="hud hud-wide mb-8 text-accent">
+          {p.metrics.some((m) => m.source) ? "READINGS — MEASURED, NOT CLAIMED" : "READINGS"}
+        </p>
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           {p.metrics.map((m) => (
             <div key={m.label}>
               <p className="font-mono text-3xl text-accent md:text-4xl">{m.value}</p>
               <p className="hud mt-2 text-muted/70">{m.label.toUpperCase()}</p>
+              {m.source && (
+                <p className="mt-2 text-xs leading-snug text-muted/60">{m.source}</p>
+              )}
             </div>
           ))}
         </div>
