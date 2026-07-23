@@ -35,6 +35,19 @@ const specs = [
   },
 ];
 
+/**
+ * Capabilities read off the shipped work — every tool here is used by at least
+ * one deployed case in the index, so the stack is evidence, not a claim.
+ */
+const capabilities = [
+  { group: "LANGUAGES", items: ["TypeScript", "JavaScript", "HTML", "CSS"] },
+  { group: "FRAMEWORKS", items: ["Next.js (App Router)", "React", "Vite", "SSR / SSG"] },
+  { group: "GRAPHICS", items: ["Three.js", "WebGPU / TSL", "WebGL", "Canvas 2D", "OGL", "GLSL"] },
+  { group: "MOTION", items: ["GSAP", "ScrollTrigger", "Flip", "Lenis"] },
+  { group: "CRAFT", items: ["Tailwind v4", "i18n (EN/DE/VI)", "WCAG 2.1 AA", "Responsive", "SEO / JSON-LD"] },
+  { group: "TOOLING", items: ["Git", "Vercel", "Figma"] },
+];
+
 /** The swatch a token row shows, if any — ACCENT reads the live borrowed color. */
 function swatchColor(k: string, v: string): string | null {
   if (k === "ACCENT") return "var(--accent)";
@@ -47,7 +60,7 @@ function Rail({ kicker, n }: { kicker: string; n: string }) {
   return (
     <div className="mb-6 md:col-span-3 md:mb-0 md:border-r md:pr-6" style={{ borderColor: "var(--line)" }}>
       <p className="hud hud-wide text-accent accent-t">{kicker}</p>
-      <p className="hud mt-2 text-muted/50">S.{n} / 04</p>
+      <p className="hud mt-2 text-muted/50">S.{n} / 05</p>
     </div>
   );
 }
@@ -91,7 +104,7 @@ export default function Home() {
           <p className="hud hud-wide text-accent accent-t">
             THE INDEX — 01–{String(projects.length).padStart(2, "0")}
           </p>
-          <p className="hud text-muted/50">S.01 / 04 · SORTED BY ENTRY</p>
+          <p className="hud text-muted/50">S.01 / 05 · SORTED BY ENTRY</p>
         </div>
         <ProjectIndex />
         <p className="hud mt-4 text-muted/70">
@@ -101,13 +114,46 @@ export default function Home() {
       </section>
 
       <section
+        id="capabilities"
+        aria-label="Capabilities"
+        className="border-t py-16 md:grid md:grid-cols-12 md:gap-x-6 md:py-24"
+        style={{ borderColor: "var(--line)" }}
+        data-reveal
+      >
+        <Rail kicker="CAPABILITIES — MEASURED FROM THE WORK" n="02" />
+        <div className="md:col-span-9">
+          <h2 className="max-w-2xl text-2xl font-medium md:text-4xl">
+            Every tool here ships in a case above.
+          </h2>
+          <p className="mt-4 max-w-xl leading-relaxed text-muted">
+            No stack I can&apos;t point at. Each line below is in production somewhere in the
+            index — the work is the reference.
+          </p>
+          <div className="mt-10 grid gap-px sm:grid-cols-2 md:grid-cols-3" style={{ background: "var(--line)" }}>
+            {capabilities.map((c) => (
+              <div key={c.group} className="bg-bg p-6">
+                <h3 className="hud hud-wide accent-t mb-4 text-accent">{c.group}</h3>
+                <ul className="m-0 flex list-none flex-wrap gap-x-4 gap-y-1.5 p-0">
+                  {c.items.map((it) => (
+                    <li key={it} className="text-sm text-muted">
+                      {it}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section
         id="field-notes"
         aria-label="Uncatalogued experiments"
         className="border-t py-16 md:grid md:grid-cols-12 md:gap-x-6 md:py-24"
         style={{ borderColor: "var(--line)" }}
         data-reveal
       >
-        <Rail kicker="FIELD NOTES — LIVE, UNCATALOGUED" n="02" />
+        <Rail kicker="FIELD NOTES — LIVE, UNCATALOGUED" n="03" />
         <div className="md:col-span-9">
           <p className="hud accent-t mb-6 flex items-center gap-2 text-muted">
             <span aria-hidden="true" className="np-pulse inline-block h-1.5 w-1.5 rounded-full bg-accent" />
@@ -127,7 +173,7 @@ export default function Home() {
         style={{ borderColor: "var(--line)" }}
         data-reveal
       >
-        <Rail kicker="UNDER THE HOOD" n="03" />
+        <Rail kicker="UNDER THE HOOD" n="04" />
         <div className="md:col-span-9">
           <h2 className="max-w-2xl text-2xl font-medium md:text-4xl">
             One operating system, every output.
@@ -175,7 +221,7 @@ export default function Home() {
         style={{ borderColor: "var(--line)" }}
         data-reveal
       >
-        <Rail kicker="CONTACT — OPEN TO FRONTEND ROLES" n="04" />
+        <Rail kicker="CONTACT — OPEN TO FRONTEND ROLES" n="05" />
         <div className="md:col-span-9">
           <a
             href={`mailto:${site.email}`}
