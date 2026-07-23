@@ -129,17 +129,26 @@ export default function Home() {
             No stack I can&apos;t point at. Each line below is in production somewhere in the
             index — the work is the reference.
           </p>
-          <div className="mt-10 grid gap-px sm:grid-cols-2 md:grid-cols-3" style={{ background: "var(--line)" }}>
+          {/* A hairline ledger — dense and table-like, the opposite rhythm to
+              Under the Hood's boxed cards, so the two never read as the same block. */}
+          <div className="mt-10 border-t" style={{ borderColor: "var(--line)" }}>
             {capabilities.map((c) => (
-              <div key={c.group} className="bg-bg p-6">
-                <h3 className="hud hud-wide accent-t mb-4 text-accent">{c.group}</h3>
-                <ul className="m-0 flex list-none flex-wrap gap-x-4 gap-y-1.5 p-0">
+              <div
+                key={c.group}
+                className="grid grid-cols-1 gap-1.5 border-b py-4 md:grid-cols-[11rem_1fr] md:items-baseline md:gap-8 md:py-5"
+                style={{ borderColor: "var(--line)" }}
+              >
+                <span className="hud accent-t text-accent">{c.group}</span>
+                <span className="flex flex-wrap gap-x-5 gap-y-1.5">
                   {c.items.map((it) => (
-                    <li key={it} className="text-sm text-muted">
+                    <span
+                      key={it}
+                      className="text-sm text-muted transition-colors duration-200 hover:text-ink motion-reduce:transition-none"
+                    >
                       {it}
-                    </li>
+                    </span>
                   ))}
-                </ul>
+                </span>
               </div>
             ))}
           </div>
@@ -235,6 +244,22 @@ export default function Home() {
           <p className="hud mt-6 text-muted/70">
             REMOTE OR BERLIN · RESPONSE WITHIN 48H · DE / EN / VI
           </p>
+          <ul className="hud mt-8 flex list-none flex-wrap gap-x-6 gap-y-3 p-0">
+            {site.links.map((l) => (
+              <li key={l.label}>
+                <a
+                  href={l.href}
+                  target={l.placeholder ? undefined : "_blank"}
+                  rel="noopener"
+                  className="accent-t inline-flex items-center gap-1.5 border-b border-transparent text-muted no-underline hover:border-accent hover:text-accent"
+                  title={l.placeholder ? "Placeholder — add real URL" : undefined}
+                >
+                  {l.label}
+                  <span aria-hidden="true" className="opacity-50">↗</span>
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
     </>

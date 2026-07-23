@@ -11,6 +11,12 @@ export const site = {
   about:
     "A communication designer turned frontend engineer, based in Berlin. I build interfaces where the engineering is the craft — real-time graphics, motion systems, and accessible, systemised frontends. Every project in this lab is one aesthetic solved from the structure up, usually on the newest web tech I can reach.",
   email: "atv1989.info@gmail.com",
+  // TODO(antony): swap the placeholder hrefs for the real profiles + CV file.
+  links: [
+    { label: "GITHUB", href: "#", placeholder: true },
+    { label: "LINKEDIN", href: "#", placeholder: true },
+    { label: "CV (PDF)", href: "#", placeholder: true },
+  ] as { label: string; href: string; placeholder?: boolean }[],
   founded: "2026",
   footerNote: "THE LAB OF ANTONY VU",
   /** Operator readings — the 30-second recruiter block, in instrument language. */
