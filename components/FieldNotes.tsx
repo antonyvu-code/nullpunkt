@@ -22,7 +22,7 @@ export default function FieldNotes() {
             F.{String(i + 1).padStart(2, "0")}
           </span>
           <span className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
-            <span className="text-3xl font-medium leading-none tracking-tight text-muted transition-colors duration-300 group-hover:text-ink motion-reduce:transition-none md:text-5xl">
+            <span className="text-4xl font-medium leading-none tracking-tight text-muted transition-colors duration-300 group-hover:text-ink motion-reduce:transition-none md:text-6xl lg:text-7xl">
               {f.name}
             </span>
             <span className="max-w-[36ch] text-sm leading-snug text-muted/60 transition-colors duration-300 group-hover:text-muted motion-reduce:transition-none">

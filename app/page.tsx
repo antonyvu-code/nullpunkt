@@ -168,31 +168,35 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FIELD NOTES — full-width, kicker on top (the loud, edge-to-edge archetype),
+          deliberately NOT railed so it breaks the spec sections' silhouette. */}
       <section
         id="field-notes"
         aria-label="Uncatalogued experiments"
-        className="border-t py-16 md:grid md:grid-cols-12 md:gap-x-6 md:py-24"
+        className="border-t py-16 md:py-24"
         style={{ borderColor: "var(--line)" }}
         data-reveal
       >
-        <Rail kicker="FIELD NOTES — LIVE, UNCATALOGUED" n="03" />
-        <div className="md:col-span-9">
-          <p className="hud accent-t mb-6 flex items-center gap-2 text-muted">
+        <div className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
+          <p className="hud hud-wide text-accent accent-t">FIELD NOTES — LIVE, UNCATALOGUED</p>
+          <p className="hud accent-t flex items-center gap-2 text-muted/50">
             <span aria-hidden="true" className="np-pulse inline-block h-1.5 w-1.5 rounded-full bg-accent" />
-            LIVE · {String(fieldNotes.length).padStart(2, "0")} DEPLOYED
+            S.03 / 05 · {String(fieldNotes.length).padStart(2, "0")} DEPLOYED
           </p>
-          <p className="max-w-xl leading-relaxed text-muted">
-            Not everything has earned a write-up yet. These ship as-is — open them, they are the
-            argument.
-          </p>
-          <FieldNotes />
         </div>
+        <p className="max-w-xl leading-relaxed text-muted">
+          Not everything has earned a write-up yet. These ship as-is — open them, they are the
+          argument.
+        </p>
+        <FieldNotes />
       </section>
 
+      {/* UNDER THE HOOD — a full-bleed surface panel ("the machine room"), the only
+          section with a fill, so it reads as an inset instrument rack, not another rail. */}
       <section
         id="hood"
-        className="border-t py-16 md:grid md:grid-cols-12 md:gap-x-6 md:py-24"
-        style={{ borderColor: "var(--line)" }}
+        className="-mx-[var(--gutter)] border-y px-[var(--gutter)] py-16 md:grid md:grid-cols-12 md:gap-x-6 md:py-24"
+        style={{ borderColor: "var(--line)", background: "var(--surface)" }}
         data-reveal
       >
         <Rail kicker="UNDER THE HOOD" n="04" />
