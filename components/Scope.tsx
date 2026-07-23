@@ -32,7 +32,9 @@ export default function Scope() {
     let pointerX = 0;
     let probing = false;
 
-    const BASE = () => h * 0.72;
+    // Sits at mid-hero, riding the big display title (which tolerates the faint
+    // wave) so the smaller body text below stays clear and readable.
+    const BASE = () => h * 0.5;
 
     const size = () => {
       const rect = canvas.getBoundingClientRect();

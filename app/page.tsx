@@ -131,10 +131,24 @@ export default function Home() {
           <p className="hud text-muted/50">S.01 / 05 · SORTED BY ENTRY</p>
         </div>
         <ProjectIndex />
-        <p className="hud mt-4 text-muted/70">
-          POINT AT A LINE — THE PAGE BORROWS ITS COLOR. EVERY EXPERIMENT IS DEPLOYED — THE LIVE
-          LINK SITS AT THE TOP OF EACH CASE.
-        </p>
+        <div className="mt-6 flex flex-wrap items-baseline justify-between gap-4">
+          <p className="hud max-w-xl text-muted/70">
+            POINT AT A LINE — THE PAGE BORROWS ITS COLOR. EVERY EXPERIMENT IS DEPLOYED — THE LIVE
+            LINK SITS AT THE TOP OF EACH CASE.
+          </p>
+          <a
+            href="#field-notes"
+            className="accent-t group font-display inline-flex items-baseline gap-3 text-2xl font-medium text-ink no-underline hover:text-accent md:text-3xl"
+          >
+            <L en="View all projects" de="Alle Projekte ansehen" />
+            <span
+              aria-hidden="true"
+              className="inline-block transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none"
+            >
+              ↗
+            </span>
+          </a>
+        </div>
       </section>
 
       <section
