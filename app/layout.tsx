@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Space_Mono } from "next/font/google";
+import { Bricolage_Grotesque, Instrument_Sans, Spline_Sans_Mono } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
 import Chrome from "@/components/Chrome";
@@ -14,10 +14,14 @@ const bricolage = Bricolage_Grotesque({
   axes: ["opsz", "wdth"],
 });
 
-const spaceMono = Space_Mono({
+const instrument = Instrument_Sans({
   subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-space-mono",
+  variable: "--font-instrument",
+});
+
+const splineMono = Spline_Sans_Mono({
+  subsets: ["latin"],
+  variable: "--font-spline-mono",
 });
 
 export const metadata: Metadata = {
@@ -53,7 +57,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${bricolage.variable} ${spaceMono.variable} antialiased`}>
+    <html
+      lang="en"
+      className={`${bricolage.variable} ${instrument.variable} ${splineMono.variable} antialiased`}
+    >
       <body className="min-h-screen">
         <a
           href="#main"

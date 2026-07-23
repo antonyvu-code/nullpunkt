@@ -21,8 +21,9 @@
   --color-muted: var(--muted);
   --color-line: var(--line);
   --color-accent: var(--accent);
-  --font-sans: var(--font-bricolage);
-  --font-mono: var(--font-space-mono);
+  --font-sans: var(--font-instrument);
+  --font-display: var(--font-bricolage);
+  --font-mono: var(--font-spline-mono);
 }
 
 html {
@@ -34,6 +35,14 @@ html {
 }
 
 body {
+  font-family: var(--font-instrument), system-ui, sans-serif;
+}
+
+/* Display face carries the headlines; .hud (class) still wins for mono HUD labels. */
+h1,
+h2,
+h3,
+.font-display {
   font-family: var(--font-bricolage), system-ui, sans-serif;
 }
 
@@ -57,7 +66,7 @@ body {
 }
 
 .hud {
-  font-family: var(--font-space-mono), monospace;
+  font-family: var(--font-spline-mono), ui-monospace, monospace;
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: 11px;

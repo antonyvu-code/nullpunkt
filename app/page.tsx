@@ -257,7 +257,7 @@ export default function Home() {
           </p>
           <a
             href={`mailto:${site.email}`}
-            className="accent-t inline-block text-3xl font-medium text-accent no-underline hover:text-ink md:text-5xl"
+            className="accent-t font-display inline-block text-3xl font-medium text-accent no-underline hover:text-ink md:text-5xl"
           >
             {site.email}
           </a>
