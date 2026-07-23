@@ -3,6 +3,7 @@ import { fieldNotes, projects } from "@/lib/projects";
 import ProjectIndex from "@/components/ProjectIndex";
 import FieldNotes from "@/components/FieldNotes";
 import Scope from "@/components/Scope";
+import HeroIntro from "@/components/HeroIntro";
 import { L } from "@/components/Lang";
 
 const specs = [
@@ -69,29 +70,43 @@ function Rail({ kicker, n }: { kicker: React.ReactNode; n: string }) {
 export default function Home() {
   return (
     <>
-      <section className="relative flex min-h-[calc(100svh-7rem)] flex-col justify-end pb-10 pt-10 md:pt-16" data-reveal>
+      <section className="relative flex min-h-[calc(100svh-7rem)] flex-col justify-end pb-10 pt-10 md:pt-16">
         <Scope />
+        {/* Registration annotation — the hero reads as a measured plate: located
+            coordinates at the left, the live scope readout at the right. */}
+        <p
+          data-hero="coord"
+          className="hud pointer-events-none absolute left-0 top-2 flex items-center gap-2 text-muted/55"
+        >
+          <span aria-hidden="true" className="inline-block h-2 w-2 border-l border-t" style={{ borderColor: "var(--line)" }} />
+          52.5200°N · 13.4050°E
+        </p>
         <div className="relative">
-          <p className="hud hud-wide text-accent accent-t">
+          <p data-hero="kicker" className="hud hud-wide text-accent accent-t">
             <L en="NULLPUNKT — THE LAB OF " de="NULLPUNKT — DAS LABOR VON " />
             <span className="text-ink">{site.owner.toUpperCase()}</span>
             <L en=" · FRONTEND ENGINEER, BERLIN" de=" · FRONTEND-ENGINEER, BERLIN" />
           </p>
-          <h1 className="mt-7 max-w-4xl text-4xl font-medium leading-[1.05] tracking-tight md:text-8xl">
+          <h1
+            data-hero="title"
+            className="mt-7 max-w-5xl text-5xl font-medium leading-[0.98] tracking-[-0.02em] md:text-8xl lg:text-9xl"
+          >
             <L text={site.tagline} />
           </h1>
-          <p className="mt-6 max-w-xl leading-relaxed text-muted">
+          <p data-hero="manifesto" className="mt-6 max-w-xl leading-relaxed text-muted">
             <L text={site.manifesto} />
           </p>
 
+          <p className="hud mt-12 text-muted/45">FIG.01 — OPERATOR READINGS</p>
           <dl
-            className="accent-t m-0 mt-12 grid grid-cols-2 gap-px border-t md:grid-cols-5"
+            className="accent-t m-0 mt-3 grid grid-cols-2 gap-px border-t md:grid-cols-5"
             style={{ borderColor: "var(--line)", background: "var(--line)" }}
             aria-label="Operator readings"
           >
             {site.operator.map((o) => (
               <div
                 key={o.k.en}
+                data-hero-cell
                 className={`bg-bg px-1 pb-1 pt-4 ${o.hot ? "border-t-2 border-accent" : ""}`}
               >
                 <dt className="hud text-muted/60">
@@ -104,6 +119,7 @@ export default function Home() {
             ))}
           </dl>
         </div>
+        <HeroIntro />
       </section>
 
       {/* THE INDEX — kept full-width; its own columns carry the Swiss structure. */}
