@@ -3,6 +3,7 @@ import { fieldNotes, projects } from "@/lib/projects";
 import ProjectIndex from "@/components/ProjectIndex";
 import FieldNotes from "@/components/FieldNotes";
 import Scope from "@/components/Scope";
+import { L } from "@/components/Lang";
 
 const specs = [
   {
@@ -56,7 +57,7 @@ function swatchColor(k: string, v: string): string | null {
 }
 
 /** Swiss left rail: kicker + a running section number, ruled off from the body. */
-function Rail({ kicker, n }: { kicker: string; n: string }) {
+function Rail({ kicker, n }: { kicker: React.ReactNode; n: string }) {
   return (
     <div className="mb-6 md:col-span-3 md:mb-0 md:border-r md:pr-6" style={{ borderColor: "var(--line)" }}>
       <p className="hud hud-wide text-accent accent-t">{kicker}</p>
@@ -72,13 +73,16 @@ export default function Home() {
         <Scope />
         <div className="relative">
           <p className="hud hud-wide text-accent accent-t">
-            NULLPUNKT — THE LAB OF <span className="text-ink">{site.owner.toUpperCase()}</span> · FRONTEND
-            ENGINEER, BERLIN
+            <L en="NULLPUNKT — THE LAB OF " de="NULLPUNKT — DAS LABOR VON " />
+            <span className="text-ink">{site.owner.toUpperCase()}</span>
+            <L en=" · FRONTEND ENGINEER, BERLIN" de=" · FRONTEND-ENGINEER, BERLIN" />
           </p>
           <h1 className="mt-7 max-w-4xl text-4xl font-medium leading-[1.05] tracking-tight md:text-8xl">
-            {site.tagline}
+            <L text={site.tagline} />
           </h1>
-          <p className="mt-6 max-w-xl leading-relaxed text-muted">{site.manifesto}</p>
+          <p className="mt-6 max-w-xl leading-relaxed text-muted">
+            <L text={site.manifesto} />
+          </p>
 
           <dl
             className="accent-t m-0 mt-12 grid grid-cols-2 gap-px border-t md:grid-cols-5"
@@ -87,11 +91,15 @@ export default function Home() {
           >
             {site.operator.map((o) => (
               <div
-                key={o.k}
+                key={o.k.en}
                 className={`bg-bg px-1 pb-1 pt-4 ${o.hot ? "border-t-2 border-accent" : ""}`}
               >
-                <dt className="hud text-muted/60">{o.k}</dt>
-                <dd className={`hud m-0 mt-2 ${o.hot ? "text-accent" : "text-ink"}`}>{o.v}</dd>
+                <dt className="hud text-muted/60">
+                  <L text={o.k} />
+                </dt>
+                <dd className={`hud m-0 mt-2 ${o.hot ? "text-accent" : "text-ink"}`}>
+                  <L text={o.v} />
+                </dd>
               </div>
             ))}
           </dl>
@@ -120,14 +128,19 @@ export default function Home() {
         style={{ borderColor: "var(--line)" }}
         data-reveal
       >
-        <Rail kicker="CAPABILITIES — MEASURED FROM THE WORK" n="02" />
+        <Rail
+          kicker={<L en="CAPABILITIES — MEASURED FROM THE WORK" de="FÄHIGKEITEN — AN DER ARBEIT GEMESSEN" />}
+          n="02"
+        />
         <div className="md:col-span-9">
           <h2 className="max-w-2xl text-2xl font-medium md:text-4xl">
-            Every tool here ships in a case above.
+            <L en="Every tool here ships in a case above." de="Jedes Werkzeug hier läuft in einem Case oben." />
           </h2>
           <p className="mt-4 max-w-xl leading-relaxed text-muted">
-            No stack I can&apos;t point at. Each line below is in production somewhere in the
-            index — the work is the reference.
+            <L
+              en="No stack I can't point at. Each line below is in production somewhere in the index — the work is the reference."
+              de="Kein Stack, auf den ich nicht zeigen kann. Jede Zeile unten läuft irgendwo im Index in Produktion — die Arbeit ist die Referenz."
+            />
           </p>
           {/* A hairline ledger — dense and table-like, the opposite rhythm to
               Under the Hood's boxed cards, so the two never read as the same block. */}
@@ -230,10 +243,13 @@ export default function Home() {
         style={{ borderColor: "var(--line)" }}
         data-reveal
       >
-        <Rail kicker="ABOUT & CONTACT — OPEN TO FRONTEND ROLES" n="05" />
+        <Rail
+          kicker={<L en="ABOUT & CONTACT — OPEN TO FRONTEND ROLES" de="ÜBER MICH & KONTAKT — OFFEN FÜR FRONTEND-ROLLEN" />}
+          n="05"
+        />
         <div className="md:col-span-9">
           <p className="mb-10 max-w-2xl text-lg leading-relaxed text-muted md:text-xl">
-            {site.about}
+            <L text={site.about} />
           </p>
           <a
             href={`mailto:${site.email}`}
@@ -242,7 +258,10 @@ export default function Home() {
             {site.email}
           </a>
           <p className="hud mt-6 text-muted/70">
-            REMOTE OR BERLIN · RESPONSE WITHIN 48H · DE / EN / VI
+            <L
+              en="REMOTE OR BERLIN · RESPONSE WITHIN 48H · DE / EN / VI"
+              de="REMOTE ODER BERLIN · ANTWORT BINNEN 48H · DE / EN / VI"
+            />
           </p>
           <ul className="hud mt-8 flex list-none flex-wrap gap-x-6 gap-y-3 p-0">
             {site.links.map((l) => (

@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { site } from "@/lib/site";
+import { L, LangToggle } from "@/components/Lang";
 
 export default function Chrome() {
   const timeRef = useRef<HTMLSpanElement>(null);
@@ -66,9 +67,15 @@ export default function Chrome() {
           <span className="mx-2 opacity-50">·</span>
           SCR <span ref={scrRef}>000%</span>
         </p>
-        <p className="hud accent-t hidden text-muted sm:block">
-          STATUS — <span className="text-accent">OPEN TO FRONTEND ROLES</span>
-        </p>
+        <div className="flex items-center gap-4">
+          <p className="hud accent-t hidden text-muted sm:block">
+            STATUS —{" "}
+            <span className="text-accent">
+              <L en="OPEN TO FRONTEND ROLES" de="OFFEN FÜR FRONTEND-ROLLEN" />
+            </span>
+          </p>
+          <LangToggle />
+        </div>
       </header>
 
       <div

@@ -6,6 +6,7 @@ import Chrome from "@/components/Chrome";
 import Loader from "@/components/Loader";
 import SmoothScroll from "@/components/SmoothScroll";
 import Reveal from "@/components/Reveal";
+import { LangProvider } from "@/components/Lang";
 
 const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -61,26 +62,28 @@ export default function RootLayout({
           Skip to content
         </a>
         <Loader />
-        <SmoothScroll />
-        <Reveal />
-        <Chrome />
-        <main id="main" className="w-full px-[var(--gutter)] pb-24 pt-28">
-          {children}
-        </main>
-        <footer
-          className="w-full border-t px-[var(--gutter)] py-8"
-          style={{ borderColor: "var(--line)" }}
-        >
-          <div className="hud flex flex-wrap items-center justify-between gap-4 text-muted">
-            <span>
-              {site.wordmark} — {site.footerNote}
-            </span>
-            <a href={`mailto:${site.email}`} className="accent-t text-muted no-underline hover:text-accent">
-              {site.email}
-            </a>
-            <span>© {site.founded}</span>
-          </div>
-        </footer>
+        <LangProvider>
+          <SmoothScroll />
+          <Reveal />
+          <Chrome />
+          <main id="main" className="w-full px-[var(--gutter)] pb-24 pt-28">
+            {children}
+          </main>
+          <footer
+            className="w-full border-t px-[var(--gutter)] py-8"
+            style={{ borderColor: "var(--line)" }}
+          >
+            <div className="hud flex flex-wrap items-center justify-between gap-4 text-muted">
+              <span>
+                {site.wordmark} — {site.footerNote}
+              </span>
+              <a href={`mailto:${site.email}`} className="accent-t text-muted no-underline hover:text-accent">
+                {site.email}
+              </a>
+              <span>© {site.founded}</span>
+            </div>
+          </footer>
+        </LangProvider>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
