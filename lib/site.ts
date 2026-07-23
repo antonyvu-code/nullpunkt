@@ -7,6 +7,9 @@ export const site = {
   tagline: "Interfaces, calibrated from zero.",
   manifesto:
     "Nullpunkt is the lab of one frontend engineer. Every project here is an experiment, and every number on this page is a real reading — no ornament, only instruments. The page boots calibrated to the first experiment's signal; point at another and it borrows that color instead.",
+  // TODO(antony): draft — rewrite in your own voice.
+  about:
+    "A communication designer turned frontend engineer, based in Berlin. I build interfaces where the engineering is the craft — real-time graphics, motion systems, and accessible, systemised frontends. Every project in this lab is one aesthetic solved from the structure up, usually on the newest web tech I can reach.",
   email: "atv1989.info@gmail.com",
   founded: "2026",
   footerNote: "THE LAB OF ANTONY VU",

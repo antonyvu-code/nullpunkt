@@ -25,6 +25,8 @@ export type Project = {
   year: string;
   accent: string;
   label: ProjectLabel;
+  /** "Start here" — surfaced first for a recruiter skimming the index. */
+  featured?: boolean;
   kind: string;
   role: string;
   status: string;
@@ -430,6 +432,7 @@ export const projects: Project[] = [
   },
   {
     slug: "nitro",
+    featured: true,
     index: "08",
     title: "Nitro",
     year: "2026",
@@ -481,6 +484,7 @@ export const projects: Project[] = [
   },
   {
     slug: "whitepace",
+    featured: true,
     index: "09",
     title: "Whitepace",
     year: "2026",
@@ -629,6 +633,7 @@ export const projects: Project[] = [
   },
   {
     slug: "one-bit",
+    featured: true,
     index: "12",
     title: "One Bit From Home",
     year: "2026",

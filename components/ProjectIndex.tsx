@@ -52,7 +52,11 @@ export default function ProjectIndex() {
                 aria-hidden="true"
                 className="pointer-events-none absolute inset-y-0 left-0 w-0.5 origin-top scale-y-0 bg-accent transition-transform duration-300 group-hover:scale-y-100 group-focus-visible:scale-y-100 motion-reduce:transition-none"
               />
-              <span className="hud text-muted group-hover:text-accent group-focus-visible:text-accent">
+              <span
+                className={`hud group-focus-visible:text-accent ${
+                  p.featured ? "text-accent" : "text-muted group-hover:text-accent"
+                }`}
+              >
                 {p.index}
               </span>
               <span className="block border p-0.5" style={{ borderColor: "var(--line)" }}>
@@ -79,6 +83,14 @@ export default function ProjectIndex() {
               <span className="min-w-0">
                 <span className="block text-xl text-muted group-hover:text-ink group-focus-visible:text-ink md:text-2xl">
                   {p.title}
+                  {p.featured && (
+                    <span
+                      className="accent-t ml-3 inline-block -translate-y-0.5 rounded-sm border border-accent px-1.5 py-0.5 text-accent"
+                      style={{ fontSize: "9px", letterSpacing: "0.14em" }}
+                    >
+                      START HERE
+                    </span>
+                  )}
                   {p.label === "REBUILD" && (
                     <span
                       className="hud ml-3 inline-block -translate-y-0.5 rounded-sm border px-1.5 py-0.5 text-muted group-hover:border-accent group-hover:text-accent"

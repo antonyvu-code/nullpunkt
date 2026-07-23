@@ -221,8 +221,11 @@ export default function Home() {
         style={{ borderColor: "var(--line)" }}
         data-reveal
       >
-        <Rail kicker="CONTACT — OPEN TO FRONTEND ROLES" n="05" />
+        <Rail kicker="ABOUT & CONTACT — OPEN TO FRONTEND ROLES" n="05" />
         <div className="md:col-span-9">
+          <p className="mb-10 max-w-2xl text-lg leading-relaxed text-muted md:text-xl">
+            {site.about}
+          </p>
           <a
             href={`mailto:${site.email}`}
             className="accent-t inline-block text-3xl font-medium text-accent no-underline hover:text-ink md:text-5xl"
