@@ -18,9 +18,9 @@ export const site = {
     de: "Vom Kommunikationsdesigner zum Frontend-Engineer, ansässig in Berlin. Ich baue Interfaces, bei denen das Engineering das Handwerk ist — Echtzeit-Grafik, Motion-Systeme und barrierefreie, systematisierte Frontends. Jedes Projekt in diesem Labor ist eine Ästhetik, von der Struktur her gelöst — meist auf der neuesten Web-Technik, die ich erreichen kann.",
   },
   email: "atv1989.info@gmail.com",
-  // TODO(antony): swap the placeholder hrefs for the real profiles + CV file.
+  // TODO(antony): LinkedIn + CV still placeholders — fill with real URLs.
   links: [
-    { label: "GITHUB", href: "#", placeholder: true },
+    { label: "GITHUB", href: "https://github.com/antonyvu-code" },
     { label: "LINKEDIN", href: "#", placeholder: true },
     { label: "CV (PDF)", href: "#", placeholder: true },
   ] as { label: string; href: string; placeholder?: boolean }[],

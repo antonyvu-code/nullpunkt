@@ -4,8 +4,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { projects } from "@/lib/projects";
 import { L } from "@/components/Lang";
+import EchoProbe from "@/components/EchoProbe";
 
-const featured = projects.filter((p) => p.featured);
+// Fixed shelf order — left, centre, right. The centre slot is the live
+// specimen (ECHO-1), so it is not driven by a static plate. Order is decoupled
+// from the projects[] array (which THE INDEX sorts by entry).
+const FEATURED_ORDER = ["rosi-ocean-co", "one-bit", "pulse-analytics"] as const;
+const featured = FEATURED_ORDER.map(
+  (slug) => projects.find((p) => p.slug === slug)!,
+).filter(Boolean);
 const homeAccent = projects[0].accent;
 
 function setAccent(hex: string) {
@@ -62,7 +69,8 @@ export default function Selected() {
                   <span className="hud text-muted/60">{String(i + 1).padStart(2, "0")}</span>
                 </div>
 
-                {/* Specimen — the plate on a dotted readout field. */}
+                {/* Specimen — a static plate on a dotted readout field, except
+                    the centre slot, which renders ECHO-1 live in the same field. */}
                 <div
                   className="flex flex-1 items-center justify-center p-8"
                   style={{
@@ -70,15 +78,19 @@ export default function Selected() {
                     backgroundSize: "9px 9px",
                   }}
                 >
-                  {p.plates[0] && (
-                    <Image
-                      src={p.plates[0].src}
-                      alt=""
-                      width={2400}
-                      height={1500}
-                      sizes="(min-width: 768px) 30vw, 90vw"
-                      className="h-auto w-full max-w-[80%] opacity-70 grayscale transition duration-500 group-hover:opacity-100 group-hover:grayscale-0 motion-reduce:transition-none"
-                    />
+                  {primary ? (
+                    <EchoProbe />
+                  ) : (
+                    p.plates[0] && (
+                      <Image
+                        src={p.plates[0].src}
+                        alt=""
+                        width={2400}
+                        height={1500}
+                        sizes="(min-width: 768px) 30vw, 90vw"
+                        className="h-auto w-full max-w-[80%] opacity-70 grayscale transition duration-500 group-hover:opacity-100 group-hover:grayscale-0 motion-reduce:transition-none"
+                      />
+                    )
                   )}
                 </div>
 

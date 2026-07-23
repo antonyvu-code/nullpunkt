@@ -53,6 +53,7 @@ export const zeroAccent = "#f2f0eb";
 export const projects: Project[] = [
   {
     slug: "rosi-ocean-co",
+    featured: true,
     index: "01",
     title: "ROSI Ocean Co.",
     year: "2026",
@@ -168,6 +169,7 @@ export const projects: Project[] = [
   },
   {
     slug: "pulse-analytics",
+    featured: true,
     index: "03",
     title: "Pulse Analytics",
     year: "2026",
@@ -432,7 +434,6 @@ export const projects: Project[] = [
   },
   {
     slug: "nitro",
-    featured: true,
     index: "08",
     title: "Nitro",
     year: "2026",
@@ -484,7 +485,6 @@ export const projects: Project[] = [
   },
   {
     slug: "whitepace",
-    featured: true,
     index: "09",
     title: "Whitepace",
     year: "2026",
