@@ -226,10 +226,12 @@ export default function Scope() {
         aria-hidden="true"
         className="pointer-events-none absolute left-1/2 top-0 h-full w-screen -translate-x-1/2 opacity-70"
       />
+      {/* The readout follows a pointer probe, so it has nothing to say on touch
+          — and at 375px it lands on top of the coordinates. Desktop only. */}
       <div
         ref={readoutRef}
         aria-hidden="true"
-        className="hud accent-t pointer-events-none absolute right-0 top-2 text-accent"
+        className="hud accent-t pointer-events-none absolute right-0 top-2 hidden text-accent md:block"
       />
     </>
   );
