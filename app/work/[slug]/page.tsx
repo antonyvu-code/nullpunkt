@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { projects, type Plate } from "@/lib/projects";
+import { projects, type Comparison, type Plate } from "@/lib/projects";
 import AccentSetter from "@/components/AccentSetter";
 
 function PlateFigure({ plate, priority = false }: { plate: Plate; priority?: boolean }) {
@@ -21,6 +21,49 @@ function PlateFigure({ plate, priority = false }: { plate: Plate; priority?: boo
       </div>
       <figcaption className="hud mt-3 text-muted-dim">{plate.caption}</figcaption>
     </figure>
+  );
+}
+
+/**
+ * Rebuilds only: the design that was handed over, beside what shipped. Both
+ * plates are framed the same way — same viewport width, same scroll range, from
+ * the top of the page to the first row of "Selected works" — so a difference in
+ * the pair is a real difference in the work, not a difference in the crop.
+ */
+function SideBySide({ c }: { c: Comparison }) {
+  const pair = [
+    { src: c.before, label: c.beforeLabel },
+    { src: c.after, label: c.afterLabel },
+  ];
+  return (
+    <section
+      aria-label="Supplied design against the shipped build"
+      className="border-t py-12 md:py-16"
+      style={{ borderColor: "var(--line)" }}
+      data-reveal
+    >
+      <p className="hud hud-wide mb-8 text-accent">SIDE BY SIDE — SAME FRAME, SAME SCROLL RANGE</p>
+      <div className="grid gap-8 md:grid-cols-2">
+        {pair.map((s, i) => (
+          <figure key={s.src} className="m-0">
+            <div className="border p-1.5" style={{ borderColor: "var(--line)" }}>
+              <Image
+                src={s.src}
+                alt={s.label}
+                width={1440}
+                height={1954}
+                sizes="(min-width: 768px) 46vw, 100vw"
+                className="block h-auto w-full"
+              />
+            </div>
+            <figcaption className="hud mt-3 flex items-baseline gap-2 text-muted-dim">
+              <span className="text-accent">{String(i + 1).padStart(2, "0")}</span>
+              {s.label}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -118,6 +161,8 @@ export default async function CaseStudy({ params }: Props) {
           ))}
         </div>
       </section>
+
+      {p.comparison && <SideBySide c={p.comparison} />}
 
       {p.plates[1] && (
         <div className="pb-12 md:pb-16">

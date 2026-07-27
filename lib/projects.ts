@@ -447,7 +447,12 @@ export const projects: Project[] = [
     oneLiner: "Take someone else's design template and make it do in the browser exactly what it promises in the layout.",
     metaLine: "FIGMA TEMPLATE → CODE · NO FRAMEWORK",
     liveUrl: "https://nullpunkt-nitro.vercel.app",
-    comparison: { before: "nitro-figma", after: "nitro-a", beforeLabel: "SUPPLIED TEMPLATE", afterLabel: "MY BUILD" },
+    comparison: {
+      before: "/work/nitro-figma.jpg",
+      after: "/work/nitro-build.jpg",
+      beforeLabel: "SUPPLIED — FIGMA COMMUNITY TEMPLATE",
+      afterLabel: "SHIPPED — HAND-CODED, LIVE IN THE BROWSER",
+    },
     metrics: [
       { label: "Sections", value: "9", source: "counted in the markup" },
       { label: "Dependencies", value: "0", source: "no framework, no build step; GSAP the only library" },
