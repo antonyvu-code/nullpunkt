@@ -3,6 +3,7 @@ import { fieldNotes, projects } from "@/lib/projects";
 import ProjectIndex from "@/components/ProjectIndex";
 import Selected from "@/components/Selected";
 import FieldNotes from "@/components/FieldNotes";
+import Werdegang from "@/components/Werdegang";
 import Scope from "@/components/Scope";
 import HeroIntro from "@/components/HeroIntro";
 import { L } from "@/components/Lang";
@@ -64,7 +65,7 @@ function Rail({ kicker, n }: { kicker: React.ReactNode; n: string }) {
   return (
     <div className="mb-6 md:col-span-3 md:mb-0 md:border-r md:pr-6" style={{ borderColor: "var(--line)" }}>
       <p className="hud hud-wide text-accent accent-t">{kicker}</p>
-      <p className="hud mt-2 text-muted-dim">S.{n} / 05</p>
+      <p className="hud mt-2 text-muted-dim">S.{n} / 06</p>
     </div>
   );
 }
@@ -132,7 +133,7 @@ export default function Home() {
           <p className="hud hud-wide text-accent accent-t">
             THE INDEX — 01–{String(projects.length).padStart(2, "0")}
           </p>
-          <p className="hud text-muted-dim">S.01 / 05 · SORTED BY ENTRY</p>
+          <p className="hud text-muted-dim">S.01 / 06 · SORTED BY ENTRY</p>
         </div>
         <ProjectIndex />
         <div className="mt-6 flex flex-wrap items-baseline justify-between gap-4">
@@ -202,6 +203,29 @@ export default function Home() {
         </div>
       </section>
 
+      {/* WERDEGANG — the dates a German recruiter looks for first, in the site's
+          own language: a measured axis, not a CV table. */}
+      <section
+        id="werdegang"
+        aria-label="Career stations"
+        className="border-t py-16 md:grid md:grid-cols-12 md:gap-x-6 md:py-24"
+        style={{ borderColor: "var(--line)" }}
+        data-reveal
+      >
+        <Rail kicker={<L en="WERDEGANG — THE STATIONS" de="WERDEGANG — DIE STATIONEN" />} n="03" />
+        <div className="md:col-span-9">
+          <h2 className="max-w-2xl text-2xl font-medium md:text-4xl">
+            <L
+              en="Trained as a designer, then taught to build."
+              de="Als Gestalter ausgebildet, dann das Bauen gelernt."
+            />
+          </h2>
+          <div className="mt-10">
+            <Werdegang />
+          </div>
+        </div>
+      </section>
+
       {/* FIELD NOTES — full-width, kicker on top (the loud, edge-to-edge archetype),
           deliberately NOT railed so it breaks the spec sections' silhouette. */}
       <section
@@ -215,7 +239,7 @@ export default function Home() {
           <p className="hud hud-wide text-accent accent-t">FIELD NOTES — LIVE, UNCATALOGUED</p>
           <p className="hud accent-t flex items-center gap-2 text-muted-dim">
             <span aria-hidden="true" className="np-pulse inline-block h-1.5 w-1.5 rounded-full bg-accent" />
-            S.03 / 05 · {String(fieldNotes.length).padStart(2, "0")} DEPLOYED
+            S.04 / 06 · {String(fieldNotes.length).padStart(2, "0")} DEPLOYED
           </p>
         </div>
         <p className="max-w-xl leading-relaxed text-muted">
@@ -233,7 +257,7 @@ export default function Home() {
         style={{ borderColor: "var(--line)", background: "var(--surface)" }}
         data-reveal
       >
-        <Rail kicker="UNDER THE HOOD" n="04" />
+        <Rail kicker="UNDER THE HOOD" n="05" />
         <div className="md:col-span-9">
           <h2 className="max-w-2xl text-2xl font-medium md:text-4xl">
             One operating system, every output.
@@ -283,7 +307,7 @@ export default function Home() {
       >
         <Rail
           kicker={<L en="ABOUT & CONTACT — OPEN TO FRONTEND ROLES" de="ÜBER MICH & KONTAKT — OFFEN FÜR FRONTEND-ROLLEN" />}
-          n="05"
+          n="06"
         />
         <div className="md:col-span-9">
           <p className="mb-10 max-w-2xl text-lg leading-relaxed text-muted md:text-xl">

@@ -21,14 +21,58 @@ export const site = {
     de: "Ich bin Kommunikationsdesigner und baue, was ich gestalte. Von Berlin aus bringe ich Websites vom Konzept in die Produktion — Markenseiten, interaktive Experiences, Produkt-Landingpages — jede mit eigener Bildsprache. Design und Frontend aus einer Hand: Ich übergebe nicht, ich liefere das Ganze.",
   },
   email: "atv1989.info@gmail.com",
-  // Links hidden for now (empty = the Contact list renders nothing).
-  // Restore when ready:
-  //   GITHUB  → https://github.com/antonyvu-code  (repo currently private)
-  //   LINKEDIN → <real profile URL>
-  //   CV (PDF) → drop the file in public/ and point here
-  links: [] as { label: string; href: string; placeholder?: boolean }[],
+  // GitHub and LinkedIn stay hidden until there is something behind them.
+  // The two CVs here are the PUBLIC cut — no postal address, no phone number.
+  // The full version with both goes out as an attachment, per application:
+  // an indexed page is permanent for scrapers, and an address cannot be
+  // un-leaked by deleting the file. See bewerbung/cv/render.mjs --public.
+  links: [
+    { label: "LEBENSLAUF (DE, PDF)", href: "/cv/lebenslauf-anh-tuan-vu.pdf" },
+    { label: "CV (EN, PDF)", href: "/cv/cv-anh-tuan-vu.pdf" },
+  ] as { label: string; href: string; placeholder?: boolean }[],
   founded: "2026",
   footerNote: "THE LAB OF ANTONY VU",
+  /**
+   * The stations, dates only — the question a German recruiter asks first and
+   * the one a portfolio normally refuses to answer. No address, no phone: this
+   * is public, the CV attachment is not.
+   */
+  werdegang: [
+    {
+      when: "03/2026 —",
+      what: { en: "Nullpunkt — my own lab", de: "Nullpunkt — eigenes Labor" },
+      note: {
+        en: "Design and frontend, 21 sites shipped",
+        de: "Design und Frontend, 21 Seiten veröffentlicht",
+      },
+    },
+    {
+      when: "10/2025 – 03/2026",
+      what: {
+        en: "UI/UX web design & frontend, full time",
+        de: "UI/UX-Webdesign & Frontend, Vollzeit",
+      },
+      note: { en: "WBS Training, Berlin — 71 days", de: "WBS Training, Berlin — 71 Tage" },
+    },
+    {
+      when: "2020 – 10/2025",
+      what: {
+        en: "Freelance communication designer",
+        de: "Freiberuflicher Kommunikationsdesigner",
+      },
+      note: { en: "Berlin", de: "Berlin" },
+    },
+    {
+      when: "2016 – 2020",
+      what: { en: "Communication design", de: "Kommunikationsdesign" },
+      note: { en: "HTK Akademie, Berlin — graduated", de: "HTK Akademie, Berlin — Abschluss" },
+    },
+    {
+      when: "2008 – 2016",
+      what: { en: "Hospitality", de: "Gastronomie" },
+      note: { en: "Berlin — eight years on the floor", de: "Berlin — acht Jahre im Betrieb" },
+    },
+  ] as { when: string; what: { en: string; de: string }; note: { en: string; de: string } }[],
   /** Operator readings — the 30-second recruiter block, in instrument language. */
   operator: [
     { k: { en: "BASE", de: "STANDORT" }, v: { en: "BERLIN, DE", de: "BERLIN, DE" } },
