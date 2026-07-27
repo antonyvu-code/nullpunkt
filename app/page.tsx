@@ -301,6 +301,14 @@ export default function Home() {
               de="REMOTE ODER BERLIN · ANTWORT BINNEN 48H · DE / EN / VI"
             />
           </p>
+          {/* Antony Vu is the working name; the CV and the certificates carry the
+              legal one. Stated once so the two documents read as one person. */}
+          <p className="hud mt-2 text-muted-dim">
+            <L
+              en={`${site.wordmark} IS THE NAME I WORK UNDER — ON PAPER, ${site.legalName.toUpperCase()}`}
+              de={`${site.wordmark} IST MEIN ARBEITSNAME — BÜRGERLICH ${site.legalName.toUpperCase()}`}
+            />
+          </p>
           <ul className="hud mt-8 flex list-none flex-wrap gap-x-6 gap-y-3 p-0">
             {site.links.map((l) => (
               <li key={l.label}>

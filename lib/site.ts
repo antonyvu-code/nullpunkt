@@ -2,6 +2,9 @@ export const site = {
   name: "Nullpunkt",
   /** The person behind the lab — the site is his portfolio now. */
   owner: "Antony Vu",
+  /** The name on the certificates and the CV. Stated once, in Contact, so a
+      recruiter holding the Lebenslauf can tie the two together. */
+  legalName: "Anh Tuan Vu",
   wordmark: "ANTONY VU",
   // TODO(antony): tagline is still a placeholder — you said you'll write it yourself.
   // DE strings are drafts too; refine the voice when you have a moment.
