@@ -53,7 +53,6 @@ export const zeroAccent = "#f2f0eb";
 export const projects: Project[] = [
   {
     slug: "rosi-ocean-co",
-    featured: true,
     index: "01",
     title: "ROSI Ocean Co.",
     year: "2026",
@@ -169,7 +168,6 @@ export const projects: Project[] = [
   },
   {
     slug: "pulse-analytics",
-    featured: true,
     index: "03",
     title: "Pulse Analytics",
     year: "2026",
@@ -274,6 +272,7 @@ export const projects: Project[] = [
   },
   {
     slug: "mono-architekten",
+    featured: true,
     index: "05",
     title: "MONO Architekten",
     year: "2026",
@@ -434,6 +433,7 @@ export const projects: Project[] = [
   },
   {
     slug: "nitro",
+    featured: true,
     index: "08",
     title: "Nitro",
     year: "2026",
@@ -453,7 +453,10 @@ export const projects: Project[] = [
       { label: "Dependencies", value: "0", source: "no framework, no build step; GSAP the only library" },
       { label: "Breakpoints", value: "3", source: "media queries in css/style.css" },
     ],
-    plates: [], // TODO: chụp plates (nitro-a, nitro-b)
+    plates: [
+      { src: "/work/nitro-a.jpg", caption: "PLATE A — HERO, ANIMATED PLASMA FIELD" },
+      { src: "/work/nitro-b.jpg", caption: "PLATE B — SERVICES GRID, STAGGERED CARD ENTRANCES" },
+    ],
     sections: [
       {
         heading: "The brief",
@@ -503,7 +506,10 @@ export const projects: Project[] = [
       { label: "SVG instead of raster", value: "3 mockups", source: "dashboard, phone screen, app icons in components/" },
       { label: "Breakpoints", value: "2", source: "940px / 560px in css/style.css" },
     ],
-    plates: [], // TODO: chụp plates (whitepace-a, whitepace-b)
+    plates: [
+      { src: "/work/whitepace-a.jpg", caption: "PLATE A — HERO, SVG DASHBOARD MOCKUP" },
+      { src: "/work/whitepace-b.jpg", caption: "PLATE B — FEATURE SECTION, UI MOCKUPS REDRAWN AS SVG" },
+    ],
     sections: [
       {
         heading: "The brief",

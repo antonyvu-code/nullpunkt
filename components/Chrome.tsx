@@ -56,7 +56,7 @@ export default function Chrome() {
       >
         <Link
           href="/"
-          className="hud hud-wide accent-t pointer-events-auto text-ink no-underline hover:text-accent"
+          className="hud hud-wide accent-t pointer-events-auto -my-3 inline-flex min-h-[44px] items-center text-ink no-underline hover:text-accent"
         >
           {site.wordmark}
         </Link>

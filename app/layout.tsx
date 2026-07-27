@@ -25,18 +25,26 @@ const splineMono = Spline_Sans_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://nullpunkt.vercel.app"),
   title: {
-    default: "Antony Vu — Frontend Engineer, Berlin · Nullpunkt",
+    default: "Antony Vu — Creative Developer, Berlin · Nullpunkt",
     template: "%s — Nullpunkt",
   },
   description:
-    "Antony Vu is a frontend engineer in Berlin. Nullpunkt is his lab: twelve case studies, real readings, one borrowed accent at a time. Open to remote frontend roles.",
+    "Antony Vu is a Berlin-based creative developer — a communication designer who designs and builds websites end to end. Nullpunkt is the lab: many distinct sites, each its own world. Open to remote and Berlin roles.",
   openGraph: {
-    title: "Antony Vu — Frontend Engineer, Berlin · Nullpunkt",
+    title: "Antony Vu — Creative Developer, Berlin · Nullpunkt",
     description:
-      "Nullpunkt, the lab of Antony Vu. Twelve case studies, real readings, one borrowed accent at a time. Open to remote frontend roles.",
+      "Nullpunkt, the lab of Antony Vu — a creative developer who designs and builds distinct websites end to end. Open to remote and Berlin roles.",
     siteName: "Nullpunkt",
     type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Antony Vu — Creative Developer, Berlin · Nullpunkt",
+    description:
+      "The lab of Antony Vu — a creative developer who designs and builds distinct websites end to end. Open to remote and Berlin roles.",
   },
 };
 
@@ -44,7 +52,7 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
   name: site.owner,
-  jobTitle: "Frontend Engineer",
+  jobTitle: "Creative Developer",
   address: { "@type": "PostalAddress", addressLocality: "Berlin", addressCountry: "DE" },
   email: site.email,
   knowsLanguage: ["de", "en", "vi"],
@@ -64,7 +72,7 @@ export default function RootLayout({
       <body className="min-h-screen">
         <a
           href="#main"
-          className="hud fixed left-1/2 top-0 z-[60] -translate-x-1/2 -translate-y-full bg-ink px-4 py-2 text-bg no-underline focus:translate-y-0"
+          className="hud fixed left-1/2 top-0 z-[60] inline-flex min-h-[44px] -translate-x-1/2 -translate-y-full items-center bg-ink px-4 text-bg no-underline focus:translate-y-0"
         >
           Skip to content
         </a>
@@ -84,7 +92,10 @@ export default function RootLayout({
               <span>
                 {site.wordmark} — {site.footerNote}
               </span>
-              <a href={`mailto:${site.email}`} className="accent-t text-muted no-underline hover:text-accent">
+              <a
+                href={`mailto:${site.email}`}
+                className="accent-t inline-flex min-h-[44px] items-center text-muted no-underline hover:text-accent"
+              >
                 {site.email}
               </a>
               <span>© {site.founded}</span>

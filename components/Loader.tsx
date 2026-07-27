@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { site } from "@/lib/site";
 
-const DURATION = 1500;
+const DURATION = 900;
 
 /**
  * Boot sequence — a crosshair finds its zero point, the counter calibrates

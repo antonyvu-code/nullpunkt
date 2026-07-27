@@ -6,24 +6,24 @@ export const site = {
   // TODO(antony): tagline is still a placeholder — you said you'll write it yourself.
   // DE strings are drafts too; refine the voice when you have a moment.
   tagline: {
-    en: "Interfaces, calibrated from zero.",
-    de: "Interfaces, vom Nullpunkt kalibriert.",
+    en: "I design and build websites — a different one each time.",
+    de: "Ich gestalte und baue Websites — jede eine andere.",
   },
   manifesto: {
-    en: "Nullpunkt is the lab of one frontend engineer. Every project here is an experiment, and every number on this page is a real reading — no ornament, only instruments. The page boots calibrated to the first experiment's signal; point at another and it borrows that color instead.",
-    de: "Nullpunkt ist das Labor eines Frontend-Engineers. Jedes Projekt hier ist ein Experiment, und jede Zahl auf dieser Seite ist ein echter Messwert — kein Zierrat, nur Instrumente. Die Seite startet kalibriert auf das Signal des ersten Experiments; zeig auf ein anderes, und sie übernimmt dessen Farbe.",
+    en: "Nullpunkt is where I design and build websites — each its own world, solved from the structure up. Communication designer by training, frontend developer by craft: I take a site from blank page to live, and no two look alike.",
+    de: "Nullpunkt ist der Ort, an dem ich Websites gestalte und baue — jede eine eigene Welt, von der Struktur her gelöst. Kommunikationsdesigner von Haus aus, Frontend-Entwickler aus Handwerk: Ich bringe eine Website von der leeren Seite bis live, und keine gleicht der anderen.",
   },
   about: {
-    en: "A communication designer turned frontend engineer, based in Berlin. I build interfaces where the engineering is the craft — real-time graphics, motion systems, and accessible, systemised frontends. Every project in this lab is one aesthetic solved from the structure up, usually on the newest web tech I can reach.",
-    de: "Vom Kommunikationsdesigner zum Frontend-Engineer, ansässig in Berlin. Ich baue Interfaces, bei denen das Engineering das Handwerk ist — Echtzeit-Grafik, Motion-Systeme und barrierefreie, systematisierte Frontends. Jedes Projekt in diesem Labor ist eine Ästhetik, von der Struktur her gelöst — meist auf der neuesten Web-Technik, die ich erreichen kann.",
+    en: "I'm a communication designer who builds what I design. Based in Berlin, I take websites from concept to production — brand sites, interactive experiences, product landings — each with its own visual language. Design and frontend in one hand: I don't hand off, I ship the whole thing.",
+    de: "Ich bin Kommunikationsdesigner und baue, was ich gestalte. Von Berlin aus bringe ich Websites vom Konzept in die Produktion — Markenseiten, interaktive Experiences, Produkt-Landingpages — jede mit eigener Bildsprache. Design und Frontend aus einer Hand: Ich übergebe nicht, ich liefere das Ganze.",
   },
   email: "atv1989.info@gmail.com",
-  // TODO(antony): LinkedIn + CV still placeholders — fill with real URLs.
-  links: [
-    { label: "GITHUB", href: "https://github.com/antonyvu-code" },
-    { label: "LINKEDIN", href: "#", placeholder: true },
-    { label: "CV (PDF)", href: "#", placeholder: true },
-  ] as { label: string; href: string; placeholder?: boolean }[],
+  // Links hidden for now (empty = the Contact list renders nothing).
+  // Restore when ready:
+  //   GITHUB  → https://github.com/antonyvu-code  (repo currently private)
+  //   LINKEDIN → <real profile URL>
+  //   CV (PDF) → drop the file in public/ and point here
+  links: [] as { label: string; href: string; placeholder?: boolean }[],
   founded: "2026",
   footerNote: "THE LAB OF ANTONY VU",
   /** Operator readings — the 30-second recruiter block, in instrument language. */

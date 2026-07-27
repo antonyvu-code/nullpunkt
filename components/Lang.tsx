@@ -50,7 +50,7 @@ export function LangToggle() {
   const { lang, setLang } = useLang();
   return (
     <span
-      className="hud accent-t pointer-events-auto inline-flex items-center gap-1.5"
+      className="hud accent-t pointer-events-auto -my-3 inline-flex items-center"
       role="group"
       aria-label="Language"
     >
@@ -58,7 +58,9 @@ export function LangToggle() {
         type="button"
         onClick={() => setLang("en")}
         aria-pressed={lang === "en"}
-        className={lang === "en" ? "text-accent" : "text-muted hover:text-ink"}
+        className={`inline-flex min-h-[44px] min-w-[44px] items-center justify-center ${
+          lang === "en" ? "text-accent" : "text-muted hover:text-ink"
+        }`}
       >
         EN
       </button>
@@ -69,7 +71,9 @@ export function LangToggle() {
         type="button"
         onClick={() => setLang("de")}
         aria-pressed={lang === "de"}
-        className={lang === "de" ? "text-accent" : "text-muted hover:text-ink"}
+        className={`inline-flex min-h-[44px] min-w-[44px] items-center justify-center ${
+          lang === "de" ? "text-accent" : "text-muted hover:text-ink"
+        }`}
       >
         DE
       </button>
