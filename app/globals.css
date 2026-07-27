@@ -5,6 +5,12 @@
   --surface: #0b0a09;
   --ink: #f2f0eb;
   --muted: #8a8781;
+  /* The quiet tier. Hierarchy used to come from opacity (text-muted/45…/70),
+     which dropped instrument labels to 1.7–3.9:1 — below AA while the page
+     prints "WCAG 2.1 AA". This is the dimmest tone on the muted hue that still
+     clears 4.5:1 on BOTH grounds (4.70:1 on --bg, 4.56:1 on --surface), so the
+     step down is real and the claim holds. */
+  --muted-dim: #7c7973;
   --line: rgba(242, 240, 235, 0.14);
   /* Zero state: the page has no accent of its own. The needle rests at ink
      until a project lends its color (see ProjectIndex / AccentSetter). */
@@ -23,6 +29,7 @@
   --color-surface: var(--surface);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
+  --color-muted-dim: var(--muted-dim);
   --color-line: var(--line);
   --color-accent: var(--accent);
   --color-flare: var(--flare);

@@ -15,6 +15,7 @@ const specs = [
       ["INK", "#F2F0EB"],
       ["MUTED", "#8A8781"],
       ["LINE", "INK / 14%"],
+      ["FLARE", "#FF4D1C"],
       ["ACCENT", "BORROWED FROM THE WORK"],
     ],
   },
@@ -22,8 +23,8 @@ const specs = [
     title: "TYPE",
     rows: [
       ["DISPLAY", "BRICOLAGE GROTESQUE"],
-      ["BODY", "BRICOLAGE GROTESQUE"],
-      ["INSTRUMENT", "SPACE MONO · UPPERCASE"],
+      ["BODY", "INSTRUMENT SANS"],
+      ["INSTRUMENT", "SPLINE SANS MONO · UPPERCASE"],
       ["RULE", "METADATA IS ALWAYS MONO"],
     ],
   },
@@ -63,7 +64,7 @@ function Rail({ kicker, n }: { kicker: React.ReactNode; n: string }) {
   return (
     <div className="mb-6 md:col-span-3 md:mb-0 md:border-r md:pr-6" style={{ borderColor: "var(--line)" }}>
       <p className="hud hud-wide text-accent accent-t">{kicker}</p>
-      <p className="hud mt-2 text-muted/50">S.{n} / 05</p>
+      <p className="hud mt-2 text-muted-dim">S.{n} / 05</p>
     </div>
   );
 }
@@ -77,7 +78,7 @@ export default function Home() {
             coordinates at the left, the live scope readout at the right. */}
         <p
           data-hero="coord"
-          className="hud pointer-events-none absolute left-0 top-2 flex items-center gap-2 text-muted/55"
+          className="hud pointer-events-none absolute left-0 top-2 flex items-center gap-2 text-muted-dim"
         >
           <span aria-hidden="true" className="inline-block h-2 w-2 border-l border-t" style={{ borderColor: "var(--line)" }} />
           52.5200°N · 13.4050°E
@@ -86,7 +87,7 @@ export default function Home() {
           <p data-hero="kicker" className="hud hud-wide text-accent accent-t">
             <L en="NULLPUNKT — THE LAB OF " de="NULLPUNKT — DAS LABOR VON " />
             <span className="text-ink">{site.owner.toUpperCase()}</span>
-            <L en=" · FRONTEND ENGINEER, BERLIN" de=" · FRONTEND-ENGINEER, BERLIN" />
+            <L en=" · CREATIVE DEVELOPER — DESIGN + BUILD · BERLIN" de=" · CREATIVE DEVELOPER — DESIGN + BUILD · BERLIN" />
           </p>
           <h1
             data-hero="title"
@@ -98,7 +99,7 @@ export default function Home() {
             <L text={site.manifesto} />
           </p>
 
-          <p className="hud mt-12 text-muted/45">FIG.01 — OPERATOR READINGS</p>
+          <p className="hud mt-12 text-muted-dim">FIG.01 — OPERATOR READINGS</p>
           <dl
             className="accent-t m-0 mt-3 grid grid-cols-2 gap-px border-t md:grid-cols-5"
             style={{ borderColor: "var(--line)", background: "var(--line)" }}
@@ -110,7 +111,7 @@ export default function Home() {
                 data-hero-cell
                 className={`bg-bg px-1 pb-1 pt-4 ${o.hot ? "border-t-2 border-accent" : ""}`}
               >
-                <dt className="hud text-muted/60">
+                <dt className="hud text-muted-dim">
                   <L text={o.k} />
                 </dt>
                 <dd className={`hud m-0 mt-2 ${o.hot ? "text-accent" : "text-ink"}`}>
@@ -131,17 +132,17 @@ export default function Home() {
           <p className="hud hud-wide text-accent accent-t">
             THE INDEX — 01–{String(projects.length).padStart(2, "0")}
           </p>
-          <p className="hud text-muted/50">S.01 / 05 · SORTED BY ENTRY</p>
+          <p className="hud text-muted-dim">S.01 / 05 · SORTED BY ENTRY</p>
         </div>
         <ProjectIndex />
         <div className="mt-6 flex flex-wrap items-baseline justify-between gap-4">
-          <p className="hud max-w-xl text-muted/70">
+          <p className="hud max-w-xl text-muted-dim">
             POINT AT A LINE — THE PAGE BORROWS ITS COLOR. EVERY EXPERIMENT IS DEPLOYED — THE LIVE
             LINK SITS AT THE TOP OF EACH CASE.
           </p>
           <a
             href="#field-notes"
-            className="accent-t group font-display inline-flex items-baseline gap-3 text-2xl font-medium text-ink no-underline hover:text-accent md:text-3xl"
+            className="accent-t group font-display inline-flex min-h-[44px] items-center gap-3 text-2xl font-medium text-ink no-underline hover:text-accent md:text-3xl"
           >
             <L en="View all projects" de="Alle Projekte ansehen" />
             <span
@@ -212,7 +213,7 @@ export default function Home() {
       >
         <div className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
           <p className="hud hud-wide text-accent accent-t">FIELD NOTES — LIVE, UNCATALOGUED</p>
-          <p className="hud accent-t flex items-center gap-2 text-muted/50">
+          <p className="hud accent-t flex items-center gap-2 text-muted-dim">
             <span aria-hidden="true" className="np-pulse inline-block h-1.5 w-1.5 rounded-full bg-accent" />
             S.03 / 05 · {String(fieldNotes.length).padStart(2, "0")} DEPLOYED
           </p>
@@ -250,7 +251,7 @@ export default function Home() {
                     const sw = swatchColor(k, v);
                     return (
                       <div key={k} className="flex items-baseline justify-between gap-4 py-1.5">
-                        <dt className="hud text-muted/70">{k}</dt>
+                        <dt className="hud text-muted-dim">{k}</dt>
                         <dd className="hud m-0 flex items-center gap-2 text-right text-muted">
                           {sw && (
                             <span
@@ -268,7 +269,7 @@ export default function Home() {
               </div>
             ))}
           </div>
-          <p className="hud mt-6 text-muted/70">
+          <p className="hud mt-6 text-muted-dim">
             SHIP FLOOR — WCAG 2.1 AA · SEMANTIC HTML + JSON-LD · MOBILE-FIRST · REAL TELEMETRY ONLY
           </p>
         </div>
@@ -290,11 +291,11 @@ export default function Home() {
           </p>
           <a
             href={`mailto:${site.email}`}
-            className="accent-t font-display inline-block text-3xl font-medium text-accent no-underline hover:text-ink md:text-5xl"
+            className="accent-t font-display inline-flex min-h-[44px] items-center text-3xl font-medium text-accent no-underline hover:text-ink md:text-5xl"
           >
             {site.email}
           </a>
-          <p className="hud mt-6 text-muted/70">
+          <p className="hud mt-6 text-muted-dim">
             <L
               en="REMOTE OR BERLIN · RESPONSE WITHIN 48H · DE / EN / VI"
               de="REMOTE ODER BERLIN · ANTWORT BINNEN 48H · DE / EN / VI"

@@ -26,7 +26,7 @@ export default function ProjectIndex() {
     <div onMouseLeave={() => setAccent(homeAccent)}>
       {/* Column header — the index reads like an instrument log. */}
       <div
-        className={`${COLS} hud border-b border-t px-3 py-2 text-muted/60`}
+        className={`${COLS} hud border-b border-t px-3 py-2 text-muted-dim`}
         style={{ borderColor: "var(--line)" }}
         aria-hidden="true"
       >
@@ -100,9 +100,9 @@ export default function ProjectIndex() {
                     </span>
                   )}
                 </span>
-                <span className="hud mt-1 block text-muted/70 md:hidden">{p.metaLine}</span>
+                <span className="hud mt-1 block text-muted-dim md:hidden">{p.metaLine}</span>
               </span>
-              <span className="hud hidden text-muted/70 group-hover:text-accent md:block">
+              <span className="hud hidden text-muted-dim group-hover:text-accent md:block">
                 {p.metaLine}
               </span>
               <span

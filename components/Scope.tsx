@@ -229,7 +229,7 @@ export default function Scope() {
       <div
         ref={readoutRef}
         aria-hidden="true"
-        className="hud accent-t pointer-events-none absolute right-0 top-2 text-accent/80"
+        className="hud accent-t pointer-events-none absolute right-0 top-2 text-accent"
       />
     </>
   );

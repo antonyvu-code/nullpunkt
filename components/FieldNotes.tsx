@@ -18,14 +18,14 @@ export default function FieldNotes() {
           className="group relative block border-b py-6 pl-11 no-underline transition-[padding] duration-300 hover:pl-16 motion-reduce:transition-none md:py-7 md:hover:pl-20"
           style={{ borderColor: "var(--line)" }}
         >
-          <span className="hud absolute left-0 top-7 text-muted/50 group-hover:text-accent md:top-8">
+          <span className="hud absolute left-0 top-7 text-muted-dim group-hover:text-accent md:top-8">
             F.{String(i + 1).padStart(2, "0")}
           </span>
           <span className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
             <span className="font-display text-4xl font-medium leading-none tracking-tight text-muted transition-colors duration-300 group-hover:text-ink motion-reduce:transition-none md:text-6xl lg:text-7xl">
               {f.name}
             </span>
-            <span className="max-w-[36ch] text-sm leading-snug text-muted/60 transition-colors duration-300 group-hover:text-muted motion-reduce:transition-none">
+            <span className="max-w-[36ch] text-sm leading-snug text-muted-dim transition-colors duration-300 group-hover:text-muted motion-reduce:transition-none">
               {f.note}
             </span>
             <span

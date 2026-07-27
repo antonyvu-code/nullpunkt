@@ -19,7 +19,7 @@ function PlateFigure({ plate, priority = false }: { plate: Plate; priority?: boo
           className="block h-auto w-full"
         />
       </div>
-      <figcaption className="hud mt-3 text-muted/70">{plate.caption}</figcaption>
+      <figcaption className="hud mt-3 text-muted-dim">{plate.caption}</figcaption>
     </figure>
   );
 }
@@ -57,10 +57,10 @@ export default async function CaseStudy({ params }: Props) {
         <p className="mt-6 max-w-xl leading-relaxed text-muted">{p.oneLiner}</p>
         {p.given && (
           <p
-            className="mt-6 max-w-xl border-l-2 pl-4 text-sm leading-relaxed text-muted/80"
+            className="mt-6 max-w-xl border-l-2 pl-4 text-sm leading-relaxed text-muted"
             style={{ borderColor: "var(--accent)" }}
           >
-            <span className="hud text-muted/70">SUPPLIED — </span>
+            <span className="hud text-muted-dim">SUPPLIED — </span>
             {p.given}
           </p>
         )}
@@ -95,7 +95,7 @@ export default async function CaseStudy({ params }: Props) {
           ["STACK", p.stack.join(" · ")],
         ].map(([k, v]) => (
           <div key={k} className="bg-bg px-4 py-5">
-            <dt className="hud text-muted/70">{k}</dt>
+            <dt className="hud text-muted-dim">{k}</dt>
             <dd className="hud m-0 mt-2 text-ink">{v.toUpperCase()}</dd>
           </div>
         ))}
@@ -110,9 +110,9 @@ export default async function CaseStudy({ params }: Props) {
           {p.metrics.map((m) => (
             <div key={m.label}>
               <p className="font-mono text-3xl text-accent md:text-4xl">{m.value}</p>
-              <p className="hud mt-2 text-muted/70">{m.label.toUpperCase()}</p>
+              <p className="hud mt-2 text-muted-dim">{m.label.toUpperCase()}</p>
               {m.source && (
-                <p className="mt-2 text-xs leading-snug text-muted/60">{m.source}</p>
+                <p className="mt-2 text-xs leading-snug text-muted-dim">{m.source}</p>
               )}
             </div>
           ))}
@@ -153,12 +153,15 @@ export default async function CaseStudy({ params }: Props) {
         style={{ borderColor: "var(--line)" }}
         data-reveal
       >
-        <Link href="/" className="hud accent-t text-muted no-underline hover:text-accent">
+        <Link
+          href="/"
+          className="hud accent-t inline-flex min-h-[44px] items-center text-muted no-underline hover:text-accent"
+        >
           ← BACK TO INDEX
         </Link>
         <Link
           href={`/work/${next.slug}`}
-          className="hud accent-t text-ink no-underline hover:text-accent"
+          className="hud accent-t inline-flex min-h-[44px] items-center text-ink no-underline hover:text-accent"
         >
           NEXT — EXP.{next.index} {next.title.toUpperCase()} →
         </Link>

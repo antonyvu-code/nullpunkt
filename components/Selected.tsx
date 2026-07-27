@@ -9,7 +9,7 @@ import EchoProbe from "@/components/EchoProbe";
 // Fixed shelf order — left, centre, right. The centre slot is the live
 // specimen (ECHO-1), so it is not driven by a static plate. Order is decoupled
 // from the projects[] array (which THE INDEX sorts by entry).
-const FEATURED_ORDER = ["rosi-ocean-co", "one-bit", "pulse-analytics"] as const;
+const FEATURED_ORDER = ["nitro", "one-bit", "mono-architekten"] as const;
 const featured = FEATURED_ORDER.map(
   (slug) => projects.find((p) => p.slug === slug)!,
 ).filter(Boolean);
@@ -40,7 +40,7 @@ export default function Selected() {
           <span aria-hidden="true" className="inline-block h-2 w-2 bg-flare" />
           <L en="SELECTED — START HERE" de="AUSGEWÄHLT — HIER STARTEN" />
         </p>
-        <p className="hud text-muted/50">
+        <p className="hud text-muted-dim">
           {String(featured.length).padStart(2, "0")} FILES · POINT TO PROBE
         </p>
       </div>
@@ -66,7 +66,7 @@ export default function Selected() {
                   style={{ borderColor: "var(--line)" }}
                 >
                   <span aria-hidden="true" className="absolute left-3 top-3 h-2 w-2 bg-flare" />
-                  <span className="hud text-muted/60">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="hud text-muted-dim">{String(i + 1).padStart(2, "0")}</span>
                 </div>
 
                 {/* Specimen — a static plate on a dotted readout field, except
@@ -99,7 +99,7 @@ export default function Selected() {
                   className="border-t px-6 py-6 text-center"
                   style={{ borderColor: "var(--line)" }}
                 >
-                  <p className="hud text-muted/60">{p.kind.toUpperCase()}</p>
+                  <p className="hud text-muted-dim">{p.kind.toUpperCase()}</p>
                   <p className="font-display mt-2 text-2xl font-medium leading-tight text-ink group-hover:text-accent group-focus-visible:text-accent">
                     {p.title}
                   </p>
