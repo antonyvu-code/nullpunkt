@@ -558,7 +558,10 @@ export const projects: Project[] = [
       { label: "Scale system", value: "1 variable", source: "--mm in globals.css, 0.16 / 0.105 px per mm" },
       { label: "Free-shipping threshold", value: "€2,500", source: "checkout logic, €120 freight waived above this" },
     ],
-    plates: [], // TODO: chụp plates (nut-feder-a, nut-feder-b)
+    plates: [
+      { src: "/work/nut-feder-a.jpg", caption: "PLATE A — HERO, THE DRAWING BEGINS WHERE THE PHOTO WOULD BE" },
+      { src: "/work/nut-feder-b.jpg", caption: "PLATE B — SIX PIECES ON ONE RAIL, EVERY MILLIMETRE TO THE SAME SCALE" },
+    ],
     sections: [
       {
         heading: "The brief",
@@ -607,7 +610,10 @@ export const projects: Project[] = [
       { label: "Explode layers", value: "5", source: "glass, hands, dial, movement, case" },
       { label: "Rendering", value: "WebGPU + TSL", source: "with automatic WebGL fallback when unsupported" },
     ],
-    plates: [], // TODO: chụp plates (calibre-a, calibre-b)
+    plates: [
+      { src: "/work/calibre-a.jpg", caption: "PLATE A — HERO, THE CASE RENDERED LIVE ON THE GPU" },
+      { src: "/work/calibre-b.jpg", caption: "PLATE B — THE MOVEMENT OPENS AS THE PAGE SCROLLS" },
+    ],
     sections: [
       {
         heading: "The brief",
@@ -657,7 +663,10 @@ export const projects: Project[] = [
       { label: "Dither cell size", value: "4×4 Bayer", source: "TSL node material, signalCurve() in src/content.js" },
       { label: "Rendering", value: "WebGPU + TSL", source: "verified WebGL2 fallback tested via ?webgl flag" },
     ],
-    plates: [], // TODO: chụp plates (one-bit-a, one-bit-b)
+    plates: [
+      { src: "/work/one-bit-a.jpg", caption: "PLATE A — HERO, TWO COLOURS AND ONE BIT PER PIXEL" },
+      { src: "/work/one-bit-b.jpg", caption: "PLATE B — MARS AT 9,600 BAUD; THE WEAKER SIGNAL EATS THE TEXT" },
+    ],
     sections: [
       {
         heading: "The brief",
