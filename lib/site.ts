@@ -20,6 +20,23 @@ export const site = {
     en: "I'm a communication designer who builds what I design. Based in Berlin, I take websites from concept to production — brand sites, interactive experiences, product landings — each with its own visual language. Design and frontend in one hand: I don't hand off, I ship the whole thing.",
     de: "Ich bin Kommunikationsdesigner und baue, was ich gestalte. Von Berlin aus bringe ich Websites vom Konzept in die Produktion — Markenseiten, interaktive Experiences, Produkt-Landingpages — jede mit eigener Bildsprache. Design und Frontend aus einer Hand: Ich übergebe nicht, ich liefere das Ganze.",
   },
+  /**
+   * The same statement as `about`, cut into its three beats so ABOUT can be set
+   * typographically rather than as one grey block: the claim goes large, the
+   * evidence stays at reading size, the promise is pulled out as a quote.
+   */
+  aboutLead: {
+    en: "I'm a communication designer who builds what I design.",
+    de: "Ich bin Kommunikationsdesigner und baue, was ich gestalte.",
+  },
+  aboutBody: {
+    en: "Based in Berlin, I take websites from concept to production — brand sites, interactive experiences, product landings — each with its own visual language. No template, no handover gap: the thing that ships is the thing that was drawn.",
+    de: "Von Berlin aus bringe ich Websites vom Konzept in die Produktion — Markenseiten, interaktive Experiences, Produkt-Landingpages — jede mit eigener Bildsprache. Kein Template, keine Übergabelücke: Was live geht, ist das, was gezeichnet wurde.",
+  },
+  aboutClose: {
+    en: "Design and frontend in one hand: I don't hand off, I ship the whole thing.",
+    de: "Design und Frontend aus einer Hand: Ich übergebe nicht, ich liefere das Ganze.",
+  },
   email: "atv1989.info@gmail.com",
   // GitHub and LinkedIn stay hidden until there is something behind them.
   // The two CVs here are the PUBLIC cut — no postal address, no phone number.
@@ -42,8 +59,8 @@ export const site = {
       when: "03/2026 —",
       what: { en: "Nullpunkt — my own lab", de: "Nullpunkt — eigenes Labor" },
       note: {
-        en: "Design and frontend, 21 sites shipped",
-        de: "Design und Frontend, 21 Seiten veröffentlicht",
+        en: "Design and frontend, every site its own system",
+        de: "Design und Frontend, jede Seite ein eigenes System",
       },
     },
     {
@@ -81,14 +98,25 @@ export const site = {
       k: { en: "BACKGROUND", de: "WERDEGANG" },
       v: { en: "KOMM.DESIGN → FRONTEND", de: "KOMM.DESIGN → FRONTEND" },
     },
+    // Deliberately not a count. A portfolio of self-initiated work gains no
+    // credibility from volume — a reviewer opens two at random and judges by
+    // the weaker one, so a high number raises the odds against you. The slot
+    // now carries the differentiator instead of the tally: a designer who
+    // builds is the rare half of this job, and no tool list says it.
     {
-      k: { en: "SHIPPED", de: "VERÖFFENTLICHT" },
-      v: { en: "21 PROJECTS, ALL LIVE", de: "21 PROJEKTE, ALLE LIVE" },
+      k: { en: "AUTHORSHIP", de: "URHEBERSCHAFT" },
+      v: { en: "DESIGNED AND BUILT BY ONE", de: "ENTWORFEN UND GEBAUT VON EINEM" },
       hot: true,
     },
+    /* Says WHAT he is open to, not just that he is open. The header carries the
+       same sentence, but it is hidden below 640px — this cell is the only place
+       a phone shows it, and "OPEN" alone reads as "open to enquiries". */
     {
       k: { en: "STATUS", de: "STATUS" },
-      v: { en: "OPEN · REMOTE OR BERLIN", de: "OFFEN · REMOTE ODER BERLIN" },
+      v: {
+        en: "OPEN TO FRONTEND ROLES · REMOTE OR BERLIN",
+        de: "OFFEN FÜR FRONTEND-ROLLEN · REMOTE ODER BERLIN",
+      },
       hot: true,
     },
   ] as { k: { en: string; de: string }; v: { en: string; de: string }; hot?: boolean }[],

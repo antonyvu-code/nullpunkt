@@ -32,9 +32,27 @@ export default function Scope() {
     let pointerX = 0;
     let probing = false;
 
-    // Sits at mid-hero, riding the big display title (which tolerates the faint
-    // wave) so the smaller body text below stays clear and readable.
-    const BASE = () => h * 0.5;
+    // Rides the big display title, which tolerates the faint wave, so the
+    // smaller body text stays clear. That used to be hard-coded as h * 0.5 —
+    // true only on a wide screen. At 390px the title takes four lines and the
+    // manifesto moves up into mid-hero, so the trace ran straight through the
+    // body copy. The baseline is therefore MEASURED off the title, and clamped
+    // so the wave (AMP + halo) cannot leave the hero.
+    let base = 0;
+    const BASE = () => base;
+
+    const messeBase = () => {
+      const title = document.querySelector<HTMLElement>('[data-hero="title"]');
+      if (!title || h <= 0) {
+        base = h * 0.5;
+        return;
+      }
+      const cr = canvas.getBoundingClientRect();
+      const tr = title.getBoundingClientRect();
+      const mitte = tr.top - cr.top + tr.height / 2;
+      const rand = 70;
+      base = Math.max(rand, Math.min(h - rand, mitte));
+    };
 
     const size = () => {
       const rect = canvas.getBoundingClientRect();
@@ -44,6 +62,7 @@ export default function Scope() {
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      messeBase();
     };
 
     // One waveform sample — shared by the stroke and the beam so the phosphor
@@ -198,6 +217,14 @@ export default function Scope() {
 
     size();
     window.addEventListener("resize", size);
+    /* Die Titelhöhe hängt an der Display-Schrift. Vor deren Laden misst
+       messeBase() den Fallback-Satz — danach noch einmal, sonst sitzt die
+       Grundlinie dauerhaft ein paar Zeilen daneben (und im Reduced-Motion-Fall
+       bliebe das Standbild so stehen). */
+    document.fonts?.ready.then(() => {
+      size();
+      if (reduce) frame();
+    });
     if (!reduce) window.addEventListener("mousemove", onMove, { passive: true });
 
     const io = new IntersectionObserver(([entry]) => {

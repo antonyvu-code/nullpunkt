@@ -27,6 +27,15 @@ export type Project = {
   label: ProjectLabel;
   /** "Start here" — surfaced first for a recruiter skimming the index. */
   featured?: boolean;
+  /**
+   * Shown in the home page's index. The cut is by PROOF, not by preference:
+   * each front-page case has to argue something none of the others does
+   * (fidelity to a supplied design, multi-page scale, the graphics ceiling,
+   * commerce, a real German client's constraints, technical storytelling).
+   * Everything else stays in /work — nothing is deleted, only unstacked, so a
+   * page full of self-initiated concepts reads as depth instead of volume.
+   */
+  frontpage?: boolean;
   kind: string;
   role: string;
   status: string;
@@ -46,6 +55,32 @@ export type Project = {
 
 /** Deployed experiments that don't have a full case study (yet). */
 export type FieldNote = { name: string; url: string; note: string };
+
+/**
+ * The colour the field notes are read against — one continuous sweep rather
+ * than eight opinions. Generated in OKLCH at a fixed lightness (L 0.78) with
+ * the hue turning 26° → 194°, so every stop is the SAME perceived brightness
+ * and only the hue moves; that is what makes it read as one instrument being
+ * tuned instead of eight unrelated swatches.
+ *
+ * Chroma is the maximum still inside sRGB at each hue, so no stop is silently
+ * clipped and flattened. Measured on --bg: 9.7:1 at the warm end, 10.8:1 at
+ * the cool end — every stop clears AA as text with room to spare.
+ *
+ * These are deliberately NOT the experiments' own colours. The notes are the
+ * uncatalogued shelf; giving them a shared sweep says they belong together,
+ * where a case study earns a signature of its own.
+ */
+export const fieldNoteSweep = [
+  "#FA998F",
+  "#FA9D68",
+  "#F0A72E",
+  "#D1B72E",
+  "#A7C649",
+  "#6FD179",
+  "#35D4A9",
+  "#35D0CE",
+];
 
 /** Zero state — the page's own "no accent". Keep in sync with --accent in globals.css. */
 export const zeroAccent = "#f2f0eb";
@@ -108,6 +143,8 @@ export const projects: Project[] = [
   },
   {
     slug: "gutjahr-dachtechnik",
+    featured: true,
+    frontpage: true,
     index: "02",
     title: "Gutjahr Dachtechnik",
     year: "2026",
@@ -273,6 +310,7 @@ export const projects: Project[] = [
   {
     slug: "mono-architekten",
     featured: true,
+    frontpage: true,
     index: "05",
     title: "MONO Architekten",
     year: "2026",
@@ -328,6 +366,7 @@ export const projects: Project[] = [
   },
   {
     slug: "oscillate",
+    frontpage: true,
     index: "06",
     title: "OSCILLATE",
     year: "2026",
@@ -433,7 +472,6 @@ export const projects: Project[] = [
   },
   {
     slug: "nitro",
-    featured: true,
     index: "08",
     title: "Nitro",
     year: "2026",
@@ -651,6 +689,7 @@ export const projects: Project[] = [
   {
     slug: "one-bit",
     featured: true,
+    frontpage: true,
     index: "12",
     title: "One Bit From Home",
     year: "2026",
@@ -702,6 +741,36 @@ export const projects: Project[] = [
     },
   },
 ];
+
+/**
+ * The home page's cut. Order is preserved from `projects`, so the running
+ * numbers stay the ones a visitor will meet again in the full archive — the
+ * gaps in the sequence are honest: they say there is more behind /work.
+ */
+export const frontpageProjects = projects.filter((p) => p.frontpage);
+
+/** The card that renders live rather than from a plate. It holds the middle
+ *  slot of the shelf, and the home page rests calibrated to its signal. */
+export const specimenSlug = "one-bit";
+
+/** The case whose signal the home page rests on. Kept separate from the
+ *  specimen: one holds the middle of the shelf, the other sets the colour. */
+export const restAccentSlug = "oscillate";
+
+/**
+ * The colour the home page wears when nothing is hovered. It has to be a real
+ * case's accent — the spec says the accent is BORROWED FROM THE WORK, so a
+ * hand-picked hex would make the page lie about its own rule.
+ *
+ * Declared here rather than inside whichever section happens to render it:
+ * the rest state belongs to the page, and hiding it in a component means
+ * deleting that component silently drops the site's colour to the ink zero.
+ */
+export const homeRestAccent =
+  frontpageProjects.find((p) => p.slug === restAccentSlug)?.accent ??
+  frontpageProjects.find((p) => p.slug === specimenSlug)?.accent ??
+  frontpageProjects[0]?.accent ??
+  zeroAccent;
 
 export const fieldNotes: FieldNote[] = [
   { name: "FIELD SCAN", url: "https://nullpunkt-field-scan.vercel.app", note: "The daily digest as a signal console" },

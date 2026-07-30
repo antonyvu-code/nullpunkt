@@ -3,24 +3,32 @@
 import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { projects } from "@/lib/projects";
+import { projects, type Project } from "@/lib/projects";
 
 function setAccent(hex: string) {
   document.documentElement.style.setProperty("--accent", hex);
 }
 
-/** The index's home-rest accent — the first experiment's signal, not zero. */
-const homeAccent = projects[0].accent;
-
 /** Shared column track so the header and every row align on the same grid. */
 const COLS =
   "grid grid-cols-[3ch_88px_minmax(0,1fr)] items-center gap-x-4 md:grid-cols-[3ch_112px_minmax(0,1fr)_auto_1.25rem] md:gap-x-6";
 
-export default function ProjectIndex() {
-  // On entry the page is already calibrated to project 01 (see manifesto).
+/**
+ * The index renders whichever cut it is handed — the home page passes its
+ * six, /work passes everything. The rest-accent follows the list rather than
+ * the array, so each page settles on the signal of its own first row.
+ */
+export default function ProjectIndex({ items = projects }: { items?: Project[] }) {
+  const homeAccent = items[0].accent;
+  // "START HERE" only means something when some rows do not carry it. On the
+  // home page's cut every row is already a pick, so the badge would label
+  // nothing — it earns its place only in the full archive.
+  const markFeatured = items.some((p) => !p.featured);
+
+  // On entry the page is already calibrated to its first case (see manifesto).
   useEffect(() => {
     setAccent(homeAccent);
-  }, []);
+  }, [homeAccent]);
 
   return (
     <div onMouseLeave={() => setAccent(homeAccent)}>
@@ -38,7 +46,7 @@ export default function ProjectIndex() {
       </div>
 
       <ol className="list-none p-0">
-        {projects.map((p) => (
+        {items.map((p) => (
           <li key={p.slug} className="m-0 p-0">
             <Link
               href={`/work/${p.slug}`}
@@ -54,7 +62,9 @@ export default function ProjectIndex() {
               />
               <span
                 className={`hud group-focus-visible:text-accent ${
-                  p.featured ? "text-accent" : "text-muted group-hover:text-accent"
+                  markFeatured && p.featured
+                    ? "text-accent"
+                    : "text-muted group-hover:text-accent"
                 }`}
               >
                 {p.index}
@@ -83,7 +93,7 @@ export default function ProjectIndex() {
               <span className="min-w-0">
                 <span className="block text-xl text-muted group-hover:text-ink group-focus-visible:text-ink md:text-2xl">
                   {p.title}
-                  {p.featured && (
+                  {markFeatured && p.featured && (
                     <span
                       className="accent-t ml-3 inline-block -translate-y-0.5 rounded-sm border border-accent px-1.5 py-0.5 text-accent"
                       style={{ fontSize: "9px", letterSpacing: "0.14em" }}

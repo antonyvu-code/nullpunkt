@@ -77,6 +77,15 @@ h3,
     border-color 0.45s ease;
 }
 
+/* Field notes let go slowly. The attribute is set on <html> for the length of
+   the fade only (see FieldNotes.tsx), so the whole page — kickers, markers,
+   hot readings — drifts back to its rest colour instead of snapping. Arrival
+   keeps the normal 0.45s above; only the release is stretched. */
+[data-accent-release] .accent-t,
+[data-accent-release] .accent-t * {
+  transition-duration: 2s;
+}
+
 .hud {
   font-family: var(--font-spline-mono), ui-monospace, monospace;
   text-transform: uppercase;
@@ -118,7 +127,11 @@ h3,
 
 @media (prefers-reduced-motion: reduce) {
   .accent-t,
-  .accent-t * {
+  .accent-t *,
+  /* Must be listed explicitly: the release rule is more specific than
+     .accent-t, so a bare reset here would lose to it. */
+  [data-accent-release] .accent-t,
+  [data-accent-release] .accent-t * {
     transition: none;
   }
   .np-zero,
