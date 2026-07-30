@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Bricolage_Grotesque, Instrument_Sans, Spline_Sans_Mono } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
@@ -89,7 +90,7 @@ export default function RootLayout({
             className="w-full border-t px-[var(--gutter)] py-8"
             style={{ borderColor: "var(--line)" }}
           >
-            <div className="hud flex flex-wrap items-center justify-between gap-4 text-muted">
+            <div className="hud flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-muted">
               <span>
                 {site.wordmark} — {site.footerNote}
               </span>
@@ -99,6 +100,22 @@ export default function RootLayout({
               >
                 {site.email}
               </a>
+              {/* § 5 DDG: leicht erkennbar und unmittelbar erreichbar — also im
+                  Fuß jeder Seite, nicht nur auf der Startseite. */}
+              <span className="flex items-center gap-5">
+                <Link
+                  href="/impressum"
+                  className="accent-t inline-flex min-h-[44px] items-center text-muted no-underline hover:text-accent"
+                >
+                  IMPRESSUM
+                </Link>
+                <Link
+                  href="/datenschutz"
+                  className="accent-t inline-flex min-h-[44px] items-center text-muted no-underline hover:text-accent"
+                >
+                  DATENSCHUTZ
+                </Link>
+              </span>
               <span>© {site.founded}</span>
             </div>
           </footer>

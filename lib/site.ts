@@ -6,11 +6,19 @@ export const site = {
       recruiter holding the Lebenslauf can tie the two together. */
   legalName: "Anh Tuan Vu",
   wordmark: "ANTONY VU",
-  // TODO(antony): tagline is still a placeholder — you said you'll write it yourself.
-  // DE strings are drafts too; refine the voice when you have a moment.
+  /**
+   * The headline of the whole site, chosen 30.07.
+   *
+   * The previous line — "a different one each time" — promised variety, which
+   * is a promise about style, not about worth: a reader finished it still not
+   * knowing what to hire this person for. This one takes a position instead.
+   * Design and build being ONE job is the rare half of the profession and the
+   * thing every case below demonstrates; it also frames the handover gap as
+   * the problem it is, which is the sentence an agency needs to hear.
+   */
   tagline: {
-    en: "I design and build websites — a different one each time.",
-    de: "Ich gestalte und baue Websites — jede eine andere.",
+    en: "The design and the build are the same job.",
+    de: "Entwurf und Umsetzung sind eine Arbeit.",
   },
   manifesto: {
     en: "Nullpunkt is where I design and build websites — each its own world, solved from the structure up. Communication designer by training, frontend developer by craft: I take a site from blank page to live, and no two look alike.",
@@ -38,6 +46,21 @@ export const site = {
     de: "Design und Frontend aus einer Hand: Ich übergebe nicht, ich liefere das Ganze.",
   },
   email: "atv1989.info@gmail.com",
+  /**
+   * Ladungsfähige Anschrift für das Impressum (§ 5 DDG). Bewusst die
+   * Privatadresse, entschieden am 30.07. — die Alternative wäre eine
+   * c/o-Geschäftsadresse gewesen.
+   *
+   * Diese Adresse steht damit öffentlich und ist für Scraper erreichbar; die
+   * beiden verlinkten Lebensläufe bleiben deshalb weiterhin der `--public`-
+   * Schnitt OHNE Anschrift und Telefonnummer (siehe bewerbung/cv/render.mjs).
+   * Wer sie später zurückziehen will, braucht zuerst die c/o-Adresse — Löschen
+   * allein holt nichts zurück, was einmal indexiert wurde.
+   */
+  anschrift: {
+    strasse: "Gryphiusstraße 10",
+    ort: "10245 Berlin",
+  },
   // GitHub and LinkedIn stay hidden until there is something behind them.
   // The two CVs here are the PUBLIC cut — no postal address, no phone number.
   // The full version with both goes out as an attachment, per application:
