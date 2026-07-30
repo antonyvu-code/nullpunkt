@@ -318,7 +318,7 @@ export default function Home() {
       >
         <div className="mb-12 flex flex-wrap items-baseline justify-between gap-3">
           <p className="hud hud-wide text-accent accent-t">
-            <L en="ABOUT — OPEN TO FRONTEND ROLES" de="ÜBER MICH — OFFEN FÜR FRONTEND-ROLLEN" />
+            <L en="ABOUT — ROLE OR AGENCY WORK" de="ÜBER MICH — STELLE ODER AGENTURARBEIT" />
           </p>
           <p className="hud text-muted-dim">S.06 / {SECTIONS}</p>
         </div>

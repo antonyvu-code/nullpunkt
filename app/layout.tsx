@@ -31,11 +31,11 @@ export const metadata: Metadata = {
     template: "%s — Nullpunkt",
   },
   description:
-    "Antony Vu is a Berlin-based creative developer — a communication designer who designs and builds websites end to end. Nullpunkt is the lab: many distinct sites, each its own world. Open to remote and Berlin roles.",
+    "Antony Vu is a Berlin-based creative developer — a communication designer who designs and builds websites end to end. Nullpunkt is the lab: many distinct sites, each its own world. Open to a permanent role, remote or Berlin — and to white-label work for agencies.",
   openGraph: {
     title: "Antony Vu — Creative Developer, Berlin · Nullpunkt",
     description:
-      "Nullpunkt, the lab of Antony Vu — a creative developer who designs and builds distinct websites end to end. Open to remote and Berlin roles.",
+      "Nullpunkt, the lab of Antony Vu — a creative developer who designs and builds distinct websites end to end. Open to a permanent role, remote or Berlin — and to white-label work for agencies.",
     siteName: "Nullpunkt",
     type: "website",
     locale: "en_US",
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Antony Vu — Creative Developer, Berlin · Nullpunkt",
     description:
-      "The lab of Antony Vu — a creative developer who designs and builds distinct websites end to end. Open to remote and Berlin roles.",
+      "The lab of Antony Vu — a creative developer who designs and builds distinct websites end to end. Open to a permanent role, remote or Berlin — and to white-label work for agencies.",
   },
 };
 

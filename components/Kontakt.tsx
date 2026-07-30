@@ -4,25 +4,35 @@ import { useId, useState } from "react";
 import { site } from "@/lib/site";
 import { useLang } from "@/components/Lang";
 
-type Fields = { firma: string; email: string; rolle: string; telefon: string; nachricht: string };
+type Modus = "stelle" | "projekt";
+/** `sache` is the one field that changes meaning with the mode: the position in
+ *  role mode, the scope of work in project mode. */
+type Fields = { firma: string; email: string; sache: string; telefon: string; nachricht: string };
 
-const EMPTY: Fields = { firma: "", email: "", rolle: "", telefon: "", nachricht: "" };
+const EMPTY: Fields = { firma: "", email: "", sache: "", telefon: "", nachricht: "" };
 
 /**
- * The form asks for a ROLE, not a brief.
+ * One form, two channels: A ROLE / A PROJECT.
  *
- * It used to read "PROJECT ENQUIRY · AGENCY / COMPANY · what the project is,
- * the scope, and roughly when it needs to be live" — an agency funnel on a page
- * whose header says OPEN TO FRONTEND ROLES and whose About block hands over two
- * CVs. Someone hiring read the last step of the site and found it addressed to
- * somebody else. The fields now match what the page claims to want.
+ * The page serves two readers and refuses to pick one. Someone hiring needs to
+ * see that a permanent role is on the table; an agency needs to see that
+ * white-label work is. A single neutral form ("get in touch") would address
+ * neither — and two separate forms would make the page look undecided. So the
+ * switch names both out loud and rewrites the fields, the placeholders and the
+ * subject line accordingly. It is the same gesture as the EN/DE toggle in the
+ * header: the page is an instrument, this is a channel selector.
+ *
+ * A form that hid one of the two behind a vague label would cost more than it
+ * saves: the visitor has to recognise their own case in the first line, or they
+ * assume the page is addressed to someone else and close it.
+ *
+ * Still a mailto composer, not an endpoint — the claim that the page processes
+ * nothing holds in both channels.
  */
 const copy = {
   en: {
-    legend: "ROLE ENQUIRY",
-    firma: "COMPANY / TEAM",
+    schalter: "THIS IS ABOUT",
     email: "E-MAIL",
-    rolle: "ROLE",
     telefon: "PHONE",
     nachricht: "MESSAGE",
     optional: "OPTIONAL",
@@ -32,18 +42,34 @@ const copy = {
     copyDone: "COPIED — PASTE IT INTO YOUR WEBMAIL",
     copyFail: "COPY FAILED — SELECT THE TEXT MANUALLY",
     hint: "The button opens your own mail programme with everything already filled in. This page sends nothing, stores nothing, sets no cookie.",
-    subject: "Frontend position",
-    phFirma: "e.g. Studio Kraftwerk",
     phEmail: "name@company.com",
-    phRolle: "e.g. Frontend Developer, remote",
     phTelefon: "+49 30 1234567",
-    phNachricht: "Briefly: the team, the stack, and whether the role can be remote.",
+    modi: {
+      stelle: {
+        knopf: "A ROLE",
+        legend: "ROLE ENQUIRY",
+        firma: "COMPANY / TEAM",
+        phFirma: "e.g. Studio Kraftwerk",
+        sache: "ROLE",
+        phSache: "e.g. Frontend Developer, remote",
+        phNachricht: "Briefly: the team, the stack, and whether the role can be remote.",
+        subject: "Frontend position",
+      },
+      projekt: {
+        knopf: "A PROJECT",
+        legend: "PROJECT ENQUIRY",
+        firma: "AGENCY / COMPANY",
+        phFirma: "e.g. Studio Kraftwerk",
+        sache: "SCOPE",
+        phSache: "e.g. Figma → code, 6 sections",
+        phNachricht: "Briefly: what the project is, the scope, and roughly when it needs to be live.",
+        subject: "Project enquiry",
+      },
+    },
   },
   de: {
-    legend: "STELLENANFRAGE",
-    firma: "FIRMA / TEAM",
+    schalter: "ES GEHT UM",
     email: "E-MAIL",
-    rolle: "STELLE",
     telefon: "TELEFON",
     nachricht: "NACHRICHT",
     optional: "OPTIONAL",
@@ -53,12 +79,30 @@ const copy = {
     copyDone: "KOPIERT — IM WEBMAIL EINFÜGEN",
     copyFail: "KOPIEREN FEHLGESCHLAGEN — TEXT MANUELL MARKIEREN",
     hint: "Der Knopf öffnet Ihr eigenes Mailprogramm, alles schon ausgefüllt. Diese Seite verschickt nichts, speichert nichts, setzt kein Cookie.",
-    subject: "Frontend-Position",
-    phFirma: "z. B. Studio Kraftwerk",
     phEmail: "name@firma.de",
-    phRolle: "z. B. Frontend-Entwickler, remote",
     phTelefon: "+49 30 1234567",
-    phNachricht: "Kurz: das Team, der Stack, und ob die Stelle remote möglich ist.",
+    modi: {
+      stelle: {
+        knopf: "EINE STELLE",
+        legend: "STELLENANFRAGE",
+        firma: "FIRMA / TEAM",
+        phFirma: "z. B. Studio Kraftwerk",
+        sache: "STELLE",
+        phSache: "z. B. Frontend-Entwickler, remote",
+        phNachricht: "Kurz: das Team, der Stack, und ob die Stelle remote möglich ist.",
+        subject: "Frontend-Position",
+      },
+      projekt: {
+        knopf: "EIN PROJEKT",
+        legend: "PROJEKTANFRAGE",
+        firma: "AGENTUR / FIRMA",
+        phFirma: "z. B. Studio Kraftwerk",
+        sache: "UMFANG",
+        phSache: "z. B. Figma → Code, 6 Abschnitte",
+        phNachricht: "Kurz: worum es geht, welcher Umfang, und ungefähr wann es live sein soll.",
+        subject: "Projektanfrage",
+      },
+    },
   },
 } as const;
 
@@ -107,7 +151,8 @@ function Cell({
 
   return (
     <div
-      className={`accent-t border-t-2 border-transparent bg-surface px-4 pb-4 pt-3 focus-within:border-accent ${className}`}
+      className={`accent-t group bg-bg px-4 pb-4 pt-4 focus-within:border-t-2 focus-within:border-accent md:px-5 ${className}`}
+      style={{ borderTop: "2px solid transparent" }}
     >
       <div className="flex items-baseline justify-between gap-3">
         <label htmlFor={id} className="hud text-muted">
@@ -155,6 +200,10 @@ export default function Kontakt() {
   const { lang } = useLang();
   const t = copy[lang];
   const uid = useId();
+  /* Role first: that is the priority right now. The other channel is one click
+     away and named, which is the whole point of showing the switch. */
+  const [modus, setModus] = useState<Modus>("stelle");
+  const m = t.modi[modus];
   const [f, setF] = useState<Fields>(EMPTY);
   const [status, setStatus] = useState<string>("");
 
@@ -162,9 +211,9 @@ export default function Kontakt() {
 
   const plain = () =>
     [
-      `${t.firma}: ${f.firma}`,
+      `${m.firma}: ${f.firma}`,
       `${t.email}: ${f.email}`,
-      `${t.rolle}: ${f.rolle || "—"}`,
+      `${m.sache}: ${f.sache || "—"}`,
       `${t.telefon}: ${f.telefon || "—"}`,
       "",
       "———",
@@ -172,9 +221,9 @@ export default function Kontakt() {
       f.nachricht,
     ].join("\n");
 
-  /* Betreff trägt die Stelle, wenn sie genannt ist — sonst die Firma. Das ist
-     die Zeile, die im Postfach zuerst gelesen wird. */
-  const subject = `${t.subject} — ${f.rolle || f.firma || site.wordmark}`;
+  /* Subject carries the concrete thing — the position, or the scope of work.
+     It is the line read first in an inbox. */
+  const subject = `${m.subject} — ${f.sache || f.firma || site.wordmark}`;
 
   const submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -191,9 +240,33 @@ export default function Kontakt() {
     }
   };
 
+  const knopf = (k: Modus, text: string) => (
+    <button
+      key={k}
+      type="button"
+      onClick={() => setModus(k)}
+      aria-pressed={modus === k}
+      className={`accent-t hud inline-flex min-h-[44px] items-center border-b-2 px-1 transition-colors duration-300 motion-reduce:transition-none ${
+        modus === k ? "border-accent text-accent" : "border-transparent text-muted hover:text-ink"
+      }`}
+    >
+      {text}
+    </button>
+  );
+
   return (
     <form onSubmit={submit} noValidate={false}>
-      <p className="hud hud-wide accent-t mb-3 text-accent">{t.legend}</p>
+      {/* The switch sits above the plate and reads as one line of instrument
+          copy: "THIS IS ABOUT · A ROLE / A PROJECT". Same grammar as EN / DE. */}
+      <div className="mb-6 flex flex-wrap items-center gap-x-5 gap-y-1">
+        <p className="hud hud-wide text-muted-dim">{t.schalter}</p>
+        <span className="flex items-center gap-4" role="group" aria-label={t.schalter}>
+          {knopf("stelle", t.modi.stelle.knopf)}
+          {knopf("projekt", t.modi.projekt.knopf)}
+        </span>
+      </div>
+
+      <p className="hud hud-wide accent-t mb-3 text-accent">{m.legend}</p>
 
       {/* gap-px over the line colour draws the rules — the plate is one grid,
           not four bordered boxes, so the field edges meet exactly. */}
@@ -203,11 +276,11 @@ export default function Kontakt() {
       >
         <Cell
           id={`${uid}-firma`}
-          label={t.firma}
+          label={m.firma}
           note={t.required}
           value={f.firma}
           onChange={set("firma")}
-          placeholder={t.phFirma}
+          placeholder={m.phFirma}
           autoComplete="organization"
           required
         />
@@ -223,12 +296,12 @@ export default function Kontakt() {
           required
         />
         <Cell
-          id={`${uid}-rolle`}
-          label={t.rolle}
+          id={`${uid}-sache`}
+          label={m.sache}
           note={t.optional}
-          value={f.rolle}
-          onChange={set("rolle")}
-          placeholder={t.phRolle}
+          value={f.sache}
+          onChange={set("sache")}
+          placeholder={m.phSache}
         />
         <Cell
           id={`${uid}-telefon`}
@@ -246,7 +319,7 @@ export default function Kontakt() {
           note={t.required}
           value={f.nachricht}
           onChange={set("nachricht")}
-          placeholder={t.phNachricht}
+          placeholder={m.phNachricht}
           required
           area
           className="md:col-span-2"

@@ -68,10 +68,13 @@ export default function Chrome() {
           SCR <span ref={scrRef}>000%</span>
         </p>
         <div className="flex items-center gap-4">
+          {/* Both channels, named. The page is for someone hiring AND for an
+              agency looking for a pair of hands — a vaguer "open to work" would
+              serve neither. Kept short enough not to wrap next to the toggle. */}
           <p className="hud accent-t hidden text-muted sm:block">
             STATUS —{" "}
             <span className="text-accent">
-              <L en="OPEN TO FRONTEND ROLES" de="OFFEN FÜR FRONTEND-ROLLEN" />
+              <L en="OPEN TO ROLES & AGENCY WORK" de="OFFEN FÜR ROLLEN & AGENTURARBEIT" />
             </span>
           </p>
           <LangToggle />

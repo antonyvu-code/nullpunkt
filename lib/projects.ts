@@ -144,7 +144,11 @@ export const projects: Project[] = [
   {
     slug: "gutjahr-dachtechnik",
     featured: true,
-    frontpage: true,
+    /* Off the shelf on 30.07. — Whitepace took the slot. The site is now sent
+       to agencies as well, and an agency's first question is whether a supplied
+       design gets executed, not whether an unsolicited redesign was a good idea.
+       Gutjahr stays in the archive, and GUTJAHR V2 already carries the redesign
+       argument under Field Notes. */
     index: "02",
     title: "Gutjahr Dachtechnik",
     year: "2026",
@@ -531,6 +535,10 @@ export const projects: Project[] = [
   },
   {
     slug: "whitepace",
+    /* On the shelf since 30.07., in Gutjahr's place: this is the agency channel's
+       evidence — a supplied design, executed section for section, with the
+       template beside the build in the case itself. */
+    frontpage: true,
     index: "09",
     title: "Whitepace",
     year: "2026",

@@ -108,14 +108,15 @@ export const site = {
       v: { en: "DESIGNED AND BUILT BY ONE", de: "ENTWORFEN UND GEBAUT VON EINEM" },
       hot: true,
     },
-    /* Says WHAT he is open to, not just that he is open. The header carries the
-       same sentence, but it is hidden below 640px — this cell is the only place
-       a phone shows it, and "OPEN" alone reads as "open to enquiries". */
+    /* Says WHAT he is open to, not just that he is open — and names BOTH
+       channels, because the site is sent to agencies as well as to people
+       hiring. The header carries the same line but hides below 640px, so this
+       cell is the only place a phone shows it. */
     {
       k: { en: "STATUS", de: "STATUS" },
       v: {
-        en: "OPEN TO FRONTEND ROLES · REMOTE OR BERLIN",
-        de: "OFFEN FÜR FRONTEND-ROLLEN · REMOTE ODER BERLIN",
+        en: "ROLE OR AGENCY WORK · REMOTE OR BERLIN",
+        de: "STELLE ODER AGENTURARBEIT · REMOTE ODER BERLIN",
       },
       hot: true,
     },
