@@ -65,9 +65,37 @@ function swatchColor(k: string, v: string): string | null {
 }
 
 /** Swiss left rail: kicker + a running section number, ruled off from the body. */
-function Rail({ kicker, n }: { kicker: React.ReactNode; n: string }) {
+function Rail({
+  kicker,
+  n,
+  draw = true,
+}: {
+  kicker: React.ReactNode;
+  n: string;
+  /** Whether FX.04 may animate this rule. Off for Contact: it is the last thing
+   *  on the page, and a rule that is still drawing itself under someone who has
+   *  arrived to write an email is motion asking for attention it has no business
+   *  asking for. The rule is simply there. */
+  draw?: boolean;
+}) {
   return (
-    <div className="mb-6 md:col-span-3 md:mb-0 md:border-r md:pr-6" style={{ borderColor: "var(--line)" }}>
+    <div data-rail className="relative mb-6 md:col-span-3 md:mb-0 md:pr-6">
+      {/* The rail's rule is this element, not a border on the cell.
+          It was a border, and FX.04 hid the border while a drawn stand-in took
+          over — two mechanisms for one line, which broke twice: the stylesheet
+          rule that hid the border lost to Tailwind's own .hidden, and switching
+          the effect off wrote a longhand over React's `borderColor: var(--line)`
+          shorthand, which destroys it: the CSSOM cannot round-trip a var() in a
+          shorthand, so the rules came back as opaque ink instead of a 14 %
+          hairline. One element, one rule. With the effect off it simply stands
+          there; with it on, GSAP scrubs its scaleY. Nothing to hide, nothing to
+          restore. */}
+      <span
+        aria-hidden="true"
+        data-fx-line={draw ? "rail" : undefined}
+        className="absolute right-0 top-0 hidden h-full w-px origin-top md:block"
+        style={{ background: "var(--line)" }}
+      />
       <p className="hud hud-wide text-accent accent-t">{kicker}</p>
       <p className="hud mt-2 text-muted-dim">
         S.{n} / {SECTIONS}
@@ -139,11 +167,68 @@ export default function Home() {
 
       <Selected />
 
+      {/* FIELD NOTES — full-width, kicker on top (the loud, edge-to-edge
+          archetype). It follows the shelf directly: the shelf is the four cases
+          that earned a write-up, this is the eight that shipped without one, and
+          between them they are the whole body of evidence. Splitting them —
+          which is what the stack and the CV used to do — meant a reader who came
+          to see the work had to scroll past two sections about the person to
+          find the rest of it.
+
+          These two are also the page's only consecutive pair of railless
+          sections, which is deliberate: the missing rule is what marks them as
+          one block. Strict rail/no-rail alternation resumes below. */}
+      <section
+        id="field-notes"
+        aria-label="Uncatalogued experiments"
+        className="border-t py-16 md:py-24"
+        style={{ borderColor: "var(--line)" }}
+        data-reveal
+      >
+        <div className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
+          <p className="hud hud-wide text-accent accent-t">FIELD NOTES — LIVE, UNCATALOGUED</p>
+          <p className="hud accent-t flex items-center gap-2 text-muted-dim">
+            <span aria-hidden="true" className="np-pulse inline-block h-1.5 w-1.5 rounded-full bg-accent" />
+            S.02 / {SECTIONS} · <L en="LIVE" de="LIVE" />
+          </p>
+        </div>
+        <p className="max-w-xl leading-relaxed text-muted">
+          Not everything has earned a write-up yet. These ship as-is — open them, they are the
+          argument.
+        </p>
+        <FieldNotes />
+      </section>
+
+      {/* WERDEGANG — the dates a German recruiter looks for first, in the site's
+          own language: a measured axis, not a CV table. First section after the
+          evidence, and the first railed one, so the page visibly changes subject
+          here: everything above is the work, everything below is the person. */}
+      <section
+        id="werdegang"
+        aria-label="Career stations"
+        className="border-t py-16 md:grid md:grid-cols-12 md:gap-x-6 md:py-24"
+        style={{ borderColor: "var(--line)" }}
+        data-reveal
+      >
+        <Rail kicker={<L en="WERDEGANG — THE STATIONS" de="WERDEGANG — DIE STATIONEN" />} n="03" />
+        <div className="md:col-span-9">
+          <h2 className="max-w-2xl text-2xl font-medium md:text-4xl">
+            <L
+              en="Trained as a designer, then taught to build."
+              de="Als Gestalter ausgebildet, dann das Bauen gelernt."
+            />
+          </h2>
+          <div className="mt-10">
+            <Werdegang />
+          </div>
+        </div>
+      </section>
+
       {/* CAPABILITIES — a channel rack, not a ledger. The groups stand as ruled
           vertical columns, so the section reads as a printed spec column and
-          borrows no silhouette from the specimen cards above or the boxed spec
-          tiles in Under the Hood. The rail is gone with it: the marker row
-          carries the section number, which breaks the page's rail cadence. */}
+          borrows no silhouette from the dated axis above or the boxed spec tiles
+          in Under the Hood. No rail — the marker row carries the section number
+          instead — which keeps it off-beat between two railed neighbours. */}
       <section
         id="capabilities"
         aria-label="Capabilities"
@@ -159,7 +244,7 @@ export default function Home() {
             />
           </p>
           <p className="hud text-muted-dim">
-            S.02 / {SECTIONS} · <L en="IN PRODUCTION" de="IN PRODUKTION" />
+            S.04 / {SECTIONS} · <L en="IN PRODUCTION" de="IN PRODUKTION" />
           </p>
         </div>
 
@@ -173,10 +258,13 @@ export default function Home() {
           />
         </p>
 
-        {/* gap-px over the line colour rules the columns; the cells keep the
-            page ground, so this reads as a ruled table rather than as tiles. */}
+        {/* gap-px over the line colour rules the cells; they keep the page
+            ground, so this reads as a ruled table rather than as tiles. Three up
+            and two down, not six across: on the narrowed measure six columns
+            leave ~130px a group, which breaks entries like "Next.js (App
+            Router)" over three lines and turns the rack into confetti. */}
         <div
-          className="mt-12 grid grid-cols-2 gap-px md:grid-cols-3 lg:grid-cols-6"
+          className="mt-12 grid grid-cols-2 gap-px md:grid-cols-3"
           style={{
             background: "var(--line)",
             borderTop: "1px solid var(--line)",
@@ -204,57 +292,15 @@ export default function Home() {
         </div>
       </section>
 
-      {/* WERDEGANG — the dates a German recruiter looks for first, in the site's
-          own language: a measured axis, not a CV table. */}
-      <section
-        id="werdegang"
-        aria-label="Career stations"
-        className="border-t py-16 md:grid md:grid-cols-12 md:gap-x-6 md:py-24"
-        style={{ borderColor: "var(--line)" }}
-        data-reveal
-      >
-        <Rail kicker={<L en="WERDEGANG — THE STATIONS" de="WERDEGANG — DIE STATIONEN" />} n="03" />
-        <div className="md:col-span-9">
-          <h2 className="max-w-2xl text-2xl font-medium md:text-4xl">
-            <L
-              en="Trained as a designer, then taught to build."
-              de="Als Gestalter ausgebildet, dann das Bauen gelernt."
-            />
-          </h2>
-          <div className="mt-10">
-            <Werdegang />
-          </div>
-        </div>
-      </section>
-
-      {/* FIELD NOTES — full-width, kicker on top (the loud, edge-to-edge archetype),
-          deliberately NOT railed so it breaks the spec sections' silhouette. */}
-      <section
-        id="field-notes"
-        aria-label="Uncatalogued experiments"
-        className="border-t py-16 md:py-24"
-        style={{ borderColor: "var(--line)" }}
-        data-reveal
-      >
-        <div className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
-          <p className="hud hud-wide text-accent accent-t">FIELD NOTES — LIVE, UNCATALOGUED</p>
-          <p className="hud accent-t flex items-center gap-2 text-muted-dim">
-            <span aria-hidden="true" className="np-pulse inline-block h-1.5 w-1.5 rounded-full bg-accent" />
-            S.04 / {SECTIONS} · <L en="LIVE" de="LIVE" />
-          </p>
-        </div>
-        <p className="max-w-xl leading-relaxed text-muted">
-          Not everything has earned a write-up yet. These ship as-is — open them, they are the
-          argument.
-        </p>
-        <FieldNotes />
-      </section>
-
-      {/* UNDER THE HOOD — a full-bleed surface panel ("the machine room"), the only
-          section with a fill, so it reads as an inset instrument rack, not another rail. */}
+      {/* UNDER THE HOOD — a surface panel ("the machine room"), the only section
+          with a fill, so it reads as an inset instrument rack, not another rail.
+          It overhangs the measure to --bleed rather than running to the screen
+          edge: at 50rem of page a band the full width of the window would be the
+          widest thing here by half again, and the narrowing would read as a
+          mistake in everything else rather than as the page's own width. */}
       <section
         id="hood"
-        className="-mx-[var(--gutter)] border-y px-[var(--gutter)] py-16 md:grid md:grid-cols-12 md:gap-x-6 md:py-24"
+        className="-mx-[var(--bleed)] border-y px-[var(--bleed)] py-16 md:grid md:grid-cols-12 md:gap-x-6 md:py-24"
         style={{ borderColor: "var(--line)", background: "var(--surface)" }}
         data-reveal
       >
@@ -275,7 +321,14 @@ export default function Home() {
                   {s.rows.map(([k, v]) => {
                     const sw = swatchColor(k, v);
                     return (
-                      <div key={k} className="flex items-baseline justify-between gap-4 py-1.5">
+                      // flex-wrap, so the pair sets itself. On a wide tile the
+                      // label and the value sit on one ruled line, justified
+                      // apart; on the narrowed measure a tile is ~150px and a
+                      // reading like "SPLINE SANS MONO · UPPERCASE" cannot share
+                      // a line with its label at any size worth reading, so the
+                      // value drops under it — which is the same stacked dt/dd
+                      // the hero's FIG.01 cells already use.
+                      <div key={k} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-1.5">
                         <dt className="hud text-muted-dim">{k}</dt>
                         <dd className="hud m-0 flex items-center gap-2 text-right text-muted">
                           {sw && (
@@ -305,10 +358,10 @@ export default function Home() {
           form for the same eye. Split, each gets its own air — S.06 is who, S.07
           is how to reach him, and nothing else. */}
       {/* ABOUT — the page's one editorial spread, and the only place the type
-          itself does the arguing. Three sizes, three jobs: the claim set large
-          and narrowed on Bricolage's width axis, the evidence held at a reading
-          measure, the promise pulled out against a rule. Also railless, so two
-          consecutive sections now break the rail cadence rather than one. */}
+          itself does the arguing. Three sizes, three jobs, stacked in that
+          order: the claim set large and narrowed on Bricolage's width axis, the
+          evidence held at a reading measure, the promise pulled back up in
+          accent. Railless, on the beat between Under the Hood and Contact. */}
       <section
         id="about"
         aria-label="About"
@@ -333,41 +386,43 @@ export default function Home() {
           <L text={site.aboutLead} />
         </h2>
 
-        <div
-          className="mt-14 grid gap-y-12 border-t pt-12 md:grid-cols-12 md:gap-x-6"
-          style={{ borderColor: "var(--line)" }}
-        >
-          <p className="max-w-[46ch] text-pretty text-lg leading-relaxed text-muted md:col-span-6 md:text-xl">
+        {/* One column, read top to bottom: evidence, then promise, then the
+            documents. The promise used to sit in a second column beside the
+            evidence, which asked the reader to hold two threads at once and let
+            the eye reach the closing line before the paragraph that earns it.
+            Stacked, the order is the argument's own order — and on the narrowed
+            measure a 6+5 spread would leave two columns of about 24 characters,
+            which is below a readable line anyway. */}
+        <div className="mt-14 border-t pt-12" style={{ borderColor: "var(--line)" }}>
+          <p className="max-w-[46ch] text-pretty text-lg leading-relaxed text-muted md:text-xl">
             <L text={site.aboutBody} />
           </p>
 
-          <div className="md:col-span-5 md:col-start-8">
-            <p className="hud text-muted-dim">
-              <L en="— THE PROMISE" de="— DAS VERSPRECHEN" />
-            </p>
-            <p
-              className="accent-t font-display mt-4 text-2xl font-medium leading-[1.15] tracking-[-0.015em] text-accent md:text-[1.75rem]"
-              style={{ fontVariationSettings: '"wdth" 92, "opsz" 32' }}
-            >
-              <L text={site.aboutClose} />
-            </p>
-            <ul className="hud mt-10 flex list-none flex-wrap gap-x-6 gap-y-3 p-0">
-              {site.links.map((l) => (
-                <li key={l.label}>
-                  <a
-                    href={l.href}
-                    target={l.placeholder ? undefined : "_blank"}
-                    rel="noopener"
-                    className="accent-t inline-flex items-center gap-1.5 border-b border-transparent text-muted no-underline hover:border-accent hover:text-accent"
-                    title={l.placeholder ? "Placeholder — add real URL" : undefined}
-                  >
-                    {l.label}
-                    <span aria-hidden="true" className="opacity-50">↗</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <p className="hud mt-14 text-muted-dim">
+            <L en="— THE PROMISE" de="— DAS VERSPRECHEN" />
+          </p>
+          <p
+            className="accent-t font-display mt-4 max-w-[24ch] text-2xl font-medium leading-[1.15] tracking-[-0.015em] text-accent md:text-[1.75rem]"
+            style={{ fontVariationSettings: '"wdth" 92, "opsz" 32' }}
+          >
+            <L text={site.aboutClose} />
+          </p>
+          <ul className="hud mt-10 flex list-none flex-wrap gap-x-6 gap-y-3 p-0">
+            {site.links.map((l) => (
+              <li key={l.label}>
+                <a
+                  href={l.href}
+                  target={l.placeholder ? undefined : "_blank"}
+                  rel="noopener"
+                  className="accent-t inline-flex items-center gap-1.5 border-b border-transparent text-muted no-underline hover:border-accent hover:text-accent"
+                  title={l.placeholder ? "Placeholder — add real URL" : undefined}
+                >
+                  {l.label}
+                  <span aria-hidden="true" className="opacity-50">↗</span>
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
 
         {/* Antony Vu is the working name; the CV and the certificates carry the
@@ -387,7 +442,7 @@ export default function Home() {
         style={{ borderColor: "var(--line)" }}
         data-reveal
       >
-        <Rail kicker={<L en="CONTACT — DIRECT LINE" de="KONTAKT — DIREKTER DRAHT" />} n="07" />
+        <Rail kicker={<L en="CONTACT — DIRECT LINE" de="KONTAKT — DIREKTER DRAHT" />} n="07" draw={false} />
         <div className="md:col-span-9">
           {/* The name is the headline; the address sits under it as an
               instrument line. Someone who just wants to write — a recruiter with

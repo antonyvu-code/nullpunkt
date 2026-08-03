@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useFx } from "@/components/fx/FxProvider";
 
 /**
  * The hero's instrument — the signature of the whole page. Three oscilloscope
@@ -14,6 +17,7 @@ import { useEffect, useRef } from "react";
 export default function Scope() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const readoutRef = useRef<HTMLDivElement>(null);
+  const dock = useFx("scope-dock");
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -31,6 +35,14 @@ export default function Scope() {
     let visible = true;
     let pointerX = 0;
     let probing = false;
+
+    /* FX.02 — attenuation. 1 while the hero holds the screen, falling to 0 as it
+       leaves. Every amplitude on the face is multiplied by it, so the signal
+       does not fade out as a picture would: it collapses onto its own baseline,
+       which is what an instrument losing a signal actually shows. The beam then
+       reappears at the foot of the page, on the progress rule Chrome already
+       draws — the scope is not removed, it is minimised. */
+    let att = 1;
 
     // Rides the big display title, which tolerates the faint wave, so the
     // smaller body text stays clear. That used to be hard-coded as h * 0.5 —
@@ -148,7 +160,7 @@ export default function Scope() {
     const HALO = 10;
 
     const beam = (bx: number, accent: string, phase: number) => {
-      const by = waveY(bx, BASE(), AMP, FREQ, phase);
+      const by = waveY(bx, BASE(), AMP * att, FREQ, phase);
       ctx.save();
       ctx.globalCompositeOperation = "lighter";
       ctx.fillStyle = accent;
@@ -170,9 +182,9 @@ export default function Scope() {
       const accentPhase = t * 1.3 + 2;
 
       graticule(line);
-      trace(BASE(), 26, 0.01, t, line, 1.4, 0.5);
-      trace(BASE(), AMP, FREQ, accentPhase, accent, 2.2, 0.85, true);
-      trace(BASE(), 12, 0.02, -t * 0.8, line, 1, 0.5);
+      trace(BASE(), 26 * att, 0.01, t, line, 1.4, 0.5);
+      trace(BASE(), AMP * att, FREQ, accentPhase, accent, 2.2, 0.85, true);
+      trace(BASE(), 12 * att, 0.02, -t * 0.8, line, 1, 0.5);
 
       // Beam position: locked under the cursor while probing, otherwise sweeping.
       const sweepX = ((t * SPEED) % (w + 120)) - 60;
@@ -236,6 +248,63 @@ export default function Scope() {
     });
     io.observe(canvas);
 
+    let dockTween: gsap.core.Tween | null = null;
+    if (dock && !reduce) {
+      gsap.registerPlugin(ScrollTrigger);
+      {
+        /* The window matters more than the effect. The first version ran the
+           collapse from the hero's "top top" to its "bottom top" — the whole
+           length of the hero leaving the screen — and was invisible: measured,
+           the trace was already at viewport y ≈ −16 by the time attenuation
+           reached 0.25, so the signal did all its dying above the fold.
+           Something can only be watched failing while it is on screen.
+
+           The trace rides the title's centre, which starts at y ≈ 410 and
+           leaves the top of the screen at about the same number of pixels of
+           scroll. So the whole collapse has to fit inside that: pinned to the
+           scroll itself rather than to the hero, and done inside the first 38 %
+           of a screen. Measured across the run, the trace never leaves the
+           viewport before the wave is flat. */
+        root.style.setProperty("--scope-att", "1");
+
+        /* Driven through a tween rather than read off the trigger. scrub smooths
+           the progress of an animation it is linked to — ScrollTrigger.create()
+           links none, so the old version handed onUpdate the raw scrollbar
+           position and the needle fell exactly as abruptly as the wheel turned.
+           Giving scrub something to smooth is what puts any weight in the fall,
+           and it is also where the curve can now live. */
+        const drive = { att: 1 };
+        dockTween = gsap.to(drive, {
+          att: 0,
+          /* Not linear. An instrument losing its source holds amplitude while
+             there is still something to read, then gives out: power2.in barely
+             moves through the first half of the run (att .94 at a quarter, .75
+             at half) and spends the collapse in the second — which is the half
+             still on screen. Linear did most of its dying on a trace that had
+             already left the fold, which is how the effect came to look like
+             nothing was happening. */
+          ease: "power2.in",
+          scrollTrigger: {
+            start: 0,
+            end: () => window.innerHeight * 0.38,
+            scrub: 0.6,
+          },
+          onUpdate: () => {
+            att = drive.att;
+            /* Opacity deliberately lags the amplitude. Fading in step with att
+               hid the collapse behind a dissolve — the point is to watch the
+               wave flatten, not to watch it disappear. At a fractional power the
+               face stays legible until the wave is nearly flat, then goes. */
+            canvas.style.opacity = String(0.7 * Math.pow(att, 0.4));
+            // Published so the foot of the page can fade the beam IN by exactly
+            // as much as the hero has faded it out — that hand-over is the whole
+            // point, and without it the dot is just another dot.
+            root.style.setProperty("--scope-att", String(att));
+          },
+        });
+      }
+    }
+
     if (reduce) frame();
 
     return () => {
@@ -243,8 +312,14 @@ export default function Scope() {
       window.removeEventListener("mousemove", onMove);
       io.disconnect();
       cancelAnimationFrame(rafId);
+      dockTween?.scrollTrigger?.kill();
+      dockTween?.kill();
+      // Handing the face back at full strength — the next mount reads the
+      // element's own class again instead of a value this run happened to stop on.
+      canvas.style.opacity = "";
+      root.style.removeProperty("--scope-att");
     };
-  }, []);
+  }, [dock]);
 
   return (
     <>

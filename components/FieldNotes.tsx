@@ -71,6 +71,9 @@ export default function FieldNotes() {
             href={f.url}
             target="_blank"
             rel="noopener"
+            // The row's stop on the sweep, published for the scroll-driven
+            // borrow (FX.01/FX.05) to read.
+            data-accent={stop}
             onMouseEnter={() => hold(stop)}
             onFocus={() => hold(stop)}
             onBlur={release}

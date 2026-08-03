@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Bricolage_Grotesque, Instrument_Sans, Spline_Sans_Mono } from "next/font/google";
+import {
+  Bricolage_Grotesque,
+  Instrument_Sans,
+  Spline_Sans_Mono,
+} from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
 import Chrome from "@/components/Chrome";
@@ -8,6 +12,11 @@ import Loader from "@/components/Loader";
 import SmoothScroll from "@/components/SmoothScroll";
 import Reveal from "@/components/Reveal";
 import { LangProvider } from "@/components/Lang";
+import { FxProvider } from "@/components/fx/FxProvider";
+import AccentScroll from "@/components/fx/AccentScroll";
+import DrawLines from "@/components/fx/DrawLines";
+import ShelfTransport from "@/components/fx/ShelfTransport";
+import { DEFAULT_FX_ATTR } from "@/lib/fx";
 
 const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
@@ -55,7 +64,11 @@ const jsonLd = {
   name: site.owner,
   alternateName: site.legalName,
   jobTitle: "Creative Developer",
-  address: { "@type": "PostalAddress", addressLocality: "Berlin", addressCountry: "DE" },
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Berlin",
+    addressCountry: "DE",
+  },
   email: site.email,
   knowsLanguage: ["de", "en", "vi"],
   url: "https://nullpunkt.vercel.app",
@@ -67,8 +80,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    /* data-fx ships in the HTML rather than being attached after hydration: the
+       stylesheet gates layout on it, so an attribute that arrives later means a
+       first paint of the wrong layout, and — worse — a measurement taken by an
+       effect before the layout it is measuring exists. DEFAULTS, so the server
+       and the first client render say the same thing; a stored choice replaces
+       it after mount, the same rule Lang follows. */
     <html
       lang="en"
+      data-fx={DEFAULT_FX_ATTR}
       className={`${bricolage.variable} ${instrument.variable} ${splineMono.variable} antialiased`}
     >
       <body className="min-h-screen">
@@ -80,45 +100,53 @@ export default function RootLayout({
         </a>
         <Loader />
         <LangProvider>
-          <SmoothScroll />
-          <Reveal />
-          <Chrome />
-          <main id="main" className="w-full px-[var(--gutter)] pb-24 pt-28">
-            {children}
-          </main>
-          <footer
-            className="w-full border-t px-[var(--gutter)] py-8"
-            style={{ borderColor: "var(--line)" }}
-          >
-            <div className="hud flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-muted">
-              <span>
-                {site.wordmark} — {site.footerNote}
-              </span>
-              <a
-                href={`mailto:${site.email}`}
-                className="accent-t inline-flex min-h-[44px] items-center text-muted no-underline hover:text-accent"
-              >
-                {site.email}
-              </a>
-              {/* § 5 DDG: leicht erkennbar und unmittelbar erreichbar — also im
+          <FxProvider>
+            <SmoothScroll />
+            <Reveal />
+            {/* The bench. Each queries the DOM for its own anchor and does
+              nothing where that anchor is absent, so a page with no rails pays
+              nothing for the rail effect. All five are switchable at runtime. */}
+            <AccentScroll />
+            <DrawLines />
+            <ShelfTransport />
+            <Chrome />
+            <main id="main" className="w-full px-[var(--gutter)] pb-24 pt-28">
+              {children}
+            </main>
+            <footer
+              className="w-full border-t px-[var(--gutter)] py-8"
+              style={{ borderColor: "var(--line)" }}
+            >
+              <div className="hud flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-muted">
+                <span>
+                  {site.lab} — {site.footerNote}
+                </span>
+                <a
+                  href={`mailto:${site.email}`}
+                  className="accent-t inline-flex min-h-[44px] items-center text-muted no-underline hover:text-accent"
+                >
+                  {site.email}
+                </a>
+                {/* § 5 DDG: leicht erkennbar und unmittelbar erreichbar — also im
                   Fuß jeder Seite, nicht nur auf der Startseite. */}
-              <span className="flex items-center gap-5">
-                <Link
-                  href="/impressum"
-                  className="accent-t inline-flex min-h-[44px] items-center text-muted no-underline hover:text-accent"
-                >
-                  IMPRESSUM
-                </Link>
-                <Link
-                  href="/datenschutz"
-                  className="accent-t inline-flex min-h-[44px] items-center text-muted no-underline hover:text-accent"
-                >
-                  DATENSCHUTZ
-                </Link>
-              </span>
-              <span>© {site.founded}</span>
-            </div>
-          </footer>
+                <span className="flex items-center gap-5">
+                  <Link
+                    href="/impressum"
+                    className="accent-t inline-flex min-h-[44px] items-center text-muted no-underline hover:text-accent"
+                  >
+                    IMPRESSUM
+                  </Link>
+                  <Link
+                    href="/datenschutz"
+                    className="accent-t inline-flex min-h-[44px] items-center text-muted no-underline hover:text-accent"
+                  >
+                    DATENSCHUTZ
+                  </Link>
+                </span>
+                <span>© {site.founded}</span>
+              </div>
+            </footer>
+          </FxProvider>
         </LangProvider>
         <script
           type="application/ld+json"

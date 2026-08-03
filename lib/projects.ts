@@ -212,7 +212,10 @@ export const projects: Project[] = [
     index: "03",
     title: "Pulse Analytics",
     year: "2026",
-    accent: "#6366F1",
+    // The cyan the pulse line and the logo are actually drawn in. Indigo was the
+    // secondary; it also measured 4.43:1 on --surface, the one accent on the site
+    // that failed AA. 10.95:1.
+    accent: "#22D3EE",
     label: "LAB",
     kind: "SaaS landing concept",
     role: "Design, build, motion system",
@@ -479,7 +482,7 @@ export const projects: Project[] = [
     index: "08",
     title: "Nitro",
     year: "2026",
-    accent: "#2DD4BF", // TODO(antony): xác nhận accent
+    accent: "#2FD8AC", // the rebuild's own --accent token. 10.87:1 on --surface.
     label: "REBUILD",
     kind: "Figma template → code",
     role: "Build",
@@ -542,7 +545,10 @@ export const projects: Project[] = [
     index: "09",
     title: "Whitepace",
     year: "2026",
-    accent: "#F5C518", // TODO(antony): xác nhận accent
+    // The template's interactive blue (links, highlights, the thumbnail
+    // gradients) — not the CTA yellow, which lands at 15.8:1 here and would read
+    // as warm white rather than as a colour. 7.02:1 on --surface.
+    accent: "#4F9CF9",
     label: "REBUILD",
     kind: "Figma template → code",
     role: "Build",
@@ -595,7 +601,10 @@ export const projects: Project[] = [
     index: "10",
     title: "Nut & Feder",
     year: "2026",
-    accent: "#C08A4E", // TODO(antony): xác nhận accent
+    // --tint-nussbaum from the shop. The signal colour there is enzian RAL 5010
+    // (#0E518D), which measures 2.43:1 on this ground and cannot carry text.
+    // 8.36:1 on --surface.
+    accent: "#C4A37C",
     label: "LAB",
     kind: "E-commerce · furniture",
     role: "Concept & build",
@@ -647,7 +656,7 @@ export const projects: Project[] = [
     index: "11",
     title: "Calibre",
     year: "2026",
-    accent: "#C9A227", // TODO(antony): xác nhận accent
+    accent: "#C8A24B", // Calibre's own --accent token. 8.22:1 on --surface.
     label: "LAB",
     kind: "Brand · 3D",
     role: "Concept & build",
@@ -701,7 +710,11 @@ export const projects: Project[] = [
     index: "12",
     title: "One Bit From Home",
     year: "2026",
-    accent: "#4ADE80", // TODO(antony): xác nhận accent
+    // The only interpreted accent on the site: ECHO-1 ships in exactly two
+    // colours (#0B0C0E ground, #E9E4D6 ink) and has none to lend. P31 CRT
+    // phosphor stands in — the screen the probe is read on. Hue 120°, a clear
+    // 44° off Nitro's teal so the two never read as one green. 11.37:1.
+    accent: "#4CE04C",
     label: "LAB",
     kind: "WebGL proof",
     role: "Concept & build",
@@ -756,6 +769,23 @@ export const projects: Project[] = [
  * gaps in the sequence are honest: they say there is more behind /work.
  */
 export const frontpageProjects = projects.filter((p) => p.frontpage);
+
+/**
+ * The order the shelf hangs them in, which is a composition decision and not the
+ * archive's. Kept as slugs rather than by reordering `projects` above, because
+ * that array's order is the running numbering the whole site is read against —
+ * moving a case there to fix a card position would renumber /work.
+ *
+ * Not a second curation: anything listed here that is not `frontpage` never
+ * appears, and anything frontpage but unlisted still does, at the end. The list
+ * can only reorder what the curation already let through.
+ *
+ * The specimen leads by being written first, not by a rule that hoists it. It
+ * holds the live probe and the page's one filled button, so it wants the cell
+ * the eye lands on — but that is a composition call, and this is where
+ * composition calls are made.
+ */
+export const shelfOrder = ["one-bit", "whitepace", "oscillate", "mono-architekten"];
 
 /** The card that renders live rather than from a plate. It holds the middle
  *  slot of the shelf, and the home page rests calibrated to its signal. */

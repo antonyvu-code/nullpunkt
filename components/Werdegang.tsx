@@ -28,8 +28,11 @@ export default function Werdegang() {
               {s.when}
             </span>
             <span aria-hidden="true" className="relative flex justify-center">
+              {/* The axis segment for this station. origin-top so FX.06 can draw
+                  it downward as the date passes; untouched when that is off. */}
               <span
-                className="absolute top-0 w-px"
+                data-fx-line="axis"
+                className="absolute top-0 w-px origin-top"
                 style={{ background: "var(--line)", bottom: last ? "calc(100% - 1.6rem)" : 0 }}
               />
               <span

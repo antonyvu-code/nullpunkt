@@ -6,6 +6,11 @@ export const site = {
       recruiter holding the Lebenslauf can tie the two together. */
   legalName: "Anh Tuan Vu",
   wordmark: "ANTONY VU",
+  /** The lab's own name, for the one place the site signs off as the lab rather
+      than as the person. Separate from `wordmark`, which the header and the
+      working-name note in About both need to stay "ANTONY VU" — reusing it in
+      the footer printed "ANTONY VU — THE LAB OF ANTONY VU". */
+  lab: "NULLPUNKT",
   /**
    * The headline of the whole site, chosen 30.07.
    *

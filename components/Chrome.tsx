@@ -4,12 +4,15 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { site } from "@/lib/site";
 import { L, LangToggle } from "@/components/Lang";
+import { useFx } from "@/components/fx/FxProvider";
 
 export default function Chrome() {
   const timeRef = useRef<HTMLSpanElement>(null);
   const fpsRef = useRef<HTMLSpanElement>(null);
   const scrRef = useRef<HTMLSpanElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
+  const beamRef = useRef<HTMLDivElement>(null);
+  const dock = useFx("scope-dock");
 
   useEffect(() => {
     const clock = () => {
@@ -34,6 +37,12 @@ export default function Chrome() {
         if (scrRef.current)
           scrRef.current.textContent = `${String(Math.round(p * 100)).padStart(3, "0")}%`;
         if (barRef.current) barRef.current.style.transform = `scaleX(${p})`;
+        // FX.02, second half: the scope's beam, having attenuated out of the
+        // hero, rides the progress rule instead. Same phosphor, same accent —
+        // the instrument is docked, not gone.
+        // Positioned with left, not translateX: a vw offset would count the
+        // scrollbar and overshoot the rule's right end by its width.
+        if (beamRef.current) beamRef.current.style.left = `${p * 100}%`;
       }
       rafId = requestAnimationFrame(loop);
     };
@@ -91,6 +100,19 @@ export default function Chrome() {
           className="accent-t h-full w-full origin-left"
           style={{ background: "var(--accent)", transform: "scaleX(0)" }}
         />
+        {dock && (
+          <div
+            ref={beamRef}
+            className="accent-t absolute bottom-[-3px] left-0 ml-[-4px] h-2 w-2 rounded-full"
+            style={{
+              background: "var(--accent)",
+              boxShadow: "0 0 14px 3px var(--accent)",
+              // Arrives at exactly the rate the hero's trace leaves. Scope
+              // publishes --scope-att; 1 means the signal is still up there.
+              opacity: "calc(1 - var(--scope-att, 1))",
+            }}
+          />
+        )}
       </div>
     </>
   );

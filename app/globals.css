@@ -19,9 +19,24 @@
      for the boot readout, the selected markers, and the primary action, so the
      page carries a constant orange note for contrast against the near-black. */
   --flare: #ff4d1c;
-  /* Full-bleed side gutter — the page runs edge-to-edge, this is the only
-     margin. One value for header, main and footer so every edge aligns. */
-  --gutter: clamp(1.25rem, 3vw, 4.5rem);
+  /* The page's outermost margin. Only the panels that break out of the measure
+     use it now — it is what "full bleed" bleeds to. */
+  --bleed: clamp(1.25rem, 3vw, 4.5rem);
+
+  /* Side padding for header, main and footer — one value, so every edge aligns.
+     The page is cut at POS 08% and POS 92%, which is where the scope's own
+     readout in the hero says those rules are: the margin is stated on the
+     instrument's scale rather than in a pixel count that means nothing on it.
+     Being a ratio, the two rules run straight down at every width instead of
+     drifting as the window changes.
+
+     Percentage, not vw: vw counts the scrollbar, and every edge on the page
+     would sit half a scrollbar off centre. The cost is that this only resolves
+     correctly on elements whose containing block is the full page width — which
+     is exactly header, main and footer, and nothing else. Anything nested that
+     wants to break the margin must use --bleed; --gutter down there silently
+     measures 8% of the column instead of 8% of the page. */
+  --gutter: 8%;
 }
 
 @theme inline {
@@ -68,13 +83,18 @@ h3,
   outline-offset: 2px;
 }
 
-/* Everything that borrows the accent transitions like a gauge, not a toggle. */
+/* Everything that borrows the accent transitions like a gauge, not a toggle.
+   box-shadow belongs in the list: the docked beam is drawn almost entirely by
+   its glow (0 0 14px 3px var(--accent)), so leaving it out meant the one element
+   whose whole body is accent was also the one element that snapped — the halo
+   changed colour a beat before the fill it belongs to. */
 .accent-t,
 .accent-t * {
   transition:
     color 0.45s ease,
     background-color 0.45s ease,
-    border-color 0.45s ease;
+    border-color 0.45s ease,
+    box-shadow 0.45s ease;
 }
 
 /* Field notes let go slowly. The attribute is set on <html> for the length of
@@ -125,6 +145,67 @@ h3,
   }
 }
 
+/* FX.03 — the shelf as a specimen carriage.
+   Layout only; the traverse itself is GSAP (components/fx/ShelfTransport.tsx).
+   Gated here rather than in JS so the layout and the driver can never disagree:
+   a reader on a phone keeps the grid instead of being handed a track with
+   nothing pulling it. ShelfTransport tests the same breakpoint before it pins.
+
+   The motion preference is handled the other way round — by reverting to the
+   grid down in the reduce block — and not, as it read at first, by writing
+   `and (prefers-reduced-motion: no-preference)` here. Lightning CSS, which is
+   what Tailwind v4 compiles this file with, DROPS a media rule containing
+   no-preference: silently, whole block, no warning, while the rules on either
+   side of it come through. Worth knowing before writing that condition again
+   anywhere in this project. */
+@media (min-width: 768px) {
+  [data-fx~="shelf-transport"] [data-transport] {
+    /* The same half-width the grid gives a specimen — the shelf's own note
+       explains why anything less stops arguing. Stated once, because the
+       lead-in below has to be derived from it and the two drifting apart is
+       exactly how the last specimen stops reaching the head. */
+    --carriage-card: 44vw;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* The carriage runs past both edges of the window and is cut there — that
+       cut is what makes it read as a length of stock passing through, rather
+       than as four cards that happen to be in a row. */
+    overflow: hidden;
+  }
+
+  /* Beats .grid and .md:grid-cols-2 on specificity (two attributes to one
+     class), so the grid needs no variant class and no second render path. */
+  [data-fx~="shelf-transport"] [data-transport-track] {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    width: max-content;
+    will-change: transform;
+    /* Lead-in and lead-out, and the whole run depends on them. Without this the
+       traverse is only as long as the stock overhangs the window, which ends
+       with the last card flush against the RIGHT EDGE — 250px short of the head
+       at this size — and starts with the first card the same distance past it
+       on the left. Measured: neither the first nor the last specimen ever
+       crossed the head, so two of the four were never read, and the pin let go
+       while the reader was still waiting for the fourth to arrive.
+       Half the leftover measure on each side puts card one under the head at
+       rest and card four under it at the end, which makes the run exactly what
+       it claims to be: first specimen to last. */
+    padding-inline: calc((100% - var(--carriage-card)) / 2);
+  }
+
+  [data-fx~="shelf-transport"] [data-transport-card] {
+    flex: 0 0 auto;
+    width: var(--carriage-card);
+  }
+
+  [data-fx~="shelf-transport"] [data-transport-head] {
+    display: block;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .accent-t,
   .accent-t *,
@@ -140,5 +221,30 @@ h3,
   }
   .np-zero {
     transform: translate(-50%, -50%) scale(1);
+  }
+
+  /* FX.03 hands the shelf back as a grid. A carriage with nothing driving it
+     would be four cards in a clipped row, most of them off the side of the
+     screen with no way to reach them — the effect's absence has to be the plain
+     layout, not a broken version of the effect. Later in the file than the
+     block above and at equal specificity, so this wins on order alone.
+     ShelfTransport makes the same check and never pins. */
+  [data-fx~="shelf-transport"] [data-transport] {
+    min-height: 0;
+    display: block;
+    overflow: visible;
+  }
+  [data-fx~="shelf-transport"] [data-transport-track] {
+    display: grid;
+    width: auto;
+    /* The lead-in is meaningless without a head to lead into, and left standing
+       it would indent the grid by half a card. */
+    padding-inline: 0;
+  }
+  [data-fx~="shelf-transport"] [data-transport-card] {
+    width: auto;
+  }
+  [data-fx~="shelf-transport"] [data-transport-head] {
+    display: none;
   }
 }
