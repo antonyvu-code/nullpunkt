@@ -77,18 +77,28 @@ export default function FieldNotes() {
             onMouseEnter={() => hold(stop)}
             onFocus={() => hold(stop)}
             onBlur={release}
-            // duration-700 is the RESTING duration, so it governs the way out;
-            // hover:duration-200 only applies while pointed at, which is the
-            // way in. One utility pair, two speeds. It must be hover: and not
-            // group-hover: — this element IS the group, and group-hover only
-            // ever matches descendants.
-            className="group relative block border-b py-6 pl-11 no-underline transition-[padding] duration-700 hover:pl-16 hover:duration-200 motion-reduce:transition-none md:py-7 md:hover:pl-20"
+            // The indent used to be animated padding. It looked right and was
+            // wrong: padding is a layout property, so every frame of every
+            // hover re-laid out the row and everything below it — twelve rows
+            // of display type at 4xl–7xl, on the one section that exists to be
+            // swept through quickly. The floor's P1 allows a layout property
+            // only with a reason, and "it was the obvious utility" is not one.
+            // The indent is now a transform on the content (below), which the
+            // compositor can do without touching layout at all.
+            className="group relative block border-b py-6 pl-11 no-underline md:py-7"
             style={{ borderColor: "var(--line)" }}
           >
             <span className="hud accent-t absolute left-0 top-7 text-muted-dim group-hover:text-accent md:top-8">
               F.{String(i + 1).padStart(2, "0")}
             </span>
-            <span className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
+            {/* The indent, as a transform. Same distance the padding used to
+                travel — pl-11→pl-16 is 20px, and md pl-11→pl-20 is 36px — so
+                the row reads exactly as before and costs no layout. The two
+                speeds survive the move: duration-700 is the resting value and
+                governs the way out, group-hover:duration-200 the way in.
+                pr-12 keeps a long note clear of the arrow, which no longer
+                shares this box and so no longer gets pushed by the indent. */}
+            <span className="flex flex-wrap items-baseline gap-x-5 gap-y-2 pr-12 transition-transform duration-700 ease-out group-hover:translate-x-5 group-hover:duration-200 motion-reduce:transition-none md:group-hover:translate-x-9">
               {/* .accent-t carries the timing here — it is declared outside
                   @layer, so it beats any Tailwind duration utility. That is
                   what we want: the name then obeys the 1.2s release rule and
@@ -99,15 +109,26 @@ export default function FieldNotes() {
               <span className="max-w-[36ch] text-sm leading-snug text-muted-dim transition-colors duration-700 group-hover:text-muted group-hover:duration-200 motion-reduce:transition-none">
                 {f.note}
               </span>
-              <span
-                aria-hidden="true"
-                // Deliberately NOT .accent-t: that rule is a `transition`
-                // shorthand for colour only, and being unlayered it would
-                // replace transition-all — killing the fade and the slide.
-                className="ml-auto hidden -translate-x-1.5 text-3xl text-muted/40 opacity-0 transition-all duration-700 group-hover:translate-x-0 group-hover:text-accent group-hover:opacity-100 group-hover:duration-200 motion-reduce:transition-none md:block"
-              >
-                ↗
-              </span>
+            </span>
+
+            {/* Anchored to the row, not carried by the content. Inside the
+                indenting box it would have ridden the transform 36px to the
+                right and left the row's own edge behind — the arrow marks where
+                the row ENDS, and a mark that moves is not marking anything.
+                Absolute here also puts it out of the flex flow, so a note that
+                wraps to two lines can no longer push it down a line with it.
+
+                Deliberately NOT .accent-t: that rule is a `transition`
+                shorthand, and being unlayered it would replace this one and
+                kill both the fade and the slide. The properties are now named
+                rather than `transition-all`, which was animating every
+                animatable property this element has — including the layout ones
+                it must not touch. */}
+            <span
+              aria-hidden="true"
+              className="absolute right-0 top-6 hidden -translate-x-1.5 text-3xl text-muted/40 opacity-0 transition-[transform,opacity,color] duration-700 ease-out group-hover:translate-x-0 group-hover:text-accent group-hover:opacity-100 group-hover:duration-200 motion-reduce:transition-none md:top-7 md:block"
+            >
+              ↗
             </span>
           </a>
         );

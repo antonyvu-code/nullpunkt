@@ -77,7 +77,16 @@ export default function ProjectIndex({ items = projects }: { items?: Project[] }
                     width={2400}
                     height={1500}
                     sizes="112px"
-                    className="block h-auto w-full scale-100 opacity-60 grayscale transition duration-500 group-hover:scale-[1.05] group-hover:opacity-100 group-hover:grayscale-0 group-focus-visible:opacity-100 group-focus-visible:grayscale-0 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                    // The zoom is gone. A thumbnail that grows under the pointer
+                    // is the one move every portfolio makes, and this row had
+                    // already said the same thing better in its own language:
+                    // the signal bar to the left grows instead. Two answers to
+                    // one gesture, and only one of them was derived from
+                    // anything. What stays is the reading — the plate coming out
+                    // of grayscale, which is information rather than flattery.
+                    // Too small for the probe pass the shelf plates get (112px
+                    // wide, ~70px tall — a scan across that is a flicker).
+                    className="block h-auto w-full opacity-60 grayscale transition duration-500 group-hover:opacity-100 group-hover:grayscale-0 group-focus-visible:opacity-100 group-focus-visible:grayscale-0 motion-reduce:transition-none"
                   />
                 ) : (
                   // No plate shot yet — hold the slot at the same 16:10 ratio so the
