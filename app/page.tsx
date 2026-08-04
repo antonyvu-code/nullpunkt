@@ -6,6 +6,7 @@ import FieldNotes from "@/components/FieldNotes";
 import Werdegang from "@/components/Werdegang";
 import Scope from "@/components/Scope";
 import HeroIntro from "@/components/HeroIntro";
+import Rack from "@/components/Rack";
 import Kontakt from "@/components/Kontakt";
 import { L } from "@/components/Lang";
 
@@ -224,11 +225,22 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CAPABILITIES — a channel rack, not a ledger. The groups stand as ruled
-          vertical columns, so the section reads as a printed spec column and
-          borrows no silhouette from the dated axis above or the boxed spec tiles
-          in Under the Hood. No rail — the marker row carries the section number
-          instead — which keeps it off-beat between two railed neighbours. */}
+      {/* CAPABILITIES — a channel rack, and now literally so: six modules seated
+          in it, each with a faceplate carrying its channel number.
+
+          This used to be ruled columns sharing one --line ground at gap-px, and
+          the note here used to argue that against "the boxed spec tiles in Under
+          the Hood". The columns lost. A shared ground cannot be animated — fade
+          a cell and the line colour shows through the hole where it was — so the
+          section could only ever arrive as one block, on the one section that is
+          a list of separable things. Modules with their own borders can arrive
+          one at a time, which is what a rack filling up actually looks like.
+
+          The silhouette still has to stay off Under the Hood's, and it does, on
+          a different axis than before: those are a filled surface panel, these
+          are open frames on the page ground with a ruled faceplate at the top.
+          No rail — the marker row carries the section number instead — which
+          keeps it off-beat between two railed neighbours. */}
       <section
         id="capabilities"
         aria-label="Capabilities"
@@ -258,36 +270,65 @@ export default function Home() {
           />
         </p>
 
-        {/* gap-px over the line colour rules the cells; they keep the page
-            ground, so this reads as a ruled table rather than as tiles. Three up
-            and two down, not six across: on the narrowed measure six columns
-            leave ~130px a group, which breaks entries like "Next.js (App
-            Router)" over three lines and turns the rack into confetti. */}
-        <div
-          className="mt-12 grid grid-cols-2 gap-px md:grid-cols-3"
-          style={{
-            background: "var(--line)",
-            borderTop: "1px solid var(--line)",
-            borderBottom: "1px solid var(--line)",
-          }}
-        >
-          {capabilities.map((c) => (
-            <div key={c.group} className="bg-bg px-3 pb-5 pt-4 md:px-4">
-              <div className="flex items-baseline justify-between gap-2">
-                <span className="hud accent-t text-accent">{c.group}</span>
-              </div>
-              <ul className="m-0 mt-4 list-none p-0">
+        <Rack />
+
+        {/* Real gaps over the page ground, not gap-px over a --line fill. The
+            hairline between modules is now each module's OWN border, and that is
+            the change that makes the rest possible: a shared ground cannot be
+            animated, because fading a cell shows the line colour through the
+            hole where the cell was. Separate frames can arrive one at a time.
+            Three up and two down, not six across: on the narrowed measure six
+            columns leave ~130px a group, which breaks entries like "Next.js
+            (App Router)" over three lines and turns the rack into confetti. */}
+        <div className="mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {capabilities.map((c, i) => (
+            // data-rack-card is the hook components/Rack.tsx seats. Inert markup
+            // when the effect is not running, in the same way the transport
+            // hooks are — with nothing animating this is simply six bordered
+            // modules. The module is what travels; the rows travel with it,
+            // which is why they carry no hook of their own.
+            <article
+              key={c.group}
+              data-rack-card=""
+              className="accent-t flex flex-col border"
+              style={{ borderColor: "var(--line)" }}
+            >
+              {/* The faceplate. Channel number on the RIGHT, because that is
+                  where this page has put running indices since the first build
+                  — S.01 / 07 in every section marker, F.01 down the field notes.
+                  A rack that numbered its modules on the other side would be
+                  reading against its own page. */}
+              <header
+                className="flex items-baseline justify-between gap-3 border-b px-4 py-3"
+                style={{ borderColor: "var(--line)" }}
+              >
+                <span data-rack-label className="hud accent-t text-accent">
+                  {c.group}
+                </span>
+                <span className="hud text-muted-dim">
+                  CH.{String(i + 1).padStart(2, "0")}
+                  {/* A measured count, not a decoration: it is the length of the
+                      list directly beneath it, so it cannot drift from what it
+                      claims. The page's rule is that a number has to be read off
+                      something real, and this one is read off the markup. */}
+                  <span className="ml-2 opacity-70">
+                    ×{String(c.items.length).padStart(2, "0")}
+                  </span>
+                </span>
+              </header>
+
+              <ul className="m-0 flex-1 list-none px-4 py-1">
                 {c.items.map((it) => (
                   <li
                     key={it}
-                    className="border-t py-2.5 text-sm leading-snug text-muted transition-colors duration-200 first:border-t-0 first:pt-0 hover:text-ink motion-reduce:transition-none"
+                    className="border-t py-2.5 text-sm leading-snug text-muted transition-colors duration-200 first:border-t-0 hover:text-ink motion-reduce:transition-none"
                     style={{ borderColor: "var(--line)" }}
                   >
                     {it}
                   </li>
                 ))}
               </ul>
-            </div>
+            </article>
           ))}
         </div>
       </section>
