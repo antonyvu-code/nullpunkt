@@ -10,6 +10,7 @@ import {
 } from "@/lib/projects";
 import { L } from "@/components/Lang";
 import EchoProbe from "@/components/EchoProbe";
+import Registration from "@/components/Registration";
 
 /**
  * The shelf is the curated cut itself, not a second hand-written list. When
@@ -68,14 +69,37 @@ export default function Selected() {
           by itself would leave the section's own title scrolling away from the
           work it names, which is the usual tell of a horizontal scroller that
           was bolted on rather than designed. */}
+      <Registration />
+
       <div data-transport="" className="relative">
         <div className="mb-10 flex flex-wrap items-baseline justify-between gap-3">
           <p className="hud hud-wide accent-t flex items-center gap-2 text-ink">
             <span aria-hidden="true" className="inline-block h-2 w-2 bg-flare" />
             <L en="SELECTED — START HERE" de="AUSGEWÄHLT — HIER STARTEN" />
           </p>
-          <p className="hud text-muted-dim">
-            S.01 / 07 · <L en="POINT TO PROBE" de="ZUM PRÜFEN ZEIGEN" />
+          <p className="hud flex items-center gap-4 text-muted-dim">
+            <span>
+              S.01 / 07 · <L en="POINT TO PROBE" de="ZUM PRÜFEN ZEIGEN" />
+            </span>
+            {/* The way out of the run. The pin holds the wheel for as long as
+                the stock is wide, and SC1 is explicit that scrolling must not be
+                taken away from the reader. An anchor is the cheapest honest
+                answer: it lands past the pin, it works with the keyboard because
+                it is a link rather than a handler, and it costs nothing when
+                nobody uses it. Visible rather than focus-only — a reader who
+                wants out of a locked stretch should not have to guess that a way
+                out exists.
+
+                Points at Field Notes, not past it. The run is the shelf alone
+                now, so the thing on the far side of it is the notes; sending the
+                reader to Werdegang would skip the other half of the evidence to
+                escape a horizontal scroll. */}
+            <a
+              href="#field-notes"
+              className="accent-t inline-flex min-h-[44px] items-center border-b border-transparent text-muted-dim no-underline hover:border-accent hover:text-accent focus-visible:border-accent focus-visible:text-accent"
+            >
+              <L en="SKIP THE RUN ↓" de="LAUF ÜBERSPRINGEN ↓" />
+            </a>
           </p>
         </div>
 
@@ -116,7 +140,14 @@ export default function Selected() {
                   // height, and h-full lets the grid level the pair. A forced
                   // height was what left the image cell as arbitrary leftover
                   // space in the first place.
-                  className="accent-t group flex h-full flex-col border no-underline"
+                  // data-card is the anchor for both halves of the gesture: the
+                  // registration brackets hang off its corners and the probe's
+                  // --scan is declared on it, so acquiring and reading share one
+                  // element instead of drifting on two. relative is what the
+                  // brackets position against — without it they would find the
+                  // section and all four cards would mark the same corners.
+                  data-card=""
+                  className="accent-t group relative flex h-full flex-col border no-underline"
                   style={{ borderColor: "var(--line)" }}
                 >
                   {/* Header strip — flare marker + file number. */}
@@ -134,7 +165,7 @@ export default function Selected() {
                       nothing, so a hero screenshot arrives whole rather than
                       trimmed down its sides. Change the plate format and this
                       number has to move with it. */}
-                  <div className="relative aspect-[16/10] w-full overflow-hidden">
+                  <div data-plate="" className="relative aspect-[16/10] w-full overflow-hidden">
                     {primary ? (
                       // Absolute, not in flow. EchoProbe is h-full w-full and
                       // sizes its canvas from the parent's measured rect — left
@@ -146,14 +177,43 @@ export default function Selected() {
                       </div>
                     ) : (
                       p.plates[0] && (
-                        <Image
-                          src={p.plates[0].src}
-                          alt=""
-                          width={2400}
-                          height={1500}
-                          sizes="(min-width: 768px) 50vw, 92vw"
-                          className="absolute inset-0 h-full w-full object-cover object-top opacity-70 grayscale transition duration-500 group-hover:opacity-100 group-hover:grayscale-0 motion-reduce:transition-none"
-                        />
+                        <>
+                          {/* The plate as it sits on the shelf: undeveloped. */}
+                          <Image
+                            src={p.plates[0].src}
+                            alt=""
+                            width={2400}
+                            height={1500}
+                            sizes="(min-width: 768px) 50vw, 92vw"
+                            className="absolute inset-0 h-full w-full object-cover object-top opacity-70 grayscale"
+                          />
+                          {/* The same plate in colour, masked by the pass (see
+                              [data-plate-develop] in globals.css). Identical
+                              src, width and sizes, so this is the same entry in
+                              the image cache and costs one request, not two —
+                              the second element is DOM, not bandwidth. */}
+                          <Image
+                            src={p.plates[0].src}
+                            alt=""
+                            width={2400}
+                            height={1500}
+                            sizes="(min-width: 768px) 50vw, 92vw"
+                            data-plate-develop=""
+                            className="absolute inset-0 h-full w-full object-cover object-top"
+                          />
+                          {/* The pass. Accent, because it belongs to the card
+                              being read — the probe is lit by the specimen, not
+                              by the instrument. */}
+                          <span
+                            aria-hidden="true"
+                            data-plate-edge=""
+                            className="pointer-events-none absolute inset-x-0 z-10 h-px"
+                            style={{
+                              background: "var(--accent)",
+                              boxShadow: "0 0 12px 1px var(--accent)",
+                            }}
+                          />
+                        </>
                       )
                     )}
                   </div>
@@ -195,6 +255,15 @@ export default function Selected() {
                       </span>
                     </div>
                   )}
+
+                  {/* Registration. Purely the instrument's annotation on the
+                      card, so it is hidden from assistive tech: a screen reader
+                      being told "four corners" about every specimen would be
+                      told nothing. Geometry and both states live in globals.css
+                      ([data-reg]); the strike-in is Registration.tsx. */}
+                  {(["tl", "tr", "bl", "br"] as const).map((corner) => (
+                    <span key={corner} aria-hidden="true" data-reg={corner} />
+                  ))}
                 </Link>
               </li>
             );

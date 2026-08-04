@@ -15,7 +15,8 @@ export type FxId =
   | "scope-dock"
   | "shelf-transport"
   | "rail-draw"
-  | "werdegang-axis";
+  | "werdegang-axis"
+  | "type-wipe";
 
 export const FX: { id: FxId; nr: string; label: string; note: string }[] = [
   {
@@ -53,6 +54,12 @@ export const FX: { id: FxId; nr: string; label: string; note: string }[] = [
     nr: "06",
     label: "WERDEGANG AXIS FILLS",
     note: "The time axis draws itself station by station as each date passes.",
+  },
+  {
+    id: "type-wipe",
+    nr: "07",
+    label: "SECTION HEADINGS WIPE",
+    note: "The hero title already arrives from behind a mask while every other heading slides up on opacity — two ways of entering on one page. This gives the section headings the hero's way, so display type arrives one way throughout. Compare it against the plain fade before keeping it: the block it sits in is fading at the same time, and two things happening to one line can read as fussy rather than as one hand.",
   },
 ];
 

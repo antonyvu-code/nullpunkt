@@ -10,6 +10,7 @@ export default function Chrome() {
   const timeRef = useRef<HTMLSpanElement>(null);
   const fpsRef = useRef<HTMLSpanElement>(null);
   const scrRef = useRef<HTMLSpanElement>(null);
+  const deflRef = useRef<HTMLSpanElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const beamRef = useRef<HTMLDivElement>(null);
   const dock = useFx("scope-dock");
@@ -37,6 +38,18 @@ export default function Chrome() {
         if (scrRef.current)
           scrRef.current.textContent = `${String(Math.round(p * 100)).padStart(3, "0")}%`;
         if (barRef.current) barRef.current.style.transform = `scaleX(${p})`;
+        /* DEFL — the instrument reporting its own reading. Read from the
+           variable rather than measured again here: AccentScroll owns that
+           measurement, and a second opinion computed a different way is how a
+           readout ends up disagreeing with the thing it is reporting on.
+           getComputedStyle is only affordable because this whole branch runs
+           twice a second, not every frame. */
+        if (deflRef.current) {
+          const d = parseFloat(
+            getComputedStyle(document.documentElement).getPropertyValue("--deflection"),
+          );
+          deflRef.current.textContent = `${String(Math.round((d || 0) * 100)).padStart(3, "0")}%`;
+        }
         // FX.02, second half: the scope's beam, having attenuated out of the
         // hero, rides the progress rule instead. Same phosphor, same accent —
         // the instrument is docked, not gone.
@@ -75,6 +88,12 @@ export default function Chrome() {
           FPS <span ref={fpsRef}>--</span>
           <span className="mx-2 opacity-50">·</span>
           SCR <span ref={scrRef}>000%</span>
+          {/* Held back to lg: at md this row already runs to the status block,
+              and a telemetry strip that wraps stops reading as a strip. */}
+          <span className="hidden lg:inline">
+            <span className="mx-2 opacity-50">·</span>
+            DEFL <span ref={deflRef}>000%</span>
+          </span>
         </p>
         <div className="flex items-center gap-4">
           {/* Both channels, named. The page is for someone hiring AND for an

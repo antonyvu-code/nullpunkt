@@ -64,6 +64,30 @@ export default function AccentScroll() {
       const root = document.documentElement;
       const set = (hex: string) => root.style.setProperty("--accent", hex);
 
+      /* The site's controlling variable — see the note in globals.css. This
+         component is the only writer, because it is already the only thing on
+         the page doing the measurement that answers it; anything else wanting
+         the reading must take it from here rather than measure again and drift.
+         Three decimals: the value is consumed inside calc() on a colour channel,
+         where more precision buys nothing an eye can find. */
+      const deflect = (v: number) => root.style.setProperty("--deflection", v.toFixed(3));
+
+      /* Which card the page is currently reading, marked in the DOM so CSS can
+         act on it — this is how a plate develops on a phone, where there is no
+         hover to do it (see [data-probed] in globals.css, which is also where
+         the decision to ignore this on pointer devices lives).
+         Guarded on identity: apply() runs on every scroll update and, while the
+         carriage is on screen, on every tick. Writing the same attribute onto
+         the same element sixty times a second would invalidate style for a
+         value that did not change. */
+      let probed: HTMLElement | null = null;
+      const probe = (el: HTMLElement | null) => {
+        if (probed === el) return;
+        probed?.removeAttribute("data-probed");
+        el?.setAttribute("data-probed", "");
+        probed = el;
+      };
+
       /* The colour the page wears with nothing on the dial — read at apply time,
          not at mount. This component sits above <main> in the tree, so its effect
          runs BEFORE the page's own AccentSetter: reading --accent here on mount
@@ -131,6 +155,11 @@ export default function AccentScroll() {
                 unter = el;
               }
             }
+            /* Full scale, and not as an approximation: a pinned carriage has
+               put a specimen under the head and is holding it there. There is
+               no "nearly" to express. */
+            deflect(1);
+            probe(unter);
             set(unter?.dataset.accent || rest());
             return;
           }
@@ -143,12 +172,22 @@ export default function AccentScroll() {
             const p = gsap.utils.clamp(0, 0.9999, (line - r.top) / r.height);
             const span = p * (stops.length - 1);
             const i = Math.floor(span);
+            /* Same reasoning as the carriage: the notes have taken the screen,
+               so the dial is fully deflected for the whole run. What varies
+               inside the sweep is the hue, not how hard the page is reading. */
+            deflect(1);
+            /* The notes are a list of readings, not specimens — nothing in here
+               carries a plate to develop, so the probe is parked rather than
+               left pointing at whatever the last card was. */
+            probe(null);
             set(mix(stops[i], stops[i + 1], span - i));
             return;
           }
         }
 
         if (marks.length === 0) {
+          deflect(0);
+          probe(null);
           set(rest());
           return;
         }
@@ -163,10 +202,28 @@ export default function AccentScroll() {
             best = el;
           }
         }
-        // Nothing near the line — the hero and the contact block have no work in
-        // them, and inventing a colour for them would be the page lying about
-        // where its colour comes from.
-        set(bestDist > window.innerHeight * 0.9 ? rest() : best?.dataset.accent || rest());
+        /* Nothing near the line — the hero and the contact block have no work in
+           them, and inventing a colour for them would be the page lying about
+           where its colour comes from.
+
+           REACH is the old cutoff, unchanged: past it the needle is at zero.
+           What is new is FULL, and the gap between the two. The cutoff on its
+           own was a step — the instrument read either nothing or everything,
+           with the whole hero and the whole contact block on the far side of a
+           single frame's worth of scroll. Ramping across the gap is what makes
+           it a needle rather than a switch. FULL sits well clear of the line so
+           that anything actually being looked at still reads full scale: the
+           ramp lives in the empty stretches, and nowhere that already had a
+           colour loses any of it. */
+        const FULL = window.innerHeight * 0.25;
+        const REACH = window.innerHeight * 0.9;
+        const defl = gsap.utils.clamp(0, 1, (REACH - bestDist) / (REACH - FULL));
+        deflect(defl);
+        /* Off the ramp entirely means the page is reading nothing, and a plate
+           left developed there would claim a specimen is under the probe when
+           the needle is sitting on zero. */
+        probe(defl === 0 ? null : best);
+        set(defl === 0 ? rest() : best?.dataset.accent || rest());
       };
 
       const st = ScrollTrigger.create({ start: 0, end: "max", onUpdate: apply, onRefresh: apply });
@@ -195,6 +252,11 @@ export default function AccentScroll() {
         if (ticking) gsap.ticker.remove(ticking);
         st.kill();
         set(rest());
+        /* Back to zero, or the plate stays lit after the only thing that could
+           dim it has gone — the switch would look broken in exactly the way the
+           bench exists to rule out. */
+        deflect(0);
+        probe(null);
       };
     },
     // revertOnUpdate is not optional here. useGSAP only reverts on unmount by

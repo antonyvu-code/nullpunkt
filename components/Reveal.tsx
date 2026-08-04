@@ -4,6 +4,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { usePathname } from "next/navigation";
+import { useFx } from "@/components/fx/FxProvider";
 
 /**
  * Scroll reveals for every [data-reveal] block.
@@ -22,6 +23,7 @@ import { usePathname } from "next/navigation";
  * from zero later.
  */
 export default function Reveal() {
+  const wipe = useFx("type-wipe");
   const pathname = usePathname();
 
   useGSAP(
@@ -58,9 +60,41 @@ export default function Reveal() {
         abwurf.push(() => el.removeEventListener("focusin", zeigen));
       });
 
+      /* FX.07 — display type arrives the one way.
+         The hero title wipes up from a mask; every heading below it slid up on
+         opacity instead, so the page had two ways of introducing the same role
+         of type. This gives the sections the hero's way.
+
+         clip-path, not visibility: a clipped heading is still in the
+         accessibility tree and still found by find-in-page, which is the whole
+         reason this file refuses autoAlpha two paragraphs up. The rule does not
+         get a pass just because the property is prettier.
+
+         No focusin hatch, unlike the blocks above: headings are not focusable,
+         and the clip retires itself on first crossing. */
+      if (wipe) {
+        gsap.utils.toArray<HTMLElement>("[data-reveal] h2").forEach((el) => {
+          gsap.fromTo(
+            el,
+            { clipPath: "inset(0 0 100% 0)", yPercent: 6 },
+            {
+              clipPath: "inset(0 0 0% 0)",
+              yPercent: 0,
+              duration: 0.9,
+              ease: "power3.out",
+              scrollTrigger: { trigger: el, start: "top 88%", once: true },
+            },
+          );
+        });
+      }
+
       return () => abwurf.forEach((ab) => ab());
     },
-    { dependencies: [pathname] },
+    // revertOnUpdate for the same reason AccentScroll needs it: without it,
+    // switching FX.07 off would leave the clip-paths from the previous context
+    // standing under a re-run that has decided to do nothing, and the bench
+    // would report the effect as permanent.
+    { dependencies: [pathname, wipe], revertOnUpdate: true },
   );
 
   return null;

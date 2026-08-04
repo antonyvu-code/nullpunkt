@@ -11,7 +11,31 @@
      clears 4.5:1 on BOTH grounds (4.70:1 on --bg, 4.56:1 on --surface), so the
      step down is real and the claim holds. */
   --muted-dim: #7c7973;
-  --line: rgba(242, 240, 235, 0.14);
+  /* ——— THE CONTROLLING VARIABLE ————————————————————————————————————————
+     How far the instrument is deflected from its zero point: 0 = at rest,
+     1 = a piece of work is squarely on the measuring line.
+
+     The site is named after the mark a needle sits on when it is measuring
+     nothing, and it already had every part of that idea except the reading.
+     --accent said WHICH colour was borrowed; nothing said HOW MUCH, so the
+     borrow could only ever be on or off — a switch on a page whose whole
+     argument is that it is an instrument. This is the missing quantity, and it
+     is deliberately the only one: every effect that wants to respond to "is the
+     page pointed at work right now" reads this instead of measuring the page
+     again for itself.
+
+     Published by components/fx/AccentScroll.tsx, which is already doing the
+     measurement. Default 0, so anything reading it with the effect switched off
+     gets exactly the values this file had before the variable existed —
+     deflection only ever adds. */
+  --deflection: 0;
+
+  /* Hairlines are the plate the instrument is drawn on, so they gain presence
+     as it deflects: 0.14 at rest — unchanged from before — rising to 0.22 with
+     work on the line. Page-wide and barely nameable frame to frame, which is
+     the point; it should read as the plate lighting up, not as borders
+     animating. */
+  --line: rgba(242, 240, 235, calc(0.14 + 0.08 * var(--deflection)));
   /* Zero state: the page has no accent of its own. The needle rests at ink
      until a project lends its color (see ProjectIndex / AccentSetter). */
   --accent: #f2f0eb;
@@ -37,6 +61,48 @@
      wants to break the margin must use --bleed; --gutter down there silently
      measures 8% of the column instead of 8% of the page. */
   --gutter: 8%;
+
+  /* ——— MOTION ———————————————————————————————————————————————————————————
+     Declared here, beside the palette, because an easing curve belongs to a
+     look the same way a colour does: an instrument settling is not a curtain
+     falling, and that difference is most of what the page feels like. Keeping
+     the curves in one place is also what makes them arguable — a bezier typed
+     inline in a rule is a number nobody ever revisits. */
+
+  /* The four the craft floor requires. Values are the standard cubic set, which
+     is what "power2.out" / "power3.out" in the GSAP timelines already approximate,
+     so CSS and JS motion read as one hand rather than two. */
+  --ease-out: cubic-bezier(0.33, 1, 0.68, 1); /* UI default */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1); /* changes that go both ways */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1); /* large reveals */
+  --ease-linear: linear; /* continuous motion, canvas, anything scroll-driven */
+
+  /* The fifth is this project's own: fast approach, hard stop, no overshoot —
+     a needle dropping onto its rest. The loader's zero point is the only thing
+     that arrives this way and should stay the only thing. */
+  --ease-snap: cubic-bezier(0.2, 0.7, 0.3, 1);
+
+  --dur-micro: 160ms; /* hover, focus, colour change */
+  --dur-ui: 260ms; /* open/close, state change */
+  --dur-reveal: 800ms; /* scroll reveal */
+
+  /* Three durations sit outside those tiers deliberately, and each is a gauge
+     rather than a piece of UI:
+       --dur-accent   the accent sweeps to a borrowed colour the way a meter
+                      finds its reading. At --dur-ui it snaps, and a snap reads
+                      as a toggle — the opposite of what the borrowing means.
+       --dur-release  letting go is slower than taking. That asymmetry IS the
+                      effect (see [data-accent-release] below and README.md);
+                      over 900ms and therefore stated, as the floor requires.
+       --dur-zero     the loader's snap into the crosshair — one beat longer
+                      than --dur-ui so the arrival registers as an event. */
+  --dur-accent: 450ms;
+  --dur-release: 2s;
+  --dur-zero: 500ms;
+
+  /* A loop period, not a transition duration — the tier system does not apply
+     to something that never ends. Named anyway so it is not a bare number. */
+  --period-breath: 1.6s;
 }
 
 @theme inline {
@@ -91,10 +157,10 @@ h3,
 .accent-t,
 .accent-t * {
   transition:
-    color 0.45s ease,
-    background-color 0.45s ease,
-    border-color 0.45s ease,
-    box-shadow 0.45s ease;
+    color var(--dur-accent) var(--ease-out),
+    background-color var(--dur-accent) var(--ease-out),
+    border-color var(--dur-accent) var(--ease-out),
+    box-shadow var(--dur-accent) var(--ease-out);
 }
 
 /* Field notes let go slowly. The attribute is set on <html> for the length of
@@ -103,7 +169,7 @@ h3,
    keeps the normal 0.45s above; only the release is stretched. */
 [data-accent-release] .accent-t,
 [data-accent-release] .accent-t * {
-  transition-duration: 2s;
+  transition-duration: var(--dur-release);
 }
 
 .hud {
@@ -118,10 +184,174 @@ h3,
   letter-spacing: 0.22em;
 }
 
+/* ——— THE PROBE DEVELOPS THE PLATE ————————————————————————————————————————
+   Pointing at a case used to cross-fade it out of grayscale: the hover every
+   portfolio has, and one that says nothing about an instrument. The section it
+   sits in has always CALLED it something else — "POINT TO PROBE", "POINT AT A
+   CARD" — so the effect is now the thing the copy already claimed. A pass
+   travels down the plate and colour follows the pass. The specimen is developed
+   by being read, not revealed by being wanted.
+
+   --scan is 0 at rest, 1 when the pass has crossed the whole plate. Registered
+   rather than declared so it can be transitioned at all: an unregistered custom
+   property is a string to the animation engine and jumps. */
+@property --scan {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+/* --scan lives on the CARD, not the plate: the corner brackets are siblings of
+   the plate, and both have to read the same number or the instrument would
+   acquire and read on two different clocks. */
+[data-card] {
+  --scan: 0;
+  transition: --scan var(--dur-reveal) var(--ease-out);
+}
+
+/* Focus does what hover does — the floor's S3, and the rule the accent system
+   in this project already follows everywhere else. */
+[data-card]:hover,
+[data-card]:focus-visible {
+  --scan: 1;
+}
+
+/* The pointer is not the only probe. On touch there is no hover at all, so the
+   card the page is currently borrowing from is the card being read — the same
+   gap, and the same fix, as the accent itself.
+
+   Gated on (hover: none) rather than left unconditional: where a pointer
+   exists, hover already answers this, and having plates develop on scroll AS
+   WELL would put four passes on screen for a gesture the reader did not aim.
+   AccentScroll writes [data-probed] on every device; this is what decides who
+   honours it, which keeps the decision in one declarative place instead of a
+   media query duplicated in JS. */
+@media (hover: none) {
+  [data-probed] {
+    --scan: 1;
+  }
+}
+
+/* ——— REGISTRATION ————————————————————————————————————————————————————————
+   An instrument does not simply read a specimen — it acquires it first, and
+   registration is how it says so. Four brackets strike in from outside the card
+   and settle on its corners as the shelf comes into view; when the card is then
+   probed they tighten onto the plate and take the borrowed accent to full.
+
+   Acquire, then read. That is one gesture in two beats, not two effects: the
+   brackets and the pass are driven by the same two numbers, and neither of them
+   measures the page for itself.
+
+   The form is a BRACKET, not a cross. Corner brackets are already this site's
+   own mark — the hero has carried one beside its coordinates since the first
+   build (page.tsx, the border-l/border-t square next to 52.5200°N). Borrowing
+   the idea of registration from elsewhere is fair; borrowing someone's glyph
+   for it is how twenty sites end up looking like each other.
+
+   --reg is the acquisition, written by components/Registration.tsx.
+   --scan is the reading, written by the hover/probe rules above.
+   Both are custom properties and NOT transforms, deliberately: a transformed
+   ancestor becomes the containing block for a pinned child, which is exactly
+   the trap FX.03 documents at length. Animating a number cannot spring it. */
+@property --reg {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+[data-card] {
+  --reg: 0;
+  /* Outside the corner before acquisition, flush on it after, and a little
+     inside it once the card is being read. One expression for all four marks —
+     each corner just picks which two edges it hangs off. */
+  --reg-o: calc(-14px * (1 - var(--reg)) + 4px * var(--scan));
+}
+
+[data-reg] {
+  position: absolute;
+  z-index: 10;
+  width: 9px;
+  height: 9px;
+  pointer-events: none;
+  border-color: var(--accent);
+  border-style: solid;
+  border-width: 0;
+  /* Present once acquired, emphatic once read. Never fully opaque: registration
+     is the instrument's own annotation on the specimen, and it should not
+     compete with the specimen. */
+  opacity: calc(var(--reg) * (0.4 + 0.6 * var(--scan)));
+}
+
+[data-reg="tl"] {
+  top: var(--reg-o);
+  left: var(--reg-o);
+  border-top-width: 1px;
+  border-left-width: 1px;
+}
+[data-reg="tr"] {
+  top: var(--reg-o);
+  right: var(--reg-o);
+  border-top-width: 1px;
+  border-right-width: 1px;
+}
+[data-reg="bl"] {
+  bottom: var(--reg-o);
+  left: var(--reg-o);
+  border-bottom-width: 1px;
+  border-left-width: 1px;
+}
+[data-reg="br"] {
+  bottom: var(--reg-o);
+  right: var(--reg-o);
+  border-bottom-width: 1px;
+  border-right-width: 1px;
+}
+
+/* The colour layer, uncovered by the pass. The 18% band is the pass's own
+   softness: a hard edge reads as a wipe transition, a soft one as something
+   being scanned. The 118% span is what lets the band start fully off the top
+   and finish fully off the bottom instead of being clipped at both ends. */
+[data-plate-develop] {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0 calc(var(--scan) * 118% - 18%),
+    transparent calc(var(--scan) * 118%)
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0 calc(var(--scan) * 118% - 18%),
+    transparent calc(var(--scan) * 118%)
+  );
+}
+
+/* The pass itself, in the accent the card is lending the page anyway. Visible
+   only while it travels: 4s(1-s) is zero at both ends and one at the middle, so
+   the line arrives with the movement and leaves with it rather than sitting on
+   a developed plate as a leftover. */
+[data-plate-edge] {
+  top: calc(var(--scan) * 100%);
+  opacity: calc(4 * var(--scan) * (1 - var(--scan)));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The plate still develops — that is information, and withholding it would
+     make reduced motion a worse page rather than a calmer one. What goes is the
+     travel: no pass, no line, the specimen simply readable. */
+  [data-card] {
+    transition: none;
+  }
+  [data-plate-edge] {
+    display: none;
+  }
+  /* The brackets stay — they are the frame, not the flourish. Registration.tsx
+     sets --reg to 1 outright here, so the cards arrive already acquired instead
+     of striking in. */
+}
+
 /* Loader: the zero point snaps into the crosshair. */
 .np-zero {
   transform: translate(-50%, -50%) scale(0);
-  animation: np-zero 0.5s 0.15s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+  animation: np-zero var(--dur-zero) 0.15s var(--ease-snap) forwards;
 }
 @keyframes np-zero {
   to {
@@ -131,7 +361,7 @@ h3,
 
 /* Field notes: the LIVE dot breathes on the page's current accent. */
 .np-pulse {
-  animation: np-pulse 1.6s ease-in-out infinite;
+  animation: np-pulse var(--period-breath) var(--ease-in-out) infinite;
 }
 @keyframes np-pulse {
   0%,
