@@ -1,5 +1,44 @@
 @import "tailwindcss";
 
+/* ——— THE CONTROLLING VARIABLE, REGISTERED —————————————————————————————
+   --deflection is declared in :root below, where its meaning is argued. It
+   has to be registered up here only because @property cannot live inside a
+   rule; and it has to be registered at all for exactly the reason already
+   written above @property --scan — to the animation engine an unregistered
+   custom property is a string, and strings jump.
+
+   This closes the defect AccentScroll.tsx diagnosed in its own comments and
+   deliberately left standing: measured at 1280×812, the needle read 1.000
+   while the field notes owned the dial and 0.000 one frame later, so every
+   hairline on the page went 0.22 → 0.14 in a single frame. The ramp inside
+   apply() could never smooth it, because the release does not pass through
+   the ramp — the sweep branch returns before the mark list is consulted.
+   The damping therefore belongs at the consumer, not in the measurement,
+   and the measurement stays untouched.
+
+   --dur-accent rather than --dur-ui: what this drives is the same gesture
+   as the accent sweep — an instrument finding its reading — and the page's
+   whole argument is that those are one movement, so they get one clock.
+   The cost is that the plate now trails a fast scroll by that much. That is
+   what a plate does; if it ever reads as lag, this is a one-token change. */
+@property --deflection {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+/* Wrapped in no-preference rather than paired with a `transition: none` reset
+   further down: this file kills reduced motion selector by selector, and a
+   reset written somewhere else is a reset that gets forgotten when this rule
+   moves. Under reduced motion the needle steps as it did before — which is
+   what the setting asks for, and the step is a change of tone on a hairline,
+   not travel. */
+@media (prefers-reduced-motion: no-preference) {
+  :root {
+    transition: --deflection var(--dur-accent) var(--ease-out);
+  }
+}
+
 :root {
   --bg: #050505;
   --surface: #0b0a09;
@@ -434,6 +473,7 @@ h3,
   [data-fx~="shelf-transport"] [data-transport-head] {
     display: block;
   }
+
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -476,5 +516,55 @@ h3,
   }
   [data-fx~="shelf-transport"] [data-transport-head] {
     display: none;
+  }
+}
+
+/* ——— THE PROGRESS RULE RIDES SCROLL ITSELF ——————————————————————————————
+   Chrome.tsx writes both the rule's scaleX and the beam's left from its rAF
+   loop — but from inside the `now - last >= 500` gate, which exists so the
+   FPS count has a window to average over and so the one getComputedStyle
+   call is affordable. The rule got swept into that gate with them, so it
+   advanced twice a second: on a page seven screens tall that is a jump of
+   about a seventh of the viewport per step, on the one element whose whole
+   job is to say smoothly where you are.
+
+   A scroll progress timeline is exactly this, computed by the compositor
+   with no JS in the path. The inline styles Chrome still writes are left
+   alone on purpose: an animation outranks a style attribute, so where this
+   is supported the animation wins, and where it is not (Firefox) the inline
+   write is already the fallback. No JavaScript changes.
+
+   The beam animates `left`, a layout property, against P1. The reason is
+   the one Chrome.tsx already states for using `left` here: a vw offset
+   counts the scrollbar and overshoots the rule's right end by its width.
+   It is one absolutely positioned 8px dot inside a 2px-tall fixed bar —
+   the layout it dirties is that subtree and nothing else. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    @keyframes np-rule {
+      from {
+        transform: scaleX(0);
+      }
+      to {
+        transform: scaleX(1);
+      }
+    }
+    @keyframes np-beam {
+      from {
+        left: 0%;
+      }
+      to {
+        left: 100%;
+      }
+    }
+
+    [data-progress-rule] {
+      animation: np-rule auto var(--ease-linear) both;
+      animation-timeline: scroll(root block);
+    }
+    [data-progress-beam] {
+      animation: np-beam auto var(--ease-linear) both;
+      animation-timeline: scroll(root block);
+    }
   }
 }

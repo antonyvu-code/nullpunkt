@@ -174,7 +174,34 @@ export default function AccentScroll() {
             const i = Math.floor(span);
             /* Same reasoning as the carriage: the notes have taken the screen,
                so the dial is fully deflected for the whole run. What varies
-               inside the sweep is the hue, not how hard the page is reading. */
+               inside the sweep is the hue, not how hard the page is reading.
+
+               THE RELEASE IS STILL A STEP, and it is the one place the needle
+               argument has not been carried through. Measured at 1280×812, so
+               the line sits at 447: with the notes' bottom at 540 the sweep
+               owns the dial and --deflection reads 1.000 on #35d2bb; one frame
+               later, bottom at 390, it reads 0.000 on the rest colour. The ramp
+               below never gets a chance at it — this branch returns, and the
+               mark list the ramp measures against has had every note excluded
+               precisely because the sweep was handling them. Nothing is left
+               near the line, so the fall is to zero, page-wide, in a frame:
+               every hairline goes 0.22 → 0.14 at once. The carriage branch
+               above is built the same way and releases the same way.
+
+               FIXED — downstream, not here, and the paragraph above stays as
+               written because it is still exactly what this code does.
+               --deflection is now a registered @property with a transition on
+               :root (globals.css), so the one-frame fall is damped over
+               --dur-accent instead of landing whole. Measured after, at the
+               same 1280×812: 1 → 0.505 at 122ms → 0.123 at 257ms → 0 at
+               ~450ms, on --ease-out.
+
+               The damping belongs at the consumer rather than in this
+               function on purpose. Smoothing it here would mean this file
+               publishing a number that is not the reading it just took, and
+               the whole point of the variable is that there is one
+               measurement and everything else defers to it. A needle may be
+               damped; a gauge may not lie. */
             deflect(1);
             /* The notes are a list of readings, not specimens — nothing in here
                carries a plate to develop, so the probe is parked rather than

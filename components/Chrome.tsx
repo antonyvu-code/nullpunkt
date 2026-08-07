@@ -116,12 +116,14 @@ export default function Chrome() {
       >
         <div
           ref={barRef}
+          data-progress-rule
           className="accent-t h-full w-full origin-left"
           style={{ background: "var(--accent)", transform: "scaleX(0)" }}
         />
         {dock && (
           <div
             ref={beamRef}
+            data-progress-beam
             className="accent-t absolute bottom-[-3px] left-0 ml-[-4px] h-2 w-2 rounded-full"
             style={{
               background: "var(--accent)",

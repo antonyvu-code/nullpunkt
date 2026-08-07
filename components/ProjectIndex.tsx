@@ -124,9 +124,14 @@ export default function ProjectIndex({ items = projects }: { items?: Project[] }
               <span className="hud hidden text-muted-dim group-hover:text-accent md:block">
                 {p.metaLine}
               </span>
+              {/* Named properties rather than `transition-all` — the same
+                  correction FieldNotes.tsx already carries and explains: `all`
+                  animates every animatable property this element has, layout
+                  ones included, and nothing here wants that. This was the last
+                  `transition-all` left in the codebase. */}
               <span
                 aria-hidden="true"
-                className="hidden -translate-x-1 text-lg text-muted/40 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:text-accent group-hover:opacity-100 motion-reduce:transition-none md:block"
+                className="hidden -translate-x-1 text-lg text-muted/40 opacity-0 transition-[transform,opacity,color] duration-300 group-hover:translate-x-0 group-hover:text-accent group-hover:opacity-100 motion-reduce:transition-none md:block"
               >
                 ↗
               </span>

@@ -35,6 +35,15 @@ pnpm start
 There is no lint or test script/config in this repo — `pnpm build` (which runs
 `next build`, including type checking) is the correctness gate.
 
+**`pnpm dev` can serve stale CSS.** Turbopack in this version does not reliably
+invalidate `app/globals.css` when it is appended to rather than edited in place:
+new rules are missing from the CSSOM entirely — `getAnimations()` empty, the
+selector matching nothing — while `pnpm build` output contains them. Verified
+three times against a running dev server before checking the built chunk. If a
+CSS change appears to do nothing, `rm -rf .next` and restart dev before assuming
+the change is wrong. Do not run `pnpm build` while `pnpm dev` is up; they share
+`.next`.
+
 ## Architecture
 
 **Content lives in `lib/`, not in components.** `lib/site.ts` holds every piece
