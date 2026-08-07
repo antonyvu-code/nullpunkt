@@ -592,21 +592,31 @@ h3,
   @supports ((animation-timeline: view()) and (animation-range: entry)) {
     @keyframes np-entwickeln {
       to {
-        background-position: 0% 0;
+        background-size: 320% 320%;
       }
     }
 
     [data-satz] {
-      /* 100deg rather than 90: a hair off square, so a three-line statement
-         lights in something close to reading order instead of all lines at the
-         same x. Off-square is also simply how a pass over a plate looks. */
-      background-image: linear-gradient(
-        100deg,
-        var(--ink) 0 42%,
-        var(--muted-dim) 58% 100%
+      /* FROM THE CENTRE OUT, not left to right. A wipe across the line is what
+         every scroll-driven headline on the web does, and it says nothing about
+         this page. The site is named after the mark a needle sits on when it is
+         measuring nothing — so the statement deflects from its own zero: an ink
+         core at the middle of the block, opening outward until the whole line
+         is developed. It is the same movement --deflection describes, made
+         visible at the scale of a sentence.
+
+         Radial rather than linear also means the CENTRED setting is doing work:
+         centre the type and the growth has an origin; leave it ranged left and
+         this effect would have nothing to grow from. The layout and the motion
+         are one decision here, which is the only reason the type is centred. */
+      background-image: radial-gradient(
+        140% 260% at 50% 50%,
+        var(--ink) 0 34%,
+        var(--muted-dim) 66% 100%
       );
-      background-size: 260% 100%;
-      background-position: 100% 0;
+      background-size: 16% 16%;
+      background-position: 50% 50%;
+      background-repeat: no-repeat;
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
@@ -621,10 +631,10 @@ h3,
        so the accent — which is whatever the last project lent the page — never
        has to carry the contrast on its own. */
     [data-satz="promise"] {
-      background-image: linear-gradient(
-        100deg,
-        var(--accent) 0 42%,
-        var(--muted-dim) 58% 100%
+      background-image: radial-gradient(
+        140% 260% at 50% 50%,
+        var(--accent) 0 34%,
+        var(--muted-dim) 66% 100%
       );
     }
   }

@@ -448,11 +448,25 @@ export default function Home() {
             The claim. Narrowed (wdth 85) and held at the largest optical size so
             the face tightens as it grows — display type behaving like display
             type, instead of body copy scaled up. */}
-        <div className="flex min-h-[68svh] items-center">
+        <div className="flex min-h-[92svh] flex-col items-center justify-center overflow-x-clip text-center">
+          {/* IT CROSSES THE PAGE'S OWN RULES, and that is the one liberty taken
+              here. Every other edge on this site aligns to --gutter, which the
+              hero's readout names out loud as POS 08% and POS 92% — the margins
+              are not a habit, they are printed on the instrument's scale. So the
+              single line allowed over them is the claim, and it is over them by
+              about five per cent a side: 112% of a column that is itself 84% of
+              the page comes to 94% of the viewport, centred. Wide enough to read
+              as a refusal, short of the edge so nothing scrolls sideways —
+              measured at 0px of horizontal overflow.
+
+              WEIGHT 400 AT 144px, not 500. The safe move at this size is to go
+              heavier and the result is a poster; light and tight at display size
+              is what reads as confidence rather than volume. wdth 82 narrows the
+              face further so three lines still hold together as a block. */}
           <h2
             data-satz
-            className="font-display max-w-[16ch] text-balance text-[clamp(2.4rem,8vw,6.6rem)] font-medium leading-[0.92] tracking-[-0.04em] text-ink"
-            style={{ fontVariationSettings: '"wdth" 85, "opsz" 48' }}
+            className="font-display w-[112%] max-w-none text-balance text-[clamp(2.4rem,10vw,9rem)] font-normal leading-[0.88] tracking-[-0.055em] text-ink"
+            style={{ fontVariationSettings: '"wdth" 82, "opsz" 96' }}
           >
             <L text={site.aboutLead} />
           </h2>
@@ -471,14 +485,20 @@ export default function Home() {
             large and given its own beat, but on a 30ch measure so it is still a
             paragraph and not a slogan: three or four lines that have to be read,
             rather than one line that can be glanced at. */}
+        {/* Centred too, but on a 26ch measure and not a character wider. Centred
+            setting costs a reader something real — every line starts at a
+            different x, so the eye has to find the beginning again each time —
+            and that cost is only payable while the lines are few and near equal.
+            text-balance is doing the actual work here; without it this beat is
+            the one that would break. */}
         <div
-          className="flex min-h-[68svh] items-center border-t"
+          className="flex min-h-[80svh] items-center justify-center border-t text-center"
           style={{ borderColor: "var(--line)" }}
         >
           <p
             data-satz
-            className="font-display max-w-[30ch] text-pretty text-[clamp(1.5rem,4.4vw,3.1rem)] font-normal leading-[1.18] tracking-[-0.02em] text-ink"
-            style={{ fontVariationSettings: '"wdth" 92, "opsz" 32' }}
+            className="font-display max-w-[26ch] text-balance text-[clamp(1.5rem,5vw,3.6rem)] font-normal leading-[1.14] tracking-[-0.03em] text-ink"
+            style={{ fontVariationSettings: '"wdth" 88, "opsz" 40' }}
           >
             <L text={site.aboutBody} />
           </p>
@@ -489,7 +509,7 @@ export default function Home() {
             them would leave the strongest line on the page with nothing to
             point at. */}
         <div
-          className="flex min-h-[68svh] flex-col justify-center border-t"
+          className="flex min-h-[80svh] flex-col items-center justify-center border-t text-center"
           style={{ borderColor: "var(--line)" }}
         >
           <p className="hud text-muted-dim">
@@ -497,12 +517,12 @@ export default function Home() {
           </p>
           <p
             data-satz="promise"
-            className="accent-t font-display mt-5 max-w-[22ch] text-[clamp(1.9rem,5.6vw,4rem)] font-medium leading-[1.06] tracking-[-0.03em] text-accent"
-            style={{ fontVariationSettings: '"wdth" 92, "opsz" 40' }}
+            className="accent-t font-display mt-6 max-w-[20ch] text-balance text-[clamp(1.9rem,6.4vw,4.8rem)] font-normal leading-[1.02] tracking-[-0.04em] text-accent"
+            style={{ fontVariationSettings: '"wdth" 88, "opsz" 48' }}
           >
             <L text={site.aboutClose} />
           </p>
-          <ul className="hud mt-10 flex list-none flex-wrap gap-x-6 gap-y-3 p-0">
+          <ul className="hud mt-12 flex list-none flex-wrap justify-center gap-x-6 gap-y-3 p-0">
             {site.links.map((l) => (
               <li key={l.label}>
                 <a
