@@ -568,3 +568,73 @@ h3,
     }
   }
 }
+
+/* ——— ABOUT: THE STATEMENT DEVELOPS ————————————————————————————————————
+   The one place on the page where the type does the arguing, so it is the one
+   place the type is also the instrument. Each of the three beats develops as
+   it crosses the window — a pass over the plate, the same gesture [data-scan]
+   already makes on a card, applied to a sentence.
+
+   ONE ANIMATION PER BEAT, not one per word. The per-word version was built at
+   messstrecke/versuche/01 and is the more literal reading of "the sentence is
+   read at your pace" — but it animates `color` on forty-odd spans, and colour
+   is a paint property. This page has a measured jank problem already (17 long
+   tasks and 1297ms of blocked main thread across one scroll burst, all of it
+   from the motion layer), so the cheap shape wins: a gradient clipped to the
+   glyphs, three animations total, driven by view() on the compositor.
+
+   BOTH ENDS CLEAR AA. The undeveloped tone is --muted-dim, which the palette
+   note above already proves at 4.70:1 on --bg — so a reader who never scrolls,
+   or whose browser does not support any of this, is not reading grey-on-black
+   at 2:1. The effect changes emphasis, never legibility. That is the whole
+   reason it is a two-tone sweep rather than a fade from transparent. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports ((animation-timeline: view()) and (animation-range: entry)) {
+    @keyframes np-entwickeln {
+      to {
+        background-position: 0% 0;
+      }
+    }
+
+    [data-satz] {
+      /* 100deg rather than 90: a hair off square, so a three-line statement
+         lights in something close to reading order instead of all lines at the
+         same x. Off-square is also simply how a pass over a plate looks. */
+      background-image: linear-gradient(
+        100deg,
+        var(--ink) 0 42%,
+        var(--muted-dim) 58% 100%
+      );
+      background-size: 260% 100%;
+      background-position: 100% 0;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: np-entwickeln auto var(--ease-linear) both;
+      animation-timeline: view();
+      /* Finished before the beat is centred, not as it leaves: the reader
+         should be reading a developed line, not watching it develop. */
+      animation-range: entry 30% cover 58%;
+    }
+
+    /* The promise develops INTO the borrowed colour. Same floor at the dim end,
+       so the accent — which is whatever the last project lent the page — never
+       has to carry the contrast on its own. */
+    [data-satz="promise"] {
+      background-image: linear-gradient(
+        100deg,
+        var(--accent) 0 42%,
+        var(--muted-dim) 58% 100%
+      );
+    }
+  }
+}
+
+/* Forced colours throw the gradient away and would leave transparent glyphs.
+   Cheaper to state than to debug in a screenshot from someone else's machine. */
+@media (forced-colors: active) {
+  [data-satz] {
+    background-image: none;
+    color: CanvasText;
+  }
+}

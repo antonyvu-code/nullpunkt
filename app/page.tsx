@@ -423,9 +423,9 @@ export default function Home() {
       <section
         id="about"
         aria-label="About"
-        className="border-t py-16 md:py-28"
+        className="border-t pt-16 md:pt-24"
         style={{ borderColor: "var(--line)" }}
-        data-reveal
+        data-reveal-pinned
       >
         <div className="mb-12 flex flex-wrap items-baseline justify-between gap-3">
           <p className="hud hud-wide text-accent accent-t">
@@ -434,15 +434,29 @@ export default function Home() {
           <p className="hud text-muted-dim">S.06 / {SECTIONS}</p>
         </div>
 
-        {/* The claim. Narrowed (wdth 85) and held at the largest optical size so
+        {/* THREE MOVEMENTS, ONE SECTION. The page numbers its sections S.01…S.07
+            and calls itself seven sections in CLAUDE.md, so these are not three
+            <section>s — they are three screen-held beats inside S.06. Splitting
+            the element would have meant renumbering the whole page to gain
+            nothing the eye can see.
+
+            Each beat is given ~68svh rather than a full screen. A full screen
+            each would add three screens of scroll for the same 764 words, and
+            the page's measured problem is already that its length is bought
+            with motion rather than content. 68 buys the pause without the debt.
+
+            The claim. Narrowed (wdth 85) and held at the largest optical size so
             the face tightens as it grows — display type behaving like display
             type, instead of body copy scaled up. */}
-        <h2
-          className="font-display max-w-[15ch] text-balance text-[clamp(2rem,6.2vw,5rem)] font-medium leading-[0.94] tracking-[-0.035em] text-ink"
-          style={{ fontVariationSettings: '"wdth" 85, "opsz" 48' }}
-        >
-          <L text={site.aboutLead} />
-        </h2>
+        <div className="flex min-h-[68svh] items-center">
+          <h2
+            data-satz
+            className="font-display max-w-[16ch] text-balance text-[clamp(2.4rem,8vw,6.6rem)] font-medium leading-[0.92] tracking-[-0.04em] text-ink"
+            style={{ fontVariationSettings: '"wdth" 85, "opsz" 48' }}
+          >
+            <L text={site.aboutLead} />
+          </h2>
+        </div>
 
         {/* One column, read top to bottom: evidence, then promise, then the
             documents. The promise used to sit in a second column beside the
@@ -451,17 +465,40 @@ export default function Home() {
             Stacked, the order is the argument's own order — and on the narrowed
             measure a 6+5 spread would leave two columns of about 24 characters,
             which is below a readable line anyway. */}
-        <div className="mt-14 border-t pt-12" style={{ borderColor: "var(--line)" }}>
-          <p className="max-w-[46ch] text-pretty text-lg leading-relaxed text-muted md:text-xl">
+        {/* The evidence. Was reading size in a 46ch column, which made it the one
+            paragraph on the page a reader could skim past — the exact opposite of
+            what a section whose argument IS the type should do. Now it is set
+            large and given its own beat, but on a 30ch measure so it is still a
+            paragraph and not a slogan: three or four lines that have to be read,
+            rather than one line that can be glanced at. */}
+        <div
+          className="flex min-h-[68svh] items-center border-t"
+          style={{ borderColor: "var(--line)" }}
+        >
+          <p
+            data-satz
+            className="font-display max-w-[30ch] text-pretty text-[clamp(1.5rem,4.4vw,3.1rem)] font-normal leading-[1.18] tracking-[-0.02em] text-ink"
+            style={{ fontVariationSettings: '"wdth" 92, "opsz" 32' }}
+          >
             <L text={site.aboutBody} />
           </p>
+        </div>
 
-          <p className="hud mt-14 text-muted-dim">
+        {/* The promise, and the documents that back it. These stay together: the
+            claim is only worth as much as the links under it, and separating
+            them would leave the strongest line on the page with nothing to
+            point at. */}
+        <div
+          className="flex min-h-[68svh] flex-col justify-center border-t"
+          style={{ borderColor: "var(--line)" }}
+        >
+          <p className="hud text-muted-dim">
             <L en="— THE PROMISE" de="— DAS VERSPRECHEN" />
           </p>
           <p
-            className="accent-t font-display mt-4 max-w-[24ch] text-2xl font-medium leading-[1.15] tracking-[-0.015em] text-accent md:text-[1.75rem]"
-            style={{ fontVariationSettings: '"wdth" 92, "opsz" 32' }}
+            data-satz="promise"
+            className="accent-t font-display mt-5 max-w-[22ch] text-[clamp(1.9rem,5.6vw,4rem)] font-medium leading-[1.06] tracking-[-0.03em] text-accent"
+            style={{ fontVariationSettings: '"wdth" 92, "opsz" 40' }}
           >
             <L text={site.aboutClose} />
           </p>
