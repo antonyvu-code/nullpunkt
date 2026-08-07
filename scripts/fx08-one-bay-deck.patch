@@ -1,0 +1,700 @@
+FX.08 — "CAPABILITIES DEAL THROUGH ONE SLOT". Built 05.-06.08.2026, measured,
+and culled on 06.08.2026 in favour of the laid-out rack that ships now. Kept
+because it worked and the argument against it was a design call, not a defect:
+six capability modules dealt through one bay held at the middle of the window,
+sticky stage carrying the heading with it, five modules parked (opacity 0,
+inert, aria-hidden) at any moment, 3833px of runway for a section the grid now
+gives in 1005px. What it lost on was reading: a visitor could never see MOTION
+and GRAPHICS at once to compare them.
+
+Worth reading even if it never comes back — the deck is where these were found
+and written down:
+
+  * the bay measured off the tallest module instead of guessed (--deck-bay),
+    and why the measurement has to zero the property before it reads
+  * the hold beat: six units of timeline for six modules, five hand-overs plus
+    one empty beat, or the last module finishes arriving in the frame the stage
+    lets go and is never seen at rest
+  * the seated-module index divided by the timeline's unit count, not by the
+    number of hand-overs
+  * onRefresh re-parking, without which module 4 jumped back out mid-scrub
+
+THIS PATCH APPLIES TO COMMIT 61ffdc5, NOT TO THE CURRENT TREE. It is the whole
+working diff as it stood that morning, so it also carries the pnpm launch.json
+fix, the SmoothScroll resize refresh and the AccentScroll needle note — all of
+which are in the tree already and will collide if applied on top.
+
+    git worktree add ../nullpunkt-fx08 61ffdc5
+    cd ../nullpunkt-fx08
+    git apply ../nullpunkt/scripts/fx08-one-bay-deck.patch
+
+Read it there; delete the worktree when done (git worktree remove).
+
+diff --git a/.claude/launch.json b/.claude/launch.json
+index 6ce0189..668319f 100644
+--- a/.claude/launch.json
++++ b/.claude/launch.json
+@@ -3,7 +3,7 @@
+   "configurations": [
+     {
+       "name": "nullpunkt",
+-      "runtimeExecutable": "npm",
++      "runtimeExecutable": "pnpm",
+       "runtimeArgs": ["run", "dev", "--", "--port", "5613"],
+       "port": 5613
+     }
+diff --git a/app/globals.css b/app/globals.css
+index 2246a3f..d151b6b 100644
+--- a/app/globals.css
++++ b/app/globals.css
+@@ -434,6 +434,89 @@ h3,
+   [data-fx~="shelf-transport"] [data-transport-head] {
+     display: block;
+   }
++
++  /* FX.08 — the capability rack deals through one slot.
++     Layout only; the dealing itself is components/Rack.tsx. Gated the same way
++     FX.03 is, and for the same reason: the driver measures this layout, so the
++     two must never be able to disagree about whether it exists.
++
++     The runway is the section's own height. Sticky rather than a second pin —
++     the shelf above already pins, pinning inserts a spacer, and the refresh
++     order between two spacers is exactly the mis-measurement that cost this
++     page a bug on the section below the shelf (see ShelfTransport's
++     refreshPriority note). Sticky needs no spacer and cannot reorder anything.
++
++     --deck-step is the one number here: how much wheel each module is worth.
++     Six modules at 62svh is a little under four screens of scroll for a section
++     a grid used to give at a glance — the trade the catalogue entry names. */
++  [data-fx~="capability-deck"] [data-deck] {
++    --deck-step: 62svh;
++    position: relative;
++    height: calc(100svh + var(--deck-step) * 6);
++  }
++
++  /* The stage carries the HEADING AND THE COPY as well as the bay, and it is
++     the whole of them that sticks. A bay that swaps modules under a heading
++     which has already scrolled off is a rack with the label plate missing: the
++     reader is four screens into a list of tools with nothing on screen saying
++     what the list is. Column, not row — the section reads down its own measure
++     like every other one on this page, and a two-column split here would be the
++     only place the page changes its mind about that. */
++  [data-fx~="capability-deck"] [data-deck-stage] {
++    position: sticky;
++    top: 0;
++    display: flex;
++    flex-direction: column;
++    height: 100svh;
++    justify-content: center;
++  }
++
++  [data-fx~="capability-deck"] [data-deck-head] {
++    flex: none;
++  }
++
++  /* Beats .grid and its column variants on specificity — two attributes to one
++     class — so the grid markup needs no second render path. It stays exactly
++     what it is with the switch off, on a phone, and under reduced motion. */
++  [data-fx~="capability-deck"] [data-deck-slot] {
++    position: relative;
++    display: block;
++    width: min(38rem, 100%);
++    /* Left, on the section's own left edge, not centred in the window. The
++       heading above it starts there and so does every other line on the page;
++       a bay floating in the middle of the measure would be the one element
++       that answers to the viewport instead of to the page. */
++    align-self: flex-start;
++    /* THE BAY IS AS TALL AS THE TALLEST MODULE, and it is measured rather than
++       guessed. The guess was 21rem: at 1280 the modules run 162…276px, so the
++       bay stood 60px taller than anything that could ever sit in it and every
++       module was seated over a strip of empty ground. components/Rack.tsx
++       writes the measured figure here on every refresh — the fallback is only
++       what stands in the frame before the first measurement lands. */
++    min-height: var(--deck-bay, 21rem);
++  }
++
++  [data-fx~="capability-deck"] [data-deck-slot] [data-rack-card] {
++    position: absolute;
++    inset: 0 0 auto 0;
++    /* Every module fills the bay, so the six read as one instrument with its
++       modules swapped rather than as six cards of six different sizes taking
++       turns. The card is already a flex column with the list on flex-1, so the
++       height lands on the list and the faceplate stays put — which is what
++       makes the header hold still across a hand-over. */
++    min-height: 100%;
++    /* The module in the slot is the only one that is anything: the rest are
++       parked at opacity 0 by the driver, and a parked module must not be
++       reachable by Tab or read aloud as if it were on screen. Rack.tsx keeps
++       this attribute in step with the deflection it writes. */
++    will-change: transform, opacity;
++  }
++
++  [data-fx~="capability-deck"] [data-deck-slot] [data-rack-card][data-parked] {
++    /* Not display:none — that would kill the transition it is mid-way through.
++       This only takes it out of the pointer's and the reader's way. */
++    pointer-events: none;
++  }
+ }
+ 
+ @media (prefers-reduced-motion: reduce) {
+diff --git a/app/page.tsx b/app/page.tsx
+index 1fa2e20..cc82e64 100644
+--- a/app/page.tsx
++++ b/app/page.tsx
+@@ -248,28 +248,6 @@ export default function Home() {
+         style={{ borderColor: "var(--line)" }}
+         data-reveal
+       >
+-        <div className="mb-10 flex flex-wrap items-baseline justify-between gap-3">
+-          <p className="hud hud-wide text-accent accent-t">
+-            <L
+-              en="CAPABILITIES — MEASURED FROM THE WORK"
+-              de="FÄHIGKEITEN — AN DER ARBEIT GEMESSEN"
+-            />
+-          </p>
+-          <p className="hud text-muted-dim">
+-            S.04 / {SECTIONS} · <L en="IN PRODUCTION" de="IN PRODUKTION" />
+-          </p>
+-        </div>
+-
+-        <h2 className="max-w-3xl text-2xl font-medium md:text-4xl">
+-          <L en="Every tool here ships in a case above." de="Jedes Werkzeug hier läuft in einem Case oben." />
+-        </h2>
+-        <p className="mt-4 max-w-xl leading-relaxed text-muted">
+-          <L
+-            en="No stack I can't point at. Each entry below is in production somewhere in the archive — the work is the reference."
+-            de="Kein Stack, auf den ich nicht zeigen kann. Jeder Eintrag unten läuft irgendwo im Archiv in Produktion — die Arbeit ist die Referenz."
+-          />
+-        </p>
+-
+         <Rack />
+ 
+         {/* Real gaps over the page ground, not gap-px over a --line fill. The
+@@ -280,7 +258,49 @@ export default function Home() {
+             Three up and two down, not six across: on the narrowed measure six
+             columns leave ~130px a group, which breaks entries like "Next.js
+             (App Router)" over three lines and turns the rack into confetti. */}
+-        <div className="mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
++        {/* FX.08 wraps the grid rather than replacing it. With the switch off,
++            on a phone, or under reduced motion these three elements are inert
++            divs and what stands here is exactly the section that shipped —
++            heading, copy, then the grid — which is also the designed static
++            frame the craft floor asks for, already built and already argued,
++            instead of a second render path that has to be kept in step with
++            the first. That is why the heading and the copy live INSIDE the
++            wrapper rather than above it: the stage is what sticks, so anything
++            that has to stay readable while the deck deals has to be in it. A
++            bay changing modules under a heading that has scrolled away is a
++            module with no label on it. The spacing that used to sit on the
++            wrapper now sits on the slot, so the flow with the effect off is
++            unchanged to the pixel. */}
++        <div data-deck>
++          <div data-deck-stage>
++            <div data-deck-head>
++              <div className="mb-10 flex flex-wrap items-baseline justify-between gap-3">
++                <p className="hud hud-wide text-accent accent-t">
++                  <L
++                    en="CAPABILITIES — MEASURED FROM THE WORK"
++                    de="FÄHIGKEITEN — AN DER ARBEIT GEMESSEN"
++                  />
++                </p>
++                <p className="hud text-muted-dim">
++                  S.04 / {SECTIONS} · <L en="IN PRODUCTION" de="IN PRODUKTION" />
++                </p>
++              </div>
++
++              <h2 className="max-w-3xl text-2xl font-medium md:text-4xl">
++                <L
++                  en="Every tool here ships in a case above."
++                  de="Jedes Werkzeug hier läuft in einem Case oben."
++                />
++              </h2>
++              <p className="mt-4 max-w-xl leading-relaxed text-muted">
++                <L
++                  en="No stack I can't point at. Each entry below is in production somewhere in the archive — the work is the reference."
++                  de="Kein Stack, auf den ich nicht zeigen kann. Jeder Eintrag unten läuft irgendwo im Archiv in Produktion — die Arbeit ist die Referenz."
++                />
++              </p>
++            </div>
++
++            <div data-deck-slot className="mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+           {capabilities.map((c, i) => (
+             // data-rack-card is the hook components/Rack.tsx seats. Inert markup
+             // when the effect is not running, in the same way the transport
+@@ -330,6 +350,8 @@ export default function Home() {
+               </ul>
+             </article>
+           ))}
++            </div>
++          </div>
+         </div>
+       </section>
+ 
+diff --git a/components/Rack.tsx b/components/Rack.tsx
+index ae895d1..23758e8 100644
+--- a/components/Rack.tsx
++++ b/components/Rack.tsx
+@@ -4,37 +4,26 @@ import { useGSAP } from "@gsap/react";
+ import gsap from "gsap";
+ import { ScrollTrigger } from "gsap/ScrollTrigger";
+ import { usePathname } from "next/navigation";
++import { useFx } from "@/components/fx/FxProvider";
+ 
+ /**
+- * The capability modules are carried into the rack by the scroll itself.
++ * The capability rack, driven two ways.
+  *
+- * SCRUBBED, NOT TRIGGERED, and that distinction is the whole point of this
+- * file's third version. The first two fired a timeline when the section crossed
+- * a line: the modules played their entrance once and stayed, and scrolling back
+- * up did nothing, because the animation had already been spent. That is a
+- * transition — a thing the page does at you — and it is not what a rack being
+- * loaded looks like. Here the scroll position IS the position: every module's
+- * place on screen is a function of how far through the range the reader is, so
+- * the wheel carries them in, and rolling it back carries them out again. There
+- * is no state to be spent.
++ * FX.08 (`capability-deck`) deals the six modules through ONE slot held at the
++ * middle of the screen: the wheel changes which module is seated, the way a rack
++ * with a single bay is worked rather than read. Off, the section stays the grid
++ * it shipped as and the modules are carried into it from off the edges, which is
++ * the effect this file did before the deck existed.
+  *
+- * They come from OFF THE SCREEN, not from a few pixels below it. The distance is
+- * measured per module from its own rect, so each one starts fully clear of the
+- * edge it enters from at any viewport width, rather than from a guessed offset
+- * that is too far on a phone and invisible on a desktop.
+- *
+- * The outer columns converge from the sides and the middle rises from below,
+- * which is what makes it read as a rack being filled rather than as a list
+- * sliding about: three streams arriving at one frame. Which column a module is
+- * in is derived from the laid-out grid — modules sharing an offsetTop are a row
+- * — so the effect follows the 1/2/3-column breakpoints without being told about
+- * them.
+- *
+- * Transform and opacity only, per the craft floor's P1. Nothing here reflows,
+- * and html already carries overflow-x: clip, so a module waiting off the left
+- * edge cannot grow a horizontal scrollbar.
++ * Both drivers are SCRUBBED, not triggered, and that distinction is the whole
++ * point of this file. A timeline fired at a line plays once and is spent:
++ * scrolling back up does nothing, which is a transition — a thing the page does
++ * at you. Here the scroll position IS the position, so the wheel carries the
++ * modules and rolling it back carries them out again. There is no state to be
++ * spent.
+  */
+ export default function Rack() {
++  const dealing = useFx("capability-deck");
+   const pathname = usePathname();
+ 
+   useGSAP(
+@@ -43,81 +32,249 @@ export default function Rack() {
+       const cards = gsap.utils.toArray<HTMLElement>("[data-rack-card]");
+       if (cards.length === 0) return;
+ 
+-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+-        /* The designed static frame M1 asks for: the rack full and readable. A
+-           module halfway in is missing information, not missing decoration. */
+-        gsap.set(cards, { opacity: 1, x: 0, y: 0 });
++      /* gsap.matchMedia rather than a test at mount, for the reason FX.03
++         states at length: the layout these drivers measure is CSS, it can
++         change underneath them, and a decision taken once stays bolted to a
++         layout that no longer exists. Written as two conditions so the deck and
++         the grid can never both be running — they write to the same six
++         elements.
++         The motion query is safe here: this is the browser's matchMedia. It is
++         only Lightning CSS that drops no-preference (see globals.css, FX.03). */
++      const mm = gsap.matchMedia();
++      const moving = "(min-width: 768px) and (prefers-reduced-motion: no-preference)";
++
++      /* ── FX.08, the deck ────────────────────────────────────────────────── */
++      if (dealing) {
++        mm.add(moving, () => {
++          const deck = cards[0].closest<HTMLElement>("[data-deck]");
++          if (!deck) return;
++
++          /* A module is either in the slot or waiting, and waiting means gone:
++             out of the pointer's way, out of the tab order, out of the
++             accessibility tree. Six stacked modules all readable at once is six
++             lists read aloud on top of each other — the thing the slot exists to
++             stop. The seated one keeps every bit of its markup, so nothing is
++             hidden that a reader could be looking at. */
++          const park = (el: HTMLElement, parked: boolean) => {
++            if (parked) {
++              el.setAttribute("data-parked", "");
++              el.setAttribute("aria-hidden", "true");
++              el.setAttribute("inert", "");
++            } else {
++              el.removeAttribute("data-parked");
++              el.removeAttribute("aria-hidden");
++              el.removeAttribute("inert");
++            }
++          };
++
++          /* Stacking order is the deal: whatever is arriving is on top of what
++             it replaces. Set once — the tween never touches z-index, because
++             animating it would make every frame a paint. */
++          cards.forEach((el, i) => {
++            gsap.set(el, { zIndex: i });
++            park(el, i > 0);
++          });
++
++          /* THE BAY'S HEIGHT, measured off the modules instead of guessed at in
++             the stylesheet. It has to be measured because it depends on how the
++             longest entry wraps, which depends on the width — "21rem" was right
++             for no width in particular and 60px too tall for 1280.
++
++             Zeroing the custom property first is what makes the reading honest:
++             the stylesheet gives each module `min-height: 100%` of the bay, so
++             asking a module how tall it is while the bay is already tall only
++             gets the bay's height back. At 0 the min-height resolves to nothing
++             and offsetHeight is the module's own content — a layout figure, so
++             the transforms the scrub has on these elements cannot touch it.
++
++             Costs two reflows per refresh, which is why it hangs off the
++             refresh and not off the scroll. */
++          const measureBay = () => {
++            deck.style.setProperty("--deck-bay", "0px");
++            const tallest = cards.reduce((m, el) => Math.max(m, el.offsetHeight), 0);
++            deck.style.setProperty("--deck-bay", `${Math.ceil(tallest)}px`);
++          };
++
++          const seat = () => {
++            measureBay();
++            gsap.set(cards[0], { yPercent: 0, scale: 1, opacity: 1 });
++            gsap.set(cards.slice(1), { yPercent: 55, scale: 0.94, opacity: 0 });
++            cards.forEach((el, i) => park(el, i > 0));
++          };
++          seat();
++
++          /* One unit of timeline per module, so the scroll cost per module is
++             --deck-step and the two cannot drift: the runway in globals.css is
++             `100svh + step * 6`, and this timeline is six units long.
++
++             SIX UNITS FOR SIX MODULES, and the sixth is not a hand-over. Five
++             hand-overs seat modules 2…6; the sixth unit is an empty beat that
++             holds the last module in the bay. Without it the timeline was five
++             units and the scrub stretched them over a runway cut for six, so
++             every hand-over cost 604px against a declared step of 503px, and
++             module 6 finished arriving in the last frame of the sticky range —
++             measured at progress 1.000 it stood at opacity 1 while module 5 was
++             still at 0.38, i.e. the deal was still in motion at the moment the
++             stage let go. The last module was never once seen at rest. The
++             empty beat is what the comment above always claimed was there. */
++          const beats = cards.length;
++          const tl = gsap.timeline({
++            scrollTrigger: {
++              trigger: deck,
++              start: "top top",
++              end: "bottom bottom",
++              scrub: 0.6,
++              invalidateOnRefresh: true,
++              /* PARK ON EVERY REFRESH, and this is the bug that survived the
++                 first scrubbed version of this file. With function-based or
++                 staggered from-values GSAP does not record a module's start
++                 until that module's own tween begins; until then the element
++                 renders at its stylesheet state — seated, opaque, in the way.
++                 Measured on the grid driver: module 4 sat fully seated at 25 %
++                 of the range and JUMPED BACK OUT to the edge at 50 % to fly in
++                 again. Re-stating the parked state on refresh restores the
++                 invariant the scrub assumes; anything the scrub has already
++                 rendered is re-rendered immediately after this. */
++              onRefresh: seat,
++              onUpdate: (self) => {
++                /* Which module the deck is holding, read off the same progress
++                   the tween is on rather than measured a second way — two
++                   measurements of one thing is how they drift. */
++                /* Divided by the timeline's own unit count, which is the one
++                   number the runway is also cut from — divide by anything else
++                   and the flag drifts from the picture. It ran on hand-overs
++                   while the timeline was hand-overs long; the added hold beat
++                   makes that count `beats`, and hand-over n now completes at
++                   time n, so rounding the time gives the seated module. The
++                   clamp is the hold: across the last beat the time runs 5 → 6
++                   and the answer stays module 6. */
++                const i = Math.min(beats - 1, Math.round(self.progress * beats));
++                cards.forEach((el, n) => park(el, n !== i));
++              },
++            },
++          });
++
++          cards.forEach((el, i) => {
++            if (i > 0) {
++              tl.fromTo(
++                el,
++                { yPercent: 55, scale: 0.94, opacity: 0 },
++                { yPercent: 0, scale: 1, opacity: 1, duration: 1, ease: "power2.out" },
++                i - 1,
++              );
++              /* The one it replaces goes UP and slightly back, not down: the
++                 new module is arriving from below, and two modules crossing in
++                 the same direction reads as a list scrolling rather than as a
++                 bay being changed. */
++              tl.to(
++                cards[i - 1],
++                { yPercent: -18, scale: 0.97, opacity: 0, duration: 1, ease: "power2.in" },
++                i - 1,
++              );
++            }
++          });
++
++          /* The hold. An empty tween is the whole of it: it moves nothing and
++             exists only to make the timeline as long as the runway, so the last
++             module keeps the bay for one full --deck-step of wheel before the
++             stage un-sticks and the section leaves. Placed by its position
++             rather than appended, so it cannot be moved by whatever a future
++             hand-over does to the end of the timeline. */
++          tl.to({}, { duration: 1 }, beats - 1);
++
++          return () => {
++            tl.scrollTrigger?.kill();
++            tl.kill();
++            /* Everything back to what the stylesheet says, or the grid the
++               switch falls back to would inherit a stack of parked modules —
++               and a bay height measured for a layout that no longer exists. */
++            deck.style.removeProperty("--deck-bay");
++            gsap.set(cards, { clearProps: "transform,opacity,zIndex" });
++            cards.forEach((el) => park(el, false));
++          };
++        });
++
+         return;
+       }
+ 
+-      /* How many columns the grid actually resolved to. Read off the layout
+-         rather than off a breakpoint list, so this cannot drift from the CSS:
+-         every module on the first row shares the first module's offsetTop. */
+-      const firstTop = cards[0].offsetTop;
+-      const cols = Math.max(1, cards.filter((c) => c.offsetTop === firstTop).length);
+-
+-      /* LAYOUT METRICS, NOT RECTS, and this is the bug that made the first
+-         scrubbed version look like a plain fade. getBoundingClientRect() reports
+-         the element WHERE IT IS DRAWN, which includes whatever transform is on
+-         it — so once these values had been applied, invalidateOnRefresh
+-         re-measured a module that was already displaced and fed its own offset
+-         back into the sum. Measured: five of six modules resolved to x = 0 and
+-         only cross-faded, which is precisely the thing this version exists to
+-         stop doing. offsetLeft/offsetWidth/offsetHeight are layout figures and
+-         a transform cannot touch them, so they give the same answer on every
+-         refresh no matter what state the effect is in. */
+-      const startX = (i: number, el: HTMLElement) => {
+-        if (cols === 1) return 0;
+-        const col = i % cols;
+-        // Clear of the edge by the module's own width plus a margin, so nothing
+-        // is ever caught peeking at the start of the range.
+-        if (col === 0) return -(el.offsetLeft + el.offsetWidth + 64);
+-        if (col === cols - 1) return window.innerWidth - el.offsetLeft + 64;
+-        return 0;
+-      };
+-
+-      const startY = (i: number, el: HTMLElement) => {
+-        // Single column: everything rises. Otherwise only the middle stream does.
+-        const middle = cols === 1 || (cols === 3 && i % cols === 1);
+-        return middle ? el.offsetHeight * 0.6 + 80 : 0;
+-      };
+-
+-      const tl = gsap.timeline({
+-        scrollTrigger: {
+-          trigger: cards[0].parentElement || cards[0],
+-          /* The range is the rack's own approach: out of frame when the grid is
+-             still below the fold, fully seated by the time its top is 45% up the
+-             window — which is before the reader is reading it, not while. */
+-          start: "top bottom",
+-          end: "top 45%",
+-          /* Enough lag that the modules feel carried rather than dragged, not so
+-             much that they are still moving after the wheel has stopped. */
+-          scrub: 0.7,
+-          invalidateOnRefresh: true,
+-        },
++      /* ── The grid driver, unchanged in behaviour ─────────────────────────── */
++      mm.add(moving, () => {
++        /* How many columns the grid actually resolved to, read off the layout
++           rather than off a breakpoint list: every module on the first row
++           shares the first module's offsetTop. Re-read on every refresh — a
++           column count captured once survives the breakpoint that invalidated
++           it, and after a 1280 → 375 resize module 6 still carried the x = 628
++           of a three-column layout that no longer existed. */
++        const measureCols = () => {
++          const firstTop = cards[0].offsetTop;
++          return Math.max(1, cards.filter((c) => c.offsetTop === firstTop).length);
++        };
++        let cols = measureCols();
++
++        /* LAYOUT METRICS, NOT RECTS. getBoundingClientRect() reports the element
++           WHERE IT IS DRAWN, transform included — so once these values had been
++           applied, invalidateOnRefresh re-measured a module that was already
++           displaced and fed its own offset back into the sum. Measured: five of
++           six modules resolved to x = 0 and only cross-faded. offsetLeft and
++           offsetWidth are layout figures a transform cannot touch. */
++        const startX = (i: number, el: HTMLElement) => {
++          if (cols === 1) return 0;
++          const col = i % cols;
++          if (col === 0) return -(el.offsetLeft + el.offsetWidth + 64);
++          if (col === cols - 1) return window.innerWidth - el.offsetLeft + 64;
++          return 0;
++        };
++
++        const startY = (i: number, el: HTMLElement) => {
++          const middle = cols === 1 || (cols === 3 && i % cols === 1);
++          return middle ? el.offsetHeight * 0.6 + 80 : 0;
++        };
++
++        const park = () => gsap.set(cards, { x: startX, y: startY, opacity: 0 });
++        park();
++
++        const tl = gsap.timeline({
++          scrollTrigger: {
++            trigger: cards[0].parentElement || cards[0],
++            onRefresh: park,
++            start: "top bottom",
++            end: "top 45%",
++            scrub: 0.7,
++            invalidateOnRefresh: true,
++            onRefreshInit: () => {
++              cols = measureCols();
++            },
++          },
++        });
++
++        tl.fromTo(
++          cards,
++          { x: startX, y: startY, opacity: 0 },
++          {
++            x: 0,
++            y: 0,
++            opacity: 1,
++            duration: 1,
++            /* Inside a scrub, stagger is what spreads the modules across the
++               range instead of landing them all on the same frame — it is the
++               sequence, not a delay. */
++            stagger: 0.18,
++            ease: "power2.out",
++          },
++        );
++
++        return () => {
++          tl.scrollTrigger?.kill();
++          tl.kill();
++          gsap.set(cards, { clearProps: "transform,opacity" });
++        };
+       });
+ 
+-      tl.fromTo(
+-        cards,
+-        {
+-          x: startX,
+-          y: startY,
+-          opacity: 0,
+-        },
+-        {
+-          x: 0,
+-          y: 0,
+-          opacity: 1,
+-          duration: 1,
+-          /* Inside a scrub, stagger is what spreads the modules across the
+-             range instead of landing them all on the same frame — it is the
+-             sequence, not a delay. */
+-          stagger: 0.18,
+-          ease: "power2.out",
+-        },
+-      );
++      /* Reduced motion and the phone get no driver at all — the grid is the
++         designed static frame, and a module halfway in is missing information
++         rather than missing decoration. */
+     },
+-    { dependencies: [pathname], revertOnUpdate: true },
++    { dependencies: [dealing, pathname], revertOnUpdate: true },
+   );
+ 
+   return null;
+diff --git a/components/SmoothScroll.tsx b/components/SmoothScroll.tsx
+index a9d860e..9d5bbb7 100644
+--- a/components/SmoothScroll.tsx
++++ b/components/SmoothScroll.tsx
+@@ -15,7 +15,33 @@ export default function SmoothScroll() {
+     const raf = (time: number) => lenis.raf(time * 1000);
+     gsap.ticker.add(raf);
+     gsap.ticker.lagSmoothing(0);
++
++    /* REFRESH ON RESIZE OURSELVES, because ScrollTrigger's own resize refresh
++       cannot land on a Lenis page and silently stops running after the first
++       scroll. Its refreshAll defers while `_lastScrollTime` is set and waits for
++       a `scrollEnd`, which is dispatched from `_updateAll` 200 ms after the last
++       scroll — but here `_updateAll` only runs when Lenis emits `scroll`, and
++       Lenis stops emitting the moment the page settles. So `_lastScrollTime`
++       stays set, the deferred refresh waits for an event that never comes, and
++       every ScrollTrigger on the site keeps the start/end positions and
++       measurements of the layout it was born in.
++
++       Measured before this: at 1280 the capability rack seated correctly; after
++       resizing to 375 the modules still started from a three-column layout that
++       no longer existed, and neither the trigger's onRefresh nor its
++       onRefreshInit fired at all. ScrollTrigger.refresh() passes force = true,
++       which is the one path that skips the deferral. Debounced, because a drag
++       resize fires this continuously and a refresh re-measures every trigger. */
++    let resizeTimer = 0;
++    const onResize = () => {
++      clearTimeout(resizeTimer);
++      resizeTimer = window.setTimeout(() => ScrollTrigger.refresh(), 200);
++    };
++    window.addEventListener("resize", onResize);
++
+     return () => {
++      window.removeEventListener("resize", onResize);
++      clearTimeout(resizeTimer);
+       gsap.ticker.remove(raf);
+       lenis.destroy();
+       (window as unknown as { lenis?: Lenis }).lenis = undefined;
+diff --git a/components/fx/AccentScroll.tsx b/components/fx/AccentScroll.tsx
+index 14096c0..e037ec3 100644
+--- a/components/fx/AccentScroll.tsx
++++ b/components/fx/AccentScroll.tsx
+@@ -174,7 +174,22 @@ export default function AccentScroll() {
+             const i = Math.floor(span);
+             /* Same reasoning as the carriage: the notes have taken the screen,
+                so the dial is fully deflected for the whole run. What varies
+-               inside the sweep is the hue, not how hard the page is reading. */
++               inside the sweep is the hue, not how hard the page is reading.
++
++               THE RELEASE IS STILL A STEP, and it is the one place the needle
++               argument has not been carried through. Measured at 1280×812, so
++               the line sits at 447: with the notes' bottom at 540 the sweep
++               owns the dial and --deflection reads 1.000 on #35d2bb; one frame
++               later, bottom at 390, it reads 0.000 on the rest colour. The ramp
++               below never gets a chance at it — this branch returns, and the
++               mark list the ramp measures against has had every note excluded
++               precisely because the sweep was handling them. Nothing is left
++               near the line, so the fall is to zero, page-wide, in a frame:
++               every hairline goes 0.22 → 0.14 at once, and --deflection is not
++               a registered @property, so nothing smooths it. The carriage
++               branch above is built the same way and releases the same way.
++               Left as measured rather than patched — what shape the needle
++               should fall on is a decision for the eye, not for this note. */
+             deflect(1);
+             /* The notes are a list of readings, not specimens — nothing in here
+                carries a plate to develop, so the probe is parked rather than
+diff --git a/lib/fx.ts b/lib/fx.ts
+index 5e24f92..a105859 100644
+--- a/lib/fx.ts
++++ b/lib/fx.ts
+@@ -16,7 +16,8 @@ export type FxId =
+   | "shelf-transport"
+   | "rail-draw"
+   | "werdegang-axis"
+-  | "type-wipe";
++  | "type-wipe"
++  | "capability-deck";
+ 
+ export const FX: { id: FxId; nr: string; label: string; note: string }[] = [
+   {
+@@ -61,6 +62,12 @@ export const FX: { id: FxId; nr: string; label: string; note: string }[] = [
+     label: "SECTION HEADINGS WIPE",
+     note: "The hero title already arrives from behind a mask while every other heading slides up on opacity — two ways of entering on one page. This gives the section headings the hero's way, so display type arrives one way throughout. Compare it against the plain fade before keeping it: the block it sits in is fading at the same time, and two things happening to one line can read as fussy rather than as one hand.",
+   },
++  {
++    id: "capability-deck",
++    nr: "08",
++    label: "CAPABILITIES DEAL THROUGH ONE SLOT",
++    note: "The six capability modules stop being a grid and become a deck: one slot, held at the middle of the screen, and the wheel changes which module is seated in it. A rack has one bay and the modules are swapped through it — six bays visible at once is a catalogue, one bay is an instrument. Costs the reader six screens of scroll for information a grid gives at a glance, which is the trade to judge: keep it only if the section is worth being walked through rather than scanned.",
++  },
+ ];
+ 
+ /** All on, so the first look is the full menu. Turn them off to compare. */

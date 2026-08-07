@@ -72,8 +72,13 @@ export default function Reveal() {
 
          No focusin hatch, unlike the blocks above: headings are not focusable,
          and the clip retires itself on first crossing. */
+      /* Both markers, and that is the point of the second one. A block carrying
+         data-reveal-pinned has opted out of the FADE — its own effect owns when
+         it appears — but not out of the page's one way of introducing display
+         type. Leaving it out here would make the capability heading the single
+         h2 on the page that slides instead of wiping. */
       if (wipe) {
-        gsap.utils.toArray<HTMLElement>("[data-reveal] h2").forEach((el) => {
+        gsap.utils.toArray<HTMLElement>("[data-reveal] h2, [data-reveal-pinned] h2").forEach((el) => {
           gsap.fromTo(
             el,
             { clipPath: "inset(0 0 100% 0)", yPercent: 6 },

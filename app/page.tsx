@@ -241,12 +241,22 @@ export default function Home() {
           are open frames on the page ground with a ruled faceplate at the top.
           No rail — the marker row carries the section number instead — which
           keeps it off-beat between two railed neighbours. */}
+      {/* data-reveal-pinned, NOT data-reveal: this section's arrival is owned by
+          components/Rack.tsx, which pins it and carries the modules in, so a
+          second effect fading the whole block from zero underneath that is one
+          hand too many. Marked here in the server HTML rather than decided at
+          runtime, because the two used to race: Reveal depends on FX.07 and
+          re-creates every tween whenever any switch moves, so a Rack that
+          retired the reveal once at mount could not catch the one built after
+          the next toggle — measured, the section stood at opacity 0 through the
+          whole pin with the rack loading invisibly inside it.
+          Reveal still wipes this heading with FX.07; see its h2 selector. */}
       <section
         id="capabilities"
         aria-label="Capabilities"
         className="border-t py-16 md:py-24"
         style={{ borderColor: "var(--line)" }}
-        data-reveal
+        data-reveal-pinned
       >
         <div className="mb-10 flex flex-wrap items-baseline justify-between gap-3">
           <p className="hud hud-wide text-accent accent-t">
@@ -279,8 +289,15 @@ export default function Home() {
             hole where the cell was. Separate frames can arrive one at a time.
             Three up and two down, not six across: on the narrowed measure six
             columns leave ~130px a group, which breaks entries like "Next.js
-            (App Router)" over three lines and turns the rack into confetti. */}
-        <div className="mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            (App Router)" over three lines and turns the rack into confetti.
+
+            auto-rows-fr FROM TWO COLUMNS UP: every row is cut to the tallest
+            module in the grid, so all six frames are one size and the rack
+            reads as one instrument instead of six cards of six heights. Not on
+            the single column, where equal rows would only stretch a three-entry
+            module to the height of a six-entry one down the whole phone page —
+            side by side that evenness is the point, stacked it is just air. */}
+        <div className="mt-12 grid grid-cols-1 gap-3 sm:auto-rows-fr sm:grid-cols-2 lg:grid-cols-3">
           {capabilities.map((c, i) => (
             // data-rack-card is the hook components/Rack.tsx seats. Inert markup
             // when the effect is not running, in the same way the transport

@@ -134,8 +134,13 @@ export default function ShelfTransport() {
 
                It was invisible until now only because this effect used to kill
                the reveal on the section below and drive it by hand. That is
-               gone, so the underlying mis-measurement is no longer covered. */
-            refreshPriority: 1,
+               gone, so the underlying mis-measurement is no longer covered.
+
+               2, not 1, since the capability rack below started pinning too.
+               Highest is measured first and this pin is the higher of the two on
+               the page, so its spacer has to be in the document before the rack
+               measures where the rack is. */
+            refreshPriority: 2,
           },
         });
 

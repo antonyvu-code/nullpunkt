@@ -63,6 +63,15 @@ export const FX: { id: FxId; nr: string; label: string; note: string }[] = [
   },
 ];
 
+/* FX.08 (`capability-deck`) was built, measured and CULLED on 06.08.2026 — the
+   six capability modules dealt through one slot held at the middle of the
+   window, five parked at a time, 3833px of runway for a section a grid gives at
+   a glance. It worked; it was the wrong instrument. A rack is read across, so
+   the modules are laid out across and the scroll carries them in instead of
+   swapping them. It is gone rather than switched off: this bench exists to
+   throw effects away, and an effect nobody chose is not a switch, it is a
+   maintenance cost. */
+
 /** All on, so the first look is the full menu. Turn them off to compare. */
 export const DEFAULTS = Object.fromEntries(FX.map((f) => [f.id, true])) as Record<FxId, boolean>;
 

@@ -3,7 +3,7 @@
   "configurations": [
     {
       "name": "nullpunkt",
-      "runtimeExecutable": "npm",
+      "runtimeExecutable": "pnpm",
       "runtimeArgs": ["run", "dev", "--", "--port", "5613"],
       "port": 5613
     }
