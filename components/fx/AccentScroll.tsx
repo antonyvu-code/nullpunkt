@@ -185,23 +185,22 @@ export default function AccentScroll() {
                mark list the ramp measures against has had every note excluded
                precisely because the sweep was handling them. Nothing is left
                near the line, so the fall is to zero, page-wide, in a frame:
-               every hairline goes 0.22 → 0.14 at once. The carriage branch
-               above is built the same way and releases the same way.
+               every hairline goes 0.22 → 0.14 at once, and --deflection is not
+               a registered @property, so nothing smooths it. The carriage
+               branch above is built the same way and releases the same way.
+               Left as measured rather than patched — what shape the needle
+               should fall on is a decision for the eye, not for this note.
 
-               FIXED — downstream, not here, and the paragraph above stays as
-               written because it is still exactly what this code does.
-               --deflection is now a registered @property with a transition on
-               :root (globals.css), so the one-frame fall is damped over
-               --dur-accent instead of landing whole. Measured after, at the
-               same 1280×812: 1 → 0.505 at 122ms → 0.123 at 257ms → 0 at
-               ~450ms, on --ease-out.
-
-               The damping belongs at the consumer rather than in this
-               function on purpose. Smoothing it here would mean this file
-               publishing a number that is not the reading it just took, and
-               the whole point of the variable is that there is one
-               measurement and everything else defers to it. A needle may be
-               damped; a gauge may not lie. */
+               TRIED AND TAKEN BACK OUT, 07.08.2026, so nobody spends the
+               afternoon again. Registering --deflection as an @property and
+               transitioning it on :root over --dur-accent does damp the fall
+               exactly as hoped — measured 1 → 0.505 at 122ms → 0.123 at 257ms
+               → 0 at ~450ms. It also tripled the blocked main thread during a
+               scroll: 390–430ms against 110–130ms without, across three runs.
+               The variable inherits from :root and 96 elements consume the
+               --line it feeds, so every interpolated frame invalidates style
+               for the whole document. If this is attempted again it needs a
+               narrower consumer, not a shorter duration. */
             deflect(1);
             /* The notes are a list of readings, not specimens — nothing in here
                carries a plate to develop, so the probe is parked rather than
