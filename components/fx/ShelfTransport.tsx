@@ -114,6 +114,38 @@ export default function ShelfTransport() {
             start: "top top",
             end: () => "+=" + travel(),
             pin: true,
+            /* TRANSFORM, NOT position: fixed — and this is the whole of the
+               site's CLS, measured rather than reasoned about.
+
+               A pin on the body scroller defaults to pinType "fixed": at the
+               pin's start ScrollTrigger switches this element from
+               position: relative to position: fixed, and back again at the end.
+               The layout-shift observer sees the element's box vanish and
+               reappear (previousRect 0,0,0,0 → 1210×900) and scores both moves
+               against the full viewport. Measured on the built page, 1440×900,
+               60 wheel steps: two entries, 0.583 at the engage and 0.836 at the
+               release, 1.4186 of a total CLS of 1.4371 — 98.7% of it. Every
+               other source on the page put together is 0.018.
+
+               Transform pinning keeps the element in flow inside the same
+               pin-spacer and translates it instead. Transforms are excluded
+               from layout shift by definition, so the two entries do not exist
+               rather than being made smaller.
+
+               OFFEN.md 07.08 named [data-plate-edge] as the cause. It is not:
+               it is 0.0245, and it only looked dominant because a shift lists
+               every element that moved in that frame as a source, so summing
+               per source charges one 0.8 shift to each of three innocent
+               elements. Attribute per ENTRY, not per source.
+
+               What this costs: the pinned element now carries a transform,
+               which makes it the containing block for any position: fixed
+               descendant — the same trap this file documents above, pointed the
+               other way. Checked: nothing inside [data-transport] is fixed
+               (the header and the progress rule are siblings of #main, not
+               children of the shelf). If anything fixed is ever put inside the
+               shelf, it will hang off this element instead of the viewport. */
+            pinType: "transform",
             scrub: 0.6,
             anticipatePin: 1,
             invalidateOnRefresh: true,

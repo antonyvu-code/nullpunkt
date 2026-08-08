@@ -1,4 +1,4 @@
-# OFFEN — 07.08.2026
+# OFFEN — 07.08.2026, Punkt 2 nachgetragen 08.08.2026
 
 What is left, why it is left, and who decides. Every number here was measured on
 this machine with puppeteer against a real Edge, not read off a guideline.
@@ -12,7 +12,7 @@ same wheel input, same viewport:
 | Blocked main thread | 227 ms | 694 ms | 246 ms |
 | Frame p99 | 47.2 ms | 83.3 ms | 30.5 ms |
 | Frames delivered | 848 | 438 | 602 |
-| **CLS** | **1.342** | 1.016 | **0** |
+| **CLS** | **1.342** → 0.016 ¹ | 1.016 | **0** |
 | will-change | 1 | 1153 | 6 |
 | DOM nodes | 527 | 3193 | 3154 |
 | Height | 13.4 screens | 28.3 | 15.3 |
@@ -21,6 +21,11 @@ Read that table honestly: nullpunkt is quieter than Trionn largely because it is
 **six times smaller**, not because it is better built. Dragonfly carries the same
 node count as Trionn and still lands CLS 0 — so scale does not force jank, and
 nullpunkt's 1.342 is a defect rather than the price of ambition.
+
+¹ CLS is the one figure that has moved since. Section 2 has the fix and the
+numbers; the arrow is headless-to-headless, the 1.342 in the row is the original
+headed run, and the two are not the same instrument. Every other cell is
+untouched.
 
 ---
 
@@ -43,29 +48,86 @@ write-up. This is editorial work, not engineering.
 
 ---
 
-## 2 · CLS 1.342 — worst of the three sites measured
+## 2 · CLS — fixed 08.08.2026, and the 07.08 attribution was wrong
 
-**Attributed, cheap, and I was wrong to shrug at it.**
+**CLS 1.42 → 0.016.** Uncommitted, in `components/fx/ShelfTransport.tsx`.
 
-Source is `[data-plate-edge]` in `globals.css`:
+### What it actually was
 
-```css
-[data-plate-edge] { top: calc(var(--scan) * 100%); }
-```
+The FX.03 pin. `pin: true` on the body scroller defaults to `pinType: "fixed"`,
+so at the pin's start ScrollTrigger switches `[data-transport]` from
+`position: relative` to `position: fixed`, and back at the end. The layout-shift
+observer sees a 1210×900 box — 82 % of the viewport — disappear and reappear
+(`previousRect 0,0,0,0` → `1210×900`) and scores both moves.
 
-`top` is a layout property. Moving it every frame makes the browser recompute
-layout every frame, and the layout-shift observer counts each move. Attribution
-run isolated `span.pointer-events-none.absolute` (the plate scan line, 3–4
-instances) as the dominant source; disabling the progress beam changed CLS by
-0.013, so the beam is not it.
+Measured on the built page, 1440×900, the same 60-step wheel input:
 
-Fix is `transform: translateY()` with `container-type: size` on the aspect box so
-`cqh` resolves — same picture, compositor instead of layout, and the number goes
-away.
+| t | value | what changed |
+|---|---|---|
+| 5220 ms | 0.583 | `position: relative` → `fixed` (pin engages) |
+| 6029 ms | 0.828 | `fixed` → `relative` (pin releases) |
 
-Antony chose to leave this on 07.08. **Re-raised** because the Dragonfly figure
-arrived afterwards and changes the argument: 3154 nodes at CLS 0 proves this is
-not something a site has to live with.
+1.4186 of a total 1.4371 — **98.7 %**. Everything else on the page together is
+0.018.
+
+### Why 07.08 named the wrong element
+
+`[data-plate-edge]` is **0.0245**, not the cause. A `layout-shift` entry lists
+*every* element that moved in that frame as a source, so summing per source
+charges one 0.83 shift to the scan line, the progress beam and the transport
+window alike — three "dominant" sources for one event. That is also why
+disabling the beam moved the number by 0.013 and the conclusion "so the beam is
+not it" felt contradictory: the beam was never it either.
+
+**Attribute per ENTRY, with its rects, never per summed source.**
+
+### The fix
+
+`pinType: "transform"` on the shelf's ScrollTrigger. The element stays in flow
+in the same pin-spacer and is translated instead of re-positioned; transforms
+are excluded from layout shift by definition, so the two entries stop existing
+rather than getting smaller.
+
+Verified the pin is unchanged, not just quieter: through the traverse the
+window's viewport `y` holds at exactly 0 while `scrollY` runs 1359 → 1696 and
+the transform grows to match (361, 381, 415 …); `position` reads `relative` at
+every sample and never `fixed`; travel still ends at `-1936`; document height
+is 12063 before and after, so both pin-spacers are intact.
+
+### What it costs
+
+The pinned element now carries a transform, which makes it the containing block
+for any `position: fixed` descendant — the trap this file's own FX.03 comment
+documents, pointed the other way. Checked: nothing inside `[data-transport]` is
+fixed; the header and the progress rule are siblings of `#main`. Anything fixed
+put inside the shelf later will hang off this element instead of the viewport.
+
+### What is left, and it is small
+
+The remaining 0.016 is `[data-plate-edge]`'s `top` (0.0245 gross) and the
+progress beam's `left` in `Chrome.tsx` — both still layout properties driven per
+frame / twice a second. Under Google's 0.1 "good" line, so **not done, and not
+proposed as urgent**. Antony's call.
+
+### Method note — read before trusting a number in this file
+
+- **Headed Edge cannot be driven on this machine.** A session is always running
+  and every headed launch hands off to it and exits 0, `--user-data-dir` or not.
+  These runs are **headless** Edge 151. Absolute values are therefore not
+  comparable with the headed table at the top of this file; before and after
+  were measured identically, and only that comparison is claimed.
+- **Frame metrics are unusable headless.** rAF runs unthrottled — the harness
+  reported 250–280 fps. Ignore p99, frames delivered and frames-under-30fps from
+  any headless run.
+- **Long tasks are noise-dominated here.** Across four batches of three runs the
+  same build swung between 3 and 23 long tasks and 58–554 ms blocked, in both
+  directions. No claim is made that this fix changed them. CLS, by contrast, sat
+  at 1.401–1.440 without the fix and 0.0145–0.0188 with it across twelve runs.
+- **`next start` survives `pkill` from the Bash tool.** A stale server kept port
+  3000 while `.next` was rebuilt underneath it, served a 500 for a chunk that no
+  longer existed, and produced a run with no GSAP at all — which reads exactly
+  like "the fix killed the effect". Kill by port via `Get-NetTCPConnection` and
+  check `--reg` is 1 before believing any before/after.
 
 ---
 
