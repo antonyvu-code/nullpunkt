@@ -73,10 +73,17 @@ export default function Selected() {
 
       <div data-transport="" className="relative">
         <div className="mb-10 flex flex-wrap items-baseline justify-between gap-3">
-          <p className="hud hud-wide accent-t flex items-center gap-2 text-ink">
+          {/* A HEADING, not a styled paragraph. This section is the reason a
+              recruiter opened the page, and it was the one block with nothing
+              in the document outline: measured on the live site, nine headings
+              and not one of them belonged to the work. The kicker was already
+              doing a heading's job visually, so it becomes the element it was
+              behaving as — same classes, same picture, an outline that finally
+              names the evidence. */}
+          <h2 className="hud hud-wide accent-t flex items-center gap-2 text-ink">
             <span aria-hidden="true" className="inline-block h-2 w-2 bg-flare" />
             <L en="SELECTED — START HERE" de="AUSGEWÄHLT — HIER STARTEN" />
-          </p>
+          </h2>
           <p className="hud flex items-center gap-4 text-muted-dim">
             <span>
               S.01 / 07 · <L en="POINT TO PROBE" de="ZUM PRÜFEN ZEIGEN" />
@@ -227,9 +234,13 @@ export default function Selected() {
                     style={{ borderColor: "var(--line)" }}
                   >
                     <p className="hud text-muted-dim">{p.kind.toUpperCase()}</p>
-                    <p className="font-display mt-2 text-2xl font-medium leading-tight text-ink group-hover:text-accent group-focus-visible:text-accent">
+                    {/* h3 under the section's h2: the case titles are what a
+                        screen-reader user navigating by heading is looking for,
+                        and they were plain paragraphs. Not caught by FX.07,
+                        which wipes h2 only — the cards have their own arrival. */}
+                    <h3 className="font-display mt-2 text-2xl font-medium leading-tight text-ink group-hover:text-accent group-focus-visible:text-accent">
                       {p.title}
-                    </p>
+                    </h3>
                   </div>
 
                   {/* Action — the centre card carries the one filled button. */}
