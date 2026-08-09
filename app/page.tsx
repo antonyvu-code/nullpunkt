@@ -4,7 +4,8 @@ import AccentSetter from "@/components/AccentSetter";
 import Selected from "@/components/Selected";
 import FieldNotes from "@/components/FieldNotes";
 import Werdegang from "@/components/Werdegang";
-import Scope from "@/components/Scope";
+import Konvergenz from "@/components/Konvergenz";
+import Passer from "@/components/Passer";
 import HeroIntro from "@/components/HeroIntro";
 import Rack from "@/components/Rack";
 import Kontakt from "@/components/Kontakt";
@@ -114,10 +115,22 @@ export default function Home() {
           page loses the one colour it has until something is hovered. */}
       <AccentSetter accent={homeRestAccent} />
 
-      <section className="relative flex min-h-[calc(100svh-7rem)] flex-col justify-end pb-10 pt-10 md:pt-16">
-        <Scope />
+      {/* `isolate`, and not by preference: Passer sits at -z-10 so the whole hero
+          prints on top of it. Without a stacking context here that negative index
+          escapes the section and the material paints BEHIND the page ground,
+          where --bg's near-black hides it completely. */}
+      <section className="relative isolate flex min-h-[calc(100svh-7rem)] flex-col justify-end pb-10 pt-10 md:pt-16">
+        {/* The hero's material — three printing plates made of particles, in
+            register at the top of the page and coming apart as it scrolls. See
+            components/Passer.tsx for why this is the bespoke element. */}
+        <Passer />
+
         {/* Registration annotation — the hero reads as a measured plate: located
-            coordinates at the left, the live scope readout at the right. */}
+            coordinates at the left, the live convergence readout at the right.
+            The readout is an empty element on purpose: Konvergenz finds it and
+            writes into it, so the value lives at the top of the HERO, opposite
+            the coordinates, instead of inside the title block it is measured
+            from. */}
         <p
           data-hero="coord"
           className="hud pointer-events-none absolute left-0 top-2 flex items-center gap-2 text-muted-dim"
@@ -125,6 +138,11 @@ export default function Home() {
           <span aria-hidden="true" className="inline-block h-2 w-2 border-l border-t" style={{ borderColor: "var(--line)" }} />
           52.5200°N · 13.4050°E
         </p>
+        <p
+          data-hero="readout"
+          aria-hidden="true"
+          className="hud accent-t pointer-events-none absolute right-0 top-2 hidden text-accent md:block"
+        />
         <div className="relative">
           <p data-hero="kicker" className="hud hud-wide text-accent accent-t">
             <L en="NULLPUNKT — THE LAB OF " de="NULLPUNKT — DAS LABOR VON " />
@@ -135,7 +153,13 @@ export default function Home() {
             data-hero="title"
             className="mt-7 max-w-5xl text-5xl font-medium leading-[0.98] tracking-[-0.02em] md:text-8xl lg:text-9xl"
           >
-            <L text={site.tagline} />
+            {/* The title is the instrument now. It arrives with its three colour
+                channels apart and scroll brings them together — see
+                components/Konvergenz.tsx for why those three colours are the
+                only ones that can be used here. */}
+            <Konvergenz>
+              <L text={site.tagline} />
+            </Konvergenz>
           </h1>
           <p data-hero="manifesto" className="mt-6 max-w-xl leading-relaxed text-muted">
             <L text={site.manifesto} />
@@ -187,7 +211,11 @@ export default function Home() {
         data-reveal
       >
         <div className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
-          <p className="hud hud-wide text-accent accent-t">FIELD NOTES — LIVE, UNCATALOGUED</p>
+          {/* Heading, for the same reason SELECTED's kicker became one: these
+              two sections are the whole body of evidence and neither appeared
+              in the document outline. Same classes — the picture does not
+              change, the outline does. */}
+          <h2 className="hud hud-wide text-accent accent-t">FIELD NOTES — LIVE, UNCATALOGUED</h2>
           <p className="hud accent-t flex items-center gap-2 text-muted-dim">
             <span aria-hidden="true" className="np-pulse inline-block h-1.5 w-1.5 rounded-full bg-accent" />
             S.02 / {SECTIONS} · <L en="LIVE" de="LIVE" />

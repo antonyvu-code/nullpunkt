@@ -128,9 +128,16 @@ export default function Chrome() {
             style={{
               background: "var(--accent)",
               boxShadow: "0 0 14px 3px var(--accent)",
-              // Arrives at exactly the rate the hero's trace leaves. Scope
-              // publishes --scope-att; 1 means the signal is still up there.
-              opacity: "calc(1 - var(--scope-att, 1))",
+              // Arrives at exactly the rate the hero's plates come apart.
+              // Passer publishes --passer: 0 while the three plates are still in
+              // register up there, 1 once they have separated and the hero has
+              // nothing left to show. The hand-over is the point — one signal
+              // leaves the top of the page and the same signal picks itself up
+              // on the rule at the foot of it.
+              // (Was --scope-att for the oscilloscope hero, then --konvergenz;
+              // now the page runs on ONE variable and this reads it directly
+              // instead of a second one that only mirrored it.)
+              opacity: "var(--passer, 0)",
             }}
           />
         )}

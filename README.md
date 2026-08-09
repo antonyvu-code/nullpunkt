@@ -17,6 +17,10 @@ rather than decorating with them.
 If you came to see how something is built, these are the four places where an
 actual decision was made.
 
+*(The hero entry described `components/Scope.tsx` until 09.08.2026. That
+component has been unreferenced since the hero was rebuilt and is kept only for
+reference — the file this section points at now is the one that ships.)*
+
 **The accent is borrowed from the work.**
 The page owns no colour. `--accent` rests on the signal of one case
 ([`lib/projects.ts`](lib/projects.ts) → `homeRestAccent`); pointing at another
@@ -25,14 +29,41 @@ through a `[data-accent-release]` attribute that stretches the transition to 2s
 ([`app/globals.css`](app/globals.css), [`components/FieldNotes.tsx`](components/FieldNotes.tsx)).
 Keyboard focus does exactly what the pointer does; that parity is deliberate.
 
-**The hero is an instrument, not a picture.**
-[`components/Scope.tsx`](components/Scope.tsx) draws three oscilloscope traces
-over a graticule and a phosphor beam that sweeps on its own — until the pointer
-enters the hero, when the beam locks under the cursor, a probe line drops, and
-the readout reports POS / AMP off the wave. The baseline is measured off the
-display line instead of hard-coded, so the trace never runs through the body
-copy at narrow widths. A single static frame under `prefers-reduced-motion`,
-and the loop parks itself when the hero leaves the viewport.
+**The hero is a material, not an effect.**
+[`components/Passer.tsx`](components/Passer.tsx) is *Der Passer*: three printing
+plates made of particles, each at its own depth in a volume. At the top of the
+page they coincide exactly — same x, same y, same z — and the three additive
+colours sum back to the page's own ink. That coincidence is the zero point the
+site is named after, and it is a picture rather than a claim. Scroll pulls the
+plates apart on all three axes at once; whichever one leaves the focal plane
+swells into a soft disc, because losing register *is* losing focus.
+
+The distinction the file is built on: an effect is applied to content and
+vanishes with it, a material decides what the world is made of and everything
+else follows. So the raster is not where a dot is *drawn* — it is where a dot
+*wants to be*. Every particle carries its own spring constant, the swarm settles
+out of step with itself, and that is the difference between a material and a
+spreadsheet. The plates never rotate: real misregistration is a slip and a
+fraction of a degree, not a skew.
+
+It is Canvas 2D with a cached radial sprite, no Three.js — the first-load budget
+is 500KB and this page already spends 703KB, so the one screen that has to be
+right in 50ms could not afford a 3D library. The mask waits for
+`document.fonts.ready`, or it rasterises the fallback face and cuts the whole
+material from the wrong letterforms. The loop parks when the hero leaves the
+viewport, and `prefers-reduced-motion` gets the plates slightly apart with the
+swarm already settled — a composed frame, not a blank one.
+
+**One variable runs the hero.** `--passer` is published by `Passer.tsx` and read
+by everything else that cares: the title's colour fringe
+([`components/Konvergenz.tsx`](components/Konvergenz.tsx), which is pure CSS and
+has no JavaScript at all) and the phosphor dot riding the progress rule at the
+foot of the page ([`components/Chrome.tsx`](components/Chrome.tsx)). A second
+scroll trigger over the same runway would be a second source of truth for one
+movement. The fringe fades *in* as the plates separate rather than the title
+fading in as they land — reversing the old crossfade naively would have left the
+`h1` at `opacity: 0` at the bottom of the hero, which is an invisible heading on
+a page that prints WCAG 2.1 AA in its own capability list.
 
 **One card renders live instead of from a screenshot.**
 [`components/EchoProbe.tsx`](components/EchoProbe.tsx) is the ECHO-1 probe from
