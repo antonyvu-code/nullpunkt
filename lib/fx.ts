@@ -16,7 +16,8 @@ export type FxId =
   | "shelf-transport"
   | "rail-draw"
   | "werdegang-axis"
-  | "type-wipe";
+  | "type-wipe"
+  | "about-depth";
 
 export const FX: { id: FxId; nr: string; label: string; note: string }[] = [
   {
@@ -61,6 +62,12 @@ export const FX: { id: FxId; nr: string; label: string; note: string }[] = [
     label: "SECTION HEADINGS WIPE",
     note: "The hero title already arrives from behind a mask while every other heading slides up on opacity — two ways of entering on one page. This gives the section headings the hero's way, so display type arrives one way throughout. Compare it against the plain fade before keeping it: the block it sits in is fading at the same time, and two things happening to one line can read as fussy rather than as one hand.",
   },
+  {
+    id: "about-depth",
+    nr: "08",
+    label: "ABOUT TRAVELS IN DEPTH",
+    note: "S.06's three statements stop being three blocks down the page and become three plates in one volume: the frame is held, each sentence comes up out of the far distance, stands still to be read, and passes the reader as the next one arrives. The hero already puts the copy in a volume — this is the only other place on the page that argues with type alone, so it is the only other place that earns the same room. Watch the crossings: if a departing line and an arriving one ever read as two sentences at once rather than as one behind the other, the depth is not doing its job and the beats need pulling apart.",
+  },
 ];
 
 /* FX.08 (`capability-deck`) was built, measured and CULLED on 06.08.2026 — the
@@ -70,7 +77,12 @@ export const FX: { id: FxId; nr: string; label: string; note: string }[] = [
    the modules are laid out across and the scroll carries them in instead of
    swapping them. It is gone rather than switched off: this bench exists to
    throw effects away, and an effect nobody chose is not a switch, it is a
-   maintenance cost. */
+   maintenance cost.
+
+   The NUMBER 08 is reissued above by `about-depth`; the deck itself is not
+   coming back. A bench with a hole in its numbering reads as a bug in the
+   panel — the record of what was thrown away belongs in this note, which is
+   where it is. */
 
 /** All on, so the first look is the full menu. Turn them off to compare. */
 export const DEFAULTS = Object.fromEntries(FX.map((f) => [f.id, true])) as Record<FxId, boolean>;

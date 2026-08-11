@@ -16,6 +16,7 @@ import { FxProvider } from "@/components/fx/FxProvider";
 import AccentScroll from "@/components/fx/AccentScroll";
 import DrawLines from "@/components/fx/DrawLines";
 import ShelfTransport from "@/components/fx/ShelfTransport";
+import AboutDepth from "@/components/fx/AboutDepth";
 import { DEFAULT_FX_ATTR } from "@/lib/fx";
 
 const bricolage = Bricolage_Grotesque({
@@ -105,10 +106,18 @@ export default function RootLayout({
             <Reveal />
             {/* The bench. Each queries the DOM for its own anchor and does
               nothing where that anchor is absent, so a page with no rails pays
-              nothing for the rail effect. All five are switchable at runtime. */}
+              nothing for the rail effect. All four are switchable at runtime. */}
             <AccentScroll />
             <DrawLines />
             <ShelfTransport />
+            {/* Mounts before the page's own effects (HeroIntro, Rack) and
+              therefore measures a document that does not yet contain their pin
+              spacers — About sits below both, so its start would be short by
+              their whole runway. It is not corrected here: HeroIntro already
+              ends its setup with a queueMicrotask'd ScrollTrigger.refresh() for
+              exactly this reason, and that runs after every sibling effect has
+              committed. One correction, stated in one place. */}
+            <AboutDepth />
             <Chrome />
             <main id="main" className="w-full px-[var(--gutter)] pb-24 pt-28">
               {children}

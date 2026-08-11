@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 import { site } from "@/lib/site";
 import { useLang } from "@/components/Lang";
+import { Walze } from "@/components/Walze";
 
 type Modus = "stelle" | "projekt";
 /** `sache` is the one field that changes meaning with the mode: the position in
@@ -339,9 +340,9 @@ export default function Kontakt() {
         <button
           type="button"
           onClick={copyOut}
-          className="hud inline-flex min-h-[48px] items-center border-b border-transparent text-muted transition-colors duration-300 hover:border-muted hover:text-ink motion-reduce:transition-none"
+          className="hud np-zug inline-flex min-h-[48px] items-center text-muted transition-colors duration-300 hover:text-ink motion-reduce:transition-none"
         >
-          {t.copyIdle}
+          <Walze en={t.copyIdle} de={t.copyIdle} />
         </button>
       </div>
 

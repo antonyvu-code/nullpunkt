@@ -9,7 +9,8 @@ import Passer from "@/components/Passer";
 import HeroIntro from "@/components/HeroIntro";
 import Rack from "@/components/Rack";
 import Kontakt from "@/components/Kontakt";
-import { L } from "@/components/Lang";
+import { L, LSatz } from "@/components/Lang";
+import { Walze } from "@/components/Walze";
 
 /** Running section count — printed in every rail, so it lives in one place. */
 const SECTIONS = "07";
@@ -115,11 +116,38 @@ export default function Home() {
           page loses the one colour it has until something is hovered. */}
       <AccentSetter accent={homeRestAccent} />
 
-      {/* `isolate`, and not by preference: Passer sits at -z-10 so the whole hero
-          prints on top of it. Without a stacking context here that negative index
-          escapes the section and the material paints BEHIND the page ground,
-          where --bg's near-black hides it completely. */}
-      <section className="relative isolate flex min-h-[calc(100svh-7rem)] flex-col justify-end pb-10 pt-10 md:pt-16">
+      {/* `isolate`, and not by preference. Passer prints IN FRONT of the copy now
+          (z-10) — the title arrives behind the grain and the material clears as
+          the sentences land — but under reduced motion it puts itself back at
+          -z-10, where there is no scroll to clear it. Without a stacking context
+          here that negative index escapes the section and the material paints
+          BEHIND the page ground, where --bg's near-black hides it completely. */}
+      {/* -mt-28 CANCELS main's pt-28, AND THAT IS WHAT MAKES THE PIN HONEST. The
+          hero used to start 7rem down the document, so the first 112px of wheel
+          moved the page before the pin could catch it: the material slid up, the
+          chrome lifted, and only then did anything hold still — a stutter on the
+          one screen that has to be still. Flush with the top of the document,
+          "top top" IS scroll position 0 and the hero is held from the first
+          pixel. The header floats over the material, which is what a fixed bar
+          over a full-bleed hero should do anyway; the section's own pt-28 keeps
+          the copy clear of it. min-h-svh, so the pinned box is exactly one
+          screen — see HeroIntro.tsx on what happens when it is taller. */}
+      {/* justify-CENTER, not justify-end. Measured at 1063×720: the copy is 472px
+          tall in a 720px screen, and bottom-anchoring left 208px of air above it
+          against 40px below — a 5:1 imbalance that read exactly as what it was,
+          a block that had fallen to the foot of the frame. It was the right
+          anchor for a hero that scrolled past; it is the wrong one for a hero
+          held still on its own screen, and doubly wrong now that every part of
+          the copy arrives OUT OF THAT SCREEN'S CENTRE. The point things come from
+          and the point they settle around have to be the same point.
+          The asymmetric padding that stays (pt-28 against pb-10) is what keeps a
+          little more air above than below — optical centre, not geometric.
+          min-h, not h: where the copy is taller than the screen the section grows
+          and centring cannot push anything off the top. */}
+      <section
+        data-hero-section
+        className="relative isolate -mt-28 flex min-h-svh flex-col justify-center pb-10 pt-28"
+      >
         {/* The hero's material — three printing plates made of particles, in
             register at the top of the page and coming apart as it scrolls. See
             components/Passer.tsx for why this is the bespoke element. */}
@@ -131,9 +159,12 @@ export default function Home() {
             writes into it, so the value lives at the top of the HERO, opposite
             the coordinates, instead of inside the title block it is measured
             from. */}
+        {/* top-[7.5rem], not top-2: the section starts at the top of the document
+            now, so a 2-unit offset would print both annotations underneath the
+            fixed header. 7rem of chrome plus the same half-rem of air they had. */}
         <p
           data-hero="coord"
-          className="hud pointer-events-none absolute left-0 top-2 flex items-center gap-2 text-muted-dim"
+          className="hud pointer-events-none absolute left-0 top-[7.5rem] flex items-center gap-2 text-muted-dim"
         >
           <span aria-hidden="true" className="inline-block h-2 w-2 border-l border-t" style={{ borderColor: "var(--line)" }} />
           52.5200°N · 13.4050°E
@@ -141,7 +172,7 @@ export default function Home() {
         <p
           data-hero="readout"
           aria-hidden="true"
-          className="hud accent-t pointer-events-none absolute right-0 top-2 hidden text-accent md:block"
+          className="hud accent-t pointer-events-none absolute right-0 top-[7.5rem] hidden text-accent md:block"
         />
         <div className="relative">
           <p data-hero="kicker" className="hud hud-wide text-accent accent-t">
@@ -149,9 +180,20 @@ export default function Home() {
             <span className="text-ink">{site.owner.toUpperCase()}</span>
             <L en=" · CREATIVE DEVELOPER — DESIGN + BUILD · BERLIN" de=" · CREATIVE DEVELOPER — DESIGN + BUILD · BERLIN" />
           </p>
+          {/* THE TITLE IS SIZED TO THE SCREEN, NOT TO THE WIDTH, and that is what
+              the pin costs. It was text-5xl / 8xl / 9xl — a width ladder, which
+              is the right instinct for a hero that scrolls and the wrong one for
+              a hero that is HELD: at 1280×720 the flat 128px took three lines of
+              376px and put the whole section 117px past the window, so the pin
+              could not take it and the reveal fell back to the unpinned path on
+              an ordinary laptop. min(vw, vh) lets the width decide while there is
+              room and the height decide when there is not, so the composition
+              fits one screen at every shape instead of only at tall ones. The
+              7.5rem cap keeps it off a 1920 display's throat; the 2.75rem floor
+              is what a phone reads. */}
           <h1
             data-hero="title"
-            className="mt-7 max-w-5xl text-5xl font-medium leading-[0.98] tracking-[-0.02em] md:text-8xl lg:text-9xl"
+            className="mt-6 max-w-5xl text-[clamp(2.75rem,min(8.6vw,12.4vh),7.5rem)] font-medium leading-[0.98] tracking-[-0.02em]"
           >
             {/* The title is the instrument now. It arrives with its three colour
                 channels apart and scroll brings them together — see
@@ -165,8 +207,19 @@ export default function Home() {
             <L text={site.manifesto} />
           </p>
 
-          <p className="hud mt-12 text-muted-dim">FIG.01 — OPERATOR READINGS</p>
+          <p data-hero="fig" className="hud mt-10 text-muted-dim">
+            FIG.01 — OPERATOR READINGS
+          </p>
+          {/* data-hero="grid" — AND THE GRID ITSELF HAS TO BE PARKED, not just
+              its cells. This element carries `background: var(--line)` and the
+              cells sit on it at gap-px: the hairlines between readings ARE this
+              fill showing through the 1px seams. Park only the cells and their
+              bg-bg goes transparent while the fill stays — which is a solid
+              14 % ink rectangle, full measure, sitting under the word on the
+              first screen. It was the grey box in the hero, and it was visible
+              from the very first frame of every visit. */}
           <dl
+            data-hero="grid"
             className="accent-t m-0 mt-3 grid grid-cols-2 gap-px border-t md:grid-cols-5"
             style={{ borderColor: "var(--line)", background: "var(--line)" }}
             aria-label="Operator readings"
@@ -473,99 +526,118 @@ export default function Home() {
             the page's measured problem is already that its length is bought
             with motion rather than content. 68 buys the pause without the debt.
 
+            AND THE THREE ARE ALSO ONE FRAME, under FX.08. The wrapper below is
+            what the effect pins: the beats go into a single cell, at three
+            different distances from the reader, and the run carries the section
+            through them instead of carrying them past the section. The markup
+            is the flat page — three blocks, in order, each readable on its own —
+            and stays that way with the switch off, with JavaScript off, and
+            under reduced motion; components/fx/AboutDepth.tsx writes the layout
+            switch itself rather than leaving it to the stylesheet, and its own
+            note says why that is the wrong way round everywhere else on this
+            page and the right way round here.
+
             The claim. Narrowed (wdth 85) and held at the largest optical size so
             the face tightens as it grows — display type behaving like display
             type, instead of body copy scaled up. */}
-        <div className="flex min-h-[92svh] flex-col items-center justify-center overflow-x-clip text-center">
-          {/* IT CROSSES THE PAGE'S OWN RULES, and that is the one liberty taken
-              here. Every other edge on this site aligns to --gutter, which the
-              hero's readout names out loud as POS 08% and POS 92% — the margins
-              are not a habit, they are printed on the instrument's scale. So the
-              single line allowed over them is the claim, and it is over them by
-              about five per cent a side: 112% of a column that is itself 84% of
-              the page comes to 94% of the viewport, centred. Wide enough to read
-              as a refusal, short of the edge so nothing scrolls sideways —
-              measured at 0px of horizontal overflow.
+        <div data-about-stack="">
+          <div data-about-beat="" className="flex min-h-[92svh] flex-col items-center justify-center overflow-x-clip text-center">
+            {/* IT CROSSES THE PAGE'S OWN RULES, and that is the one liberty taken
+                here. Every other edge on this site aligns to --gutter, which the
+                hero's readout names out loud as POS 08% and POS 92% — the margins
+                are not a habit, they are printed on the instrument's scale. So the
+                single line allowed over them is the claim, and it is over them by
+                about five per cent a side: 112% of a column that is itself 84% of
+                the page comes to 94% of the viewport, centred. Wide enough to read
+                as a refusal, short of the edge so nothing scrolls sideways —
+                measured at 0px of horizontal overflow.
 
-              WEIGHT 400 AT 144px, not 500. The safe move at this size is to go
-              heavier and the result is a poster; light and tight at display size
-              is what reads as confidence rather than volume. wdth 82 narrows the
-              face further so three lines still hold together as a block. */}
-          <h2
-            data-satz
-            className="font-display w-[112%] max-w-none text-balance text-[clamp(2.4rem,10vw,9rem)] font-normal leading-[0.88] tracking-[-0.055em] text-ink"
-            style={{ fontVariationSettings: '"wdth" 82, "opsz" 96' }}
-          >
-            <L text={site.aboutLead} />
-          </h2>
-        </div>
+                WEIGHT 400 AT 144px, not 500. The safe move at this size is to go
+                heavier and the result is a poster; light and tight at display size
+                is what reads as confidence rather than volume. wdth 82 narrows the
+                face further so three lines still hold together as a block. */}
+            <h2
+              data-satz
+              className="font-display w-[112%] max-w-none text-balance text-[clamp(2.4rem,10vw,9rem)] font-normal leading-[0.88] tracking-[-0.055em] text-ink"
+              style={{ fontVariationSettings: '"wdth" 82, "opsz" 96' }}
+            >
+              {/* LSatz, not L, on all three [data-satz] beats — FX.08 splits
+                  this into lines and SplitText rewrites the innerHTML of
+                  whatever it is given. The span is the seam that keeps that off
+                  React's text node; components/Lang.tsx has the full reason. */}
+              <LSatz text={site.aboutLead} />
+            </h2>
+          </div>
 
-        {/* One column, read top to bottom: evidence, then promise, then the
-            documents. The promise used to sit in a second column beside the
-            evidence, which asked the reader to hold two threads at once and let
-            the eye reach the closing line before the paragraph that earns it.
-            Stacked, the order is the argument's own order — and on the narrowed
-            measure a 6+5 spread would leave two columns of about 24 characters,
-            which is below a readable line anyway. */}
-        {/* The evidence. Was reading size in a 46ch column, which made it the one
-            paragraph on the page a reader could skim past — the exact opposite of
-            what a section whose argument IS the type should do. Now it is set
-            large and given its own beat, but on a 30ch measure so it is still a
-            paragraph and not a slogan: three or four lines that have to be read,
-            rather than one line that can be glanced at. */}
-        {/* Centred too, but on a 26ch measure and not a character wider. Centred
-            setting costs a reader something real — every line starts at a
-            different x, so the eye has to find the beginning again each time —
-            and that cost is only payable while the lines are few and near equal.
-            text-balance is doing the actual work here; without it this beat is
-            the one that would break. */}
-        <div
-          className="flex min-h-[80svh] items-center justify-center border-t text-center"
-          style={{ borderColor: "var(--line)" }}
-        >
-          <p
-            data-satz
-            className="font-display max-w-[26ch] text-balance text-[clamp(1.5rem,5vw,3.6rem)] font-normal leading-[1.14] tracking-[-0.03em] text-ink"
-            style={{ fontVariationSettings: '"wdth" 88, "opsz" 40' }}
+          {/* One column, read top to bottom: evidence, then promise, then the
+              documents. The promise used to sit in a second column beside the
+              evidence, which asked the reader to hold two threads at once and let
+              the eye reach the closing line before the paragraph that earns it.
+              Stacked, the order is the argument's own order — and on the narrowed
+              measure a 6+5 spread would leave two columns of about 24 characters,
+              which is below a readable line anyway. */}
+          {/* The evidence. Was reading size in a 46ch column, which made it the one
+              paragraph on the page a reader could skim past — the exact opposite of
+              what a section whose argument IS the type should do. Now it is set
+              large and given its own beat, but on a 30ch measure so it is still a
+              paragraph and not a slogan: three or four lines that have to be read,
+              rather than one line that can be glanced at. */}
+          {/* Centred too, but on a 26ch measure and not a character wider. Centred
+              setting costs a reader something real — every line starts at a
+              different x, so the eye has to find the beginning again each time —
+              and that cost is only payable while the lines are few and near equal.
+              text-balance is doing the actual work here; without it this beat is
+              the one that would break. */}
+          <div
+            data-about-beat=""
+            className="flex min-h-[80svh] items-center justify-center border-t text-center"
+            style={{ borderColor: "var(--line)" }}
           >
-            <L text={site.aboutBody} />
-          </p>
-        </div>
+            <p
+              data-satz
+              className="font-display max-w-[26ch] text-balance text-[clamp(1.5rem,5vw,3.6rem)] font-normal leading-[1.14] tracking-[-0.03em] text-ink"
+              style={{ fontVariationSettings: '"wdth" 88, "opsz" 40' }}
+            >
+              <LSatz text={site.aboutBody} />
+            </p>
+          </div>
 
-        {/* The promise, and the documents that back it. These stay together: the
-            claim is only worth as much as the links under it, and separating
-            them would leave the strongest line on the page with nothing to
-            point at. */}
-        <div
-          className="flex min-h-[80svh] flex-col items-center justify-center border-t text-center"
-          style={{ borderColor: "var(--line)" }}
-        >
-          <p className="hud text-muted-dim">
-            <L en="— THE PROMISE" de="— DAS VERSPRECHEN" />
-          </p>
-          <p
-            data-satz="promise"
-            className="accent-t font-display mt-6 max-w-[20ch] text-balance text-[clamp(1.9rem,6.4vw,4.8rem)] font-normal leading-[1.02] tracking-[-0.04em] text-accent"
-            style={{ fontVariationSettings: '"wdth" 88, "opsz" 48' }}
+          {/* The promise, and the documents that back it. These stay together: the
+              claim is only worth as much as the links under it, and separating
+              them would leave the strongest line on the page with nothing to
+              point at. */}
+          <div
+            data-about-beat=""
+            className="flex min-h-[80svh] flex-col items-center justify-center border-t text-center"
+            style={{ borderColor: "var(--line)" }}
           >
-            <L text={site.aboutClose} />
-          </p>
-          <ul className="hud mt-12 flex list-none flex-wrap justify-center gap-x-6 gap-y-3 p-0">
-            {site.links.map((l) => (
-              <li key={l.label}>
-                <a
-                  href={l.href}
-                  target={l.placeholder ? undefined : "_blank"}
-                  rel="noopener"
-                  className="accent-t inline-flex items-center gap-1.5 border-b border-transparent text-muted no-underline hover:border-accent hover:text-accent"
-                  title={l.placeholder ? "Placeholder — add real URL" : undefined}
-                >
-                  {l.label}
-                  <span aria-hidden="true" className="opacity-50">↗</span>
-                </a>
-              </li>
-            ))}
-          </ul>
+            <p className="hud text-muted-dim">
+              <L en="— THE PROMISE" de="— DAS VERSPRECHEN" />
+            </p>
+            <p
+              data-satz="promise"
+              className="accent-t font-display mt-6 max-w-[20ch] text-balance text-[clamp(1.9rem,6.4vw,4.8rem)] font-normal leading-[1.02] tracking-[-0.04em] text-accent"
+              style={{ fontVariationSettings: '"wdth" 88, "opsz" 48' }}
+            >
+              <LSatz text={site.aboutClose} />
+            </p>
+            <ul className="hud mt-12 flex list-none flex-wrap justify-center gap-x-6 gap-y-3 p-0">
+              {site.links.map((l) => (
+                <li key={l.label}>
+                  <a
+                    href={l.href}
+                    target={l.placeholder ? undefined : "_blank"}
+                    rel="noopener"
+                    className="accent-t np-zug inline-flex items-center gap-1.5 text-muted no-underline hover:text-accent"
+                    title={l.placeholder ? "Placeholder — add real URL" : undefined}
+                  >
+                    <Walze en={l.label} de={l.label} />
+                    <span aria-hidden="true" className="opacity-50">↗</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* Antony Vu is the working name; the CV and the certificates carry the
@@ -599,9 +671,9 @@ export default function Home() {
           </h2>
           <a
             href={`mailto:${site.email}`}
-            className="accent-t hud mt-5 inline-flex min-h-[44px] items-center border-b border-transparent text-muted no-underline hover:border-accent hover:text-accent"
+            className="accent-t np-zug hud mt-5 inline-flex min-h-[44px] items-center text-muted no-underline hover:text-accent"
           >
-            {site.email}
+            <Walze en={site.email} de={site.email} />
           </a>
           <p className="hud mt-1 text-muted-dim">
             <L

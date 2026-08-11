@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { fieldNotes, fieldNoteSweep, homeRestAccent } from "@/lib/projects";
+import { useFx } from "@/components/fx/FxProvider";
 
 function setAccent(hex: string) {
   document.documentElement.style.setProperty("--accent", hex);
@@ -24,6 +25,11 @@ const RELEASE_MS = 2200;
  */
 export default function FieldNotes() {
   const releaseTimer = useRef<number | null>(null);
+  /* Whether anything is READING the page while the pointer is off the list.
+     Not used to decide what a hover does — a hover always does the same thing —
+     but to decide what LETTING GO means, which is a different question with a
+     different answer depending on whether the dial has another owner. */
+  const gemessen = useFx("accent-scroll") || useFx("notes-sweep");
 
   const clearTimer = () => {
     if (releaseTimer.current !== null) {
@@ -32,17 +38,41 @@ export default function FieldNotes() {
     }
   };
 
-  /** Tune in — normal speed, so pointing at a row answers immediately. */
+  /** Tune in — normal speed, so pointing at a row answers immediately.
+   *
+   *  data-zeiger FIRST, then the colour. The attribute is what tells
+   *  AccentScroll to stand down (see the guard at the top of its apply()), and
+   *  writing the colour before raising it leaves a window — one scroll frame
+   *  wide, which is all it took — in which the sweep writes over the value this
+   *  line just set. That window IS the bug this pair fixes; opening it again
+   *  here would be fixing it in one direction only. */
   const hold = (hex: string) => {
     clearTimer();
     document.documentElement.removeAttribute("data-accent-release");
+    document.documentElement.setAttribute("data-zeiger", "");
     setAccent(hex);
   };
 
-  /** Let go — the attribute must land BEFORE the colour changes, or the
-   *  transition is computed at the old duration and the fade stays short. */
+  /** Let go.
+   *
+   *  WHO GETS THE DIAL BACK decides what happens here, and there are two
+   *  answers. With FX.01 or FX.05 running, the page has its own reading of this
+   *  spot and the honest thing is to hand it straight back: drop the attribute
+   *  and AccentScroll's observer restores the measured colour in the same
+   *  frame, at normal accent speed. Setting the 2s release as well would have
+   *  been actively wrong — the sweep writes on every scroll frame, so a 2s
+   *  transition on --accent makes the whole sweep crawl for as long as the
+   *  attribute is up, and the effect the reader sees is not a lingering trace
+   *  but a colour that has gone sluggish.
+   *
+   *  With both switches off nothing is measuring, and the slow fade back to
+   *  rest is the designed gesture it always was — the page keeps a trace of the
+   *  note you just left. The attribute must land BEFORE the colour changes, or
+   *  the transition is computed at the old duration and the fade stays short. */
   const release = () => {
     clearTimer();
+    document.documentElement.removeAttribute("data-zeiger");
+    if (gemessen) return;
     document.documentElement.setAttribute("data-accent-release", "");
     setAccent(homeRestAccent);
     releaseTimer.current = window.setTimeout(() => {
@@ -52,11 +82,14 @@ export default function FieldNotes() {
   };
 
   // Navigating away mid-fade would otherwise leave the slow duration pinned on
-  // <html> for the next page.
+  // <html> for the next page — and leaving data-zeiger up would leave the next
+  // page's accent frozen wherever this one left it, with the measurement
+  // politely standing down for a pointer that is no longer anywhere.
   useEffect(
     () => () => {
       clearTimer();
       document.documentElement.removeAttribute("data-accent-release");
+      document.documentElement.removeAttribute("data-zeiger");
     },
     [],
   );

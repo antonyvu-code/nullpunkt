@@ -9,6 +9,7 @@ import {
   specimenSlug as SPECIMEN,
 } from "@/lib/projects";
 import { L } from "@/components/Lang";
+import { Walze } from "@/components/Walze";
 import EchoProbe from "@/components/EchoProbe";
 import Registration from "@/components/Registration";
 
@@ -42,6 +43,58 @@ function setAccent(hex: string) {
   document.documentElement.style.setProperty("--accent", hex);
 }
 
+/** Distance from a point to a rectangle — zero anywhere inside it. */
+function abstand(r: DOMRect, x: number, y: number) {
+  return Math.hypot(Math.max(r.left - x, 0, x - r.right), Math.max(r.top - y, 0, y - r.bottom));
+}
+
+/**
+ * THE NEAREST CARD, NOT THE ONE UNDER THE CURSOR.
+ *
+ * `gap-3` puts 12px of page ground between two cards, and hover is an
+ * all-or-nothing test against a box: cross that strip and the card lets go, the
+ * accent snaps back to the page's rest colour and the plate un-develops, for the
+ * two frames it takes to reach the next card. Measured at 1280: card 2 ends at
+ * 636 and card 3 begins at 648, so the dead strip sits at x = 640 — the exact
+ * centre of the window, which on the shelf is where the reader's cursor rests
+ * while the carriage runs past it. The one gesture the page is built on was
+ * flickering off at the one place it is most watched.
+ *
+ * Nearest-rect has no dead strip by construction: every point inside the list
+ * belongs to exactly one card, because distance is zero inside a card and the
+ * 12px band is simply 6px nearer one side than the other. It is also the
+ * mechanic the removed measuring head used to draw — "the specimen at the
+ * reading position is the one being read" — arriving back without the line.
+ *
+ * `data-near` rather than `:hover`, so the CSS that already drives the develop
+ * pass reads one more selector instead of a second system being invented for it.
+ * Four getBoundingClientRect per pointermove: the rects move continuously while
+ * the carriage travels, so there is nothing here that could honestly be cached.
+ */
+function naechste(e: React.MouseEvent<HTMLUListElement>) {
+  const karten = Array.from(e.currentTarget.querySelectorAll<HTMLElement>("[data-card]"));
+  let beste: HTMLElement | null = null;
+  let kleinste = Infinity;
+  for (const k of karten) {
+    const d = abstand(k.getBoundingClientRect(), e.clientX, e.clientY);
+    if (d < kleinste) {
+      kleinste = d;
+      beste = k;
+    }
+  }
+  if (!beste) return;
+  for (const k of karten) if (k !== beste) k.removeAttribute("data-near");
+  beste.setAttribute("data-near", "");
+  if (beste.dataset.accent) setAccent(beste.dataset.accent);
+}
+
+function loslassen(e: React.MouseEvent<HTMLUListElement>) {
+  e.currentTarget
+    .querySelectorAll<HTMLElement>("[data-near]")
+    .forEach((k) => k.removeAttribute("data-near"));
+  setAccent(homeAccent);
+}
+
 /**
  * SELECTED — three equal specimen cards (start-here for a recruiter). Each is a
  * framed panel: index + flare marker up top, the case plate on a dotted readout
@@ -70,6 +123,19 @@ export default function Selected() {
           work it names, which is the usual tell of a horizontal scroller that
           was bolted on rather than designed. */}
       <Registration />
+
+      {/* THE LEAD-IN — a measured rest before the run, and the only thing in this
+          section that exists for the section ABOVE it.
+          Measured on the built page: the hero's pin releases at 2448 and this
+          section's pin took the wheel again at 2545. Ninety-seven pixels — less
+          than one notch of a mouse wheel — between two stretches of 3.4 screens
+          each in which the page is held still. The reader was never actually
+          released; the two runs read as one long one, and the second had no
+          chance to announce itself as a new movement.
+          Zero-height markup by default, so it costs a phone and a reduced-motion
+          reader nothing. FX.03 gives it its height, because it is that effect's
+          lead-in and has no meaning without it — see globals.css. */}
+      <span aria-hidden="true" data-transport-lead="" className="block" />
 
       <div data-transport="" className="relative">
         <div className="mb-10 flex flex-wrap items-baseline justify-between gap-3">
@@ -103,23 +169,30 @@ export default function Selected() {
                 escape a horizontal scroll. */}
             <a
               href="#field-notes"
-              className="accent-t inline-flex min-h-[44px] items-center border-b border-transparent text-muted-dim no-underline hover:border-accent hover:text-accent focus-visible:border-accent focus-visible:text-accent"
+              /* np-zug REPLACES the transparent border, it does not join it.
+                 Both draw one hairline under this link and two mechanisms for
+                 one line is what the Rail note in page.tsx says broke twice —
+                 here the border would simply have been standing under a rule
+                 that draws itself, permanently, at the same y. */
+              className="accent-t np-zug inline-flex min-h-[44px] items-center text-muted-dim no-underline hover:text-accent focus-visible:text-accent"
             >
-              <L en="SKIP THE RUN ↓" de="LAUF ÜBERSPRINGEN ↓" />
+              <Walze en="SKIP THE RUN ↓" de="LAUF ÜBERSPRINGEN ↓" />
             </a>
           </p>
         </div>
 
-        {/* The measuring head — the fixed hairline the carriage travels under,
-            and the reason the borrow needs no pointer while the shelf is
-            running. Drawn only when the transport is engaged: over a static
-            grid it would be a line down the middle of nothing. */}
-        <span
-          aria-hidden="true"
-          data-transport-head=""
-          className="accent-t pointer-events-none absolute left-1/2 top-0 z-10 hidden h-full w-px -translate-x-1/2"
-          style={{ background: "var(--accent)", opacity: 0.35 }}
-        />
+        {/* THE MEASURING HEAD IS GONE, 10.08.2026. It was a full-height accent
+            hairline down the centre of the shelf — the fixed lens the carriage
+            travelled under, and the visible reason the page borrows a colour
+            from whichever card is under it. Removed on Antony's call: on the
+            page as it now stands it reads as a stray rule through the middle of
+            the section rather than as an instrument.
+            WHAT IT COSTS, stated so it is not rediscovered later: the borrow
+            still works — AccentScroll writes [data-probed] and owns that
+            entirely — but it no longer has a mark explaining WHY the colour
+            changes as the cards pass. The mechanism is intact; the annotation
+            is not. If the borrow ever starts reading as arbitrary, this is the
+            thing that was taken out. */}
 
         {/* Two-up, not four. The plates are hero screenshots — a whole page in
             one image — and at a quarter of the viewport they shrink to a texture
@@ -129,7 +202,8 @@ export default function Selected() {
         <ul
           data-transport-track=""
           className="m-0 grid list-none grid-cols-1 gap-3 p-0 md:grid-cols-2"
-          onMouseLeave={() => setAccent(homeAccent)}
+          onMouseMove={naechste}
+          onMouseLeave={loslassen}
         >
           {featured.map((p, i) => {
             const primary = p.slug === SPECIMEN;
@@ -238,7 +312,13 @@ export default function Selected() {
                         screen-reader user navigating by heading is looking for,
                         and they were plain paragraphs. Not caught by FX.07,
                         which wipes h2 only — the cards have their own arrival. */}
-                    <h3 className="font-display mt-2 text-2xl font-medium leading-tight text-ink group-hover:text-accent group-focus-visible:text-accent">
+                    {/* group-data-[near] alongside group-hover, so the title
+                        follows the same nearest-card answer the develop pass
+                        does. Leaving it on hover alone was the half-applied
+                        state: a plate in full colour under a heading that had
+                        gone back to ink, for as long as the cursor sat in the
+                        gap between two cards. */}
+                    <h3 className="font-display mt-2 text-2xl font-medium leading-tight text-ink group-hover:text-accent group-focus-visible:text-accent group-data-[near]:text-accent">
                       {p.title}
                     </h3>
                   </div>
@@ -254,7 +334,7 @@ export default function Selected() {
                     </div>
                   ) : (
                     <div
-                      className="hud accent-t flex items-center justify-center gap-2 border-t py-5 text-ink group-hover:text-accent group-focus-visible:text-accent"
+                      className="hud accent-t flex items-center justify-center gap-2 border-t py-5 text-ink group-hover:text-accent group-focus-visible:text-accent group-data-[near]:text-accent"
                       style={{ borderColor: "var(--line)" }}
                     >
                       <L en="VIEW CASE" de="CASE ANSEHEN" />
@@ -294,9 +374,12 @@ export default function Selected() {
         </p>
         <Link
           href="/work"
-          className="accent-t group font-display inline-flex min-h-[44px] items-center gap-3 text-2xl font-medium text-ink no-underline hover:text-accent md:text-3xl"
+          className="accent-t np-zug group font-display inline-flex min-h-[44px] items-center gap-3 text-2xl font-medium text-ink no-underline hover:text-accent md:text-3xl"
         >
-          <L en="View all projects" de="Alle Projekte ansehen" />
+          {/* The arrow stays OUT of the cylinder. It already has a hover of its
+              own one line down — it slides right — and a mark that both turns
+              over and travels is two answers to one question. */}
+          <Walze en="View all projects" de="Alle Projekte ansehen" />
           <span
             aria-hidden="true"
             className="inline-block transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none"

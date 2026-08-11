@@ -41,8 +41,20 @@
   --accent: #f2f0eb;
   /* Flare — the one FIXED signal colour (does not borrow like --accent). Used
      for the boot readout, the selected markers, and the primary action, so the
-     page carries a constant orange note for contrast against the near-black. */
-  --flare: #ff4d1c;
+     page carries a constant orange note for contrast against the near-black.
+
+     #ff6a33, UP FROM #ff4d1c, AND THE NUMBER IS THE ARGUMENT. Measured against
+     --bg the old value was 6.14:1 — over AA and under AAA, which for a colour
+     whose entire job is to be the one signal on a near-black page is the wrong
+     side of the line. It is also carried at 11px in the HUD markers, where 6:1
+     is thin. This clears 7.14:1, so the marker squares, the boot readout and the
+     progress rule all pass AAA at any size.
+     It gains at BOTH ends, which is why the hue moved rather than the
+     saturation: the primary action is --bg text ON flare, so the same 7.14:1
+     applies to the button as to the markers. Going further was tested and
+     rejected — #ff8a4d reaches 8.73:1 but is a pastel by then, and a signal
+     colour that has gone soft is no longer a signal. */
+  --flare: #ff6a33;
   /* The page's outermost margin. Only the panels that break out of the measure
      use it now — it is what "full bleed" bleeds to. */
   --bleed: clamp(1.25rem, 3vw, 4.5rem);
@@ -163,6 +175,150 @@ h3,
     box-shadow var(--dur-accent) var(--ease-out);
 }
 
+/* ——— THE PEN GOES UNDER A LINK ————————————————————————————————————————
+   One rule, drawn, in whatever colour the page is currently borrowing.
+
+   BORROWED MECHANIC, AND WORTH NAMING. Trionn draws its link underline as a
+   ::before at scaleX(0) with transform-origin at the right, and flips the
+   origin to the left on hover. The flip is the whole trick and it is not
+   decoration: without it the line RETRACTS the way it came, which reads as
+   undo. With it, the line arrives left-to-right and leaves left-to-right — one
+   pen, travelling, twice.
+
+   What makes it belong here rather than sit on top: this page already draws
+   lines that way. FX.04 scrubs a rail's scaleY from its own origin so section
+   rules arrive like a plotter pen rather than being present from the start.
+   This is that pen at the scale of a word, turned ninety degrees. The site was
+   already saying it; it just had not said it anywhere a reader could point at.
+
+   AND IT DRAWS IN --accent, where Trionn's is white. That is the whole
+   difference between borrowing a mechanic and copying a look: the underline
+   under a case link is the colour that case lends the page, so pointing at a
+   link is one more place the site's one idea shows up rather than a decoration
+   laid over it.
+
+   260ms, not Trionn's 500. Their site has no smooth-scroll lag to fight; this
+   one already trails the wheel by 0.6s, and half a second of underline on top
+   of that is a page that answers late everywhere. --dur-ui is this file's tier
+   for a state change and this is a state change.
+
+   ::after, so .accent-t cannot reach it. That rule is a `transition` shorthand
+   declared outside @layer and it matches `.accent-t *` — which would replace
+   this transition wholesale on any child. It does not match pseudo-elements,
+   which is exactly why the line is one. FieldNotes.tsx documents what happens
+   when this is got wrong.
+
+   :focus-visible carries the same, always. CLAUDE.md's rule for the accent
+   borrow — keyboard focus does what the pointer does, never one without the
+   other — is not about the accent, it is about the page. */
+.np-zug {
+  position: relative;
+}
+
+.np-zug::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  transition: transform var(--dur-ui) var(--ease-out);
+}
+
+.np-zug:hover::after,
+.np-zug:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: 0 50%;
+}
+
+/* ——— DIE WALZE: A LABEL TURNS OVER —————————————————————————————————————
+   The markup is components/Walze.tsx; this is the whole of the behaviour. No
+   JavaScript runs — the stagger is a transition-delay read off each character's
+   own index, so pointing at a link is one CSS state change and nothing else.
+
+   THE SMEAR IS ON THE COPY THAT IS LEAVING, and only there. A blur that peaks
+   mid-travel and returns to zero at both ends is a keyframe animation, and a
+   keyframe animation does not reverse when the pointer leaves — the label would
+   turn back sharply and read as two different effects depending on which way
+   the cursor was going. Blurring the OUTGOING copy from 0 to 4px and the
+   INCOMING copy from 4px back to 0 is the same picture, built out of two plain
+   transitions that reverse for free: whatever is standing in the window is
+   always sharp, and whatever is moving is smeared by how fast it is moving.
+
+   THE WINDOW IS OPENED PAST THE DESCENDERS. overflow: hidden on a line box cuts
+   the tail off every g, j, p and y — "View all projects" has two. The padding
+   enlarges the clip and the equal negative margin gives the space back, so the
+   cylinder keeps its hard edge and the layout does not move by a pixel. */
+.np-walze {
+  display: inline-flex;
+}
+
+.np-walze-satz {
+  display: inline-flex;
+  white-space: pre;
+  /* SELECTION SKIPS THE ROLLERS. Every character is on screen twice here, so a
+     reader dragging across the email link would otherwise copy
+     "atv1989…comaattvv1199…" — the exact garbage this file's Walze note holds
+     against duplicating text in the DOM, arriving through the one door React
+     ownership does not close. The .sr-only copy is the real word, it is not
+     opted out, and it is what the selection takes. */
+  user-select: none;
+}
+
+.np-walze-fach {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  padding-block: 0.22em;
+  margin-block: -0.22em;
+}
+
+.np-walze-a,
+.np-walze-b {
+  display: block;
+  /* --d is written per character by components/Walze.tsx, which divides one
+     fixed spread by the label's own length — see the note there for why a flat
+     step per character made long labels turn for half a second. The travel is
+     --dur-ui, the same tier as the drawn rule under these links, so the two
+     halves of one hover cannot drift apart. */
+  transition:
+    transform var(--dur-ui) var(--ease-out),
+    filter var(--dur-ui) var(--ease-out),
+    opacity var(--dur-ui) var(--ease-out);
+  transition-delay: var(--d, 0ms);
+}
+
+.np-walze-b {
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0.22em; /* the padding above, so the waiting copy sits on the baseline */
+  transform: translateY(100%);
+  filter: blur(4px);
+  opacity: 0;
+}
+
+.np-walze:hover .np-walze-a,
+a:hover .np-walze .np-walze-a,
+a:focus-visible .np-walze .np-walze-a,
+button:hover .np-walze .np-walze-a,
+button:focus-visible .np-walze .np-walze-a {
+  transform: translateY(-100%);
+  filter: blur(4px);
+  opacity: 0;
+}
+
+.np-walze:hover .np-walze-b,
+a:hover .np-walze .np-walze-b,
+a:focus-visible .np-walze .np-walze-b,
+button:hover .np-walze .np-walze-b,
+button:focus-visible .np-walze .np-walze-b {
+  transform: translateY(0);
+  filter: blur(0);
+  opacity: 1;
+}
+
 /* Field notes let go slowly. The attribute is set on <html> for the length of
    the fade only (see FieldNotes.tsx), so the whole page — kickers, markers,
    hot readings — drifts back to its rest colour instead of snapping. Arrival
@@ -211,6 +367,13 @@ h3,
 
 /* Focus does what hover does — the floor's S3, and the rule the accent system
    in this project already follows everywhere else. */
+/* [data-near] is the pointer answer, :hover is the fallback and :focus-visible
+   the keyboard one. Selected.tsx writes data-near from the NEAREST card rather
+   than the one under the cursor, because the 12px gap between two cards is a
+   dead strip for :hover and that strip sits at the centre of the window while
+   the carriage runs — see the note there. Any list that does not write the
+   attribute still develops on hover exactly as before. */
+[data-card][data-near],
 [data-card]:hover,
 [data-card]:focus-visible {
   --scan: 1;
@@ -348,6 +511,70 @@ h3,
      of striking in. */
 }
 
+/* ——— THE CHROME STEPS OUT WHILE THE HERO IS WRITTEN ————————————————————
+   components/HeroIntro.tsx sets --chrome-off to 1 for the length of the hero's
+   scrubbed reveal and back to 0 as it finishes. The bar lifts off the top of the
+   screen while the first screen is being written and comes back down when it is
+   written — one fixed element getting out of the way of the one screen the page
+   is asking to be looked at.
+
+   A TRANSITION, NOT A SCRUB. The state is one bit, so the weight comes from
+   here: --dur-ui is the tier for a state change and --ease-out is the UI default,
+   which means the bar leaves and returns exactly the way every other piece of
+   chrome on the site moves. Scrubbing it to scroll would have made the header a
+   fourth thing riding the wheel on a screen that already has three.
+
+   REGISTERED, AND THE TRANSITION IS ON THE NUMBER — not on `transform`. This was
+   built the obvious way first: an unregistered --chrome-off flipped 0/1 on <html>
+   and `transition: transform`. The rule matched, the variable arrived (measured:
+   1 on the header, at the right scroll position, with the right declaration), and
+   the bar did not move a pixel — the transition was created and then sat at its
+   start value for good. It is the same sentence @property --scan above already
+   carries: an unregistered custom property is a string to the animation engine.
+   A registered <number> is a number it can interpolate, and `transform` recomputes
+   from it every frame.
+
+   THE VALUE LIVES HERE, THE STATE LIVES IN JS. HeroIntro only ever flips the
+   attribute — the same shape as [data-accent-release] and [data-probed] elsewhere
+   in this file — so nothing about how far the bar travels is written in a
+   component.
+
+   :focus-within OUTRANKS IT, and is last so it does at equal specificity. The
+   wordmark and the language toggle live in this bar; a keyboard reader who tabs
+   into it while it is up would be focused on something off the top of the
+   screen. */
+@property --chrome-off {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+[data-chrome] {
+  --chrome-off: 0;
+  transform: translateY(calc(var(--chrome-off) * -100%));
+  transition: --chrome-off var(--dur-ui) var(--ease-out);
+}
+
+[data-chrome][data-chrome-off="1"] {
+  --chrome-off: 1;
+}
+
+[data-chrome]:focus-within {
+  --chrome-off: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The hero is not revealed by scroll here either — HeroIntro hands reduced
+     motion the written page outright — so there is nothing for the bar to step
+     out of the way of. */
+  [data-chrome][data-chrome-off="1"] {
+    --chrome-off: 0;
+  }
+  [data-chrome] {
+    transition: none;
+  }
+}
+
 /* Loader: the zero point snaps into the crosshair. */
 .np-zero {
   transform: translate(-50%, -50%) scale(0);
@@ -389,6 +616,35 @@ h3,
    side of it come through. Worth knowing before writing that condition again
    anywhere in this project. */
 @media (min-width: 768px) {
+  /* The rest before the run. Two pinned stretches back to back — the hero for
+     3.4 screens, this shelf for 3.4 more — had 97px of ordinary scrolling
+     between them, which is less than one notch of a wheel. The fix is not a
+     shorter run; a shorter second block still touches the first. It is a
+     stretch of page the reader is genuinely given back, long enough that the
+     shelf then reads as a new movement rather than the tail of the hero.
+
+     16svh, down from 58 and then 28 across two builds, and the direction of
+     travel is the finding: every time it was set by what the SCROLL needed it
+     came out too big for what the EYE would accept. Two thirds of a screen of
+     nothing between a rule and a heading does not read as a rest, it reads as a
+     section that failed to load — the page is dense everywhere else, so a void
+     that size is a claim the design never makes. About's beats are 80–92svh of
+     air, but that air always has a sentence standing in the middle of it; this
+     band has nothing in it at all.
+     At 16svh the total gap is about 0.29 of a screen — still more than twice the
+     97px the two pins started with, which is all the wheel actually needed, and
+     small enough to read as spacing rather than as absence.
+
+     HERE, AND NOT AS A PADDING ON THE SECTION. This is FX.03's lead-in and has
+     no meaning without FX.03: gated on the same attribute and the same
+     breakpoint as the carriage, it appears and disappears with the effect it
+     serves, and a section padding would have had to be fought back to a
+     Tailwind value in the reduced-motion block below. Zero is the natural
+     default of an empty block span, so there is nothing to undo. */
+  [data-fx~="shelf-transport"] [data-transport-lead] {
+    height: 16svh;
+  }
+
   [data-fx~="shelf-transport"] [data-transport] {
     /* The same half-width the grid gives a specimen — the shelf's own note
        explains why anything less stops arguing. Stated once, because the
@@ -431,10 +687,6 @@ h3,
     width: var(--carriage-card);
   }
 
-  [data-fx~="shelf-transport"] [data-transport-head] {
-    display: block;
-  }
-
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -450,6 +702,41 @@ h3,
   .np-pulse {
     animation: none;
   }
+  /* The pen stops travelling and the rule is simply there or not — which is
+     the same bargain every other effect on this page strikes for reduced
+     motion: the information survives, the movement goes. */
+  .np-zug::after {
+    transition: none;
+  }
+  /* The cylinder stops turning. The label is the copy that was already in the
+     window and the waiting one never comes up — NOT a version where both are
+     visible, which is what dropping only the transition would leave: two
+     copies of every character stacked half a line apart. A reader who asked
+     for less motion gets the label, not the mechanism at rest. */
+  .np-walze-a,
+  .np-walze-b {
+    transition: none;
+  }
+  .np-walze-fach {
+    overflow: visible;
+  }
+  .np-walze-b,
+  .np-walze:hover .np-walze-b,
+  a:hover .np-walze .np-walze-b,
+  a:focus-visible .np-walze .np-walze-b,
+  button:hover .np-walze .np-walze-b,
+  button:focus-visible .np-walze .np-walze-b {
+    display: none;
+  }
+  .np-walze:hover .np-walze-a,
+  a:hover .np-walze .np-walze-a,
+  a:focus-visible .np-walze .np-walze-a,
+  button:hover .np-walze .np-walze-a,
+  button:focus-visible .np-walze .np-walze-a {
+    transform: none;
+    filter: none;
+    opacity: 1;
+  }
   .np-zero {
     transform: translate(-50%, -50%) scale(1);
   }
@@ -460,6 +747,12 @@ h3,
      layout, not a broken version of the effect. Later in the file than the
      block above and at equal specificity, so this wins on order alone.
      ShelfTransport makes the same check and never pins. */
+  /* Nothing pins here, so there is nothing to be given a rest before — the
+     lead-in would be half a screen of blank page in front of a plain grid. */
+  [data-fx~="shelf-transport"] [data-transport-lead] {
+    height: 0;
+  }
+
   [data-fx~="shelf-transport"] [data-transport] {
     min-height: 0;
     display: block;
@@ -474,9 +767,6 @@ h3,
   }
   [data-fx~="shelf-transport"] [data-transport-card] {
     width: auto;
-  }
-  [data-fx~="shelf-transport"] [data-transport-head] {
-    display: none;
   }
 }
 
@@ -549,6 +839,31 @@ h3,
    or whose browser does not support any of this, is not reading grey-on-black
    at 2:1. The effect changes emphasis, never legibility. That is the whole
    reason it is a two-tone sweep rather than a fade from transparent. */
+/* THE FIELD ITSELF IS UNGATED, only its scroll timeline is. It was declared
+   inside the @supports below, which was correct while [data-satz] was the only
+   thing that ever painted it — and became a trap the moment FX.08 handed it
+   down to the lines: those rules are not inside that @supports, so in a browser
+   without view() (Firefox) --entwicklung resolved to nothing while the line
+   still set color: transparent. Invisible sentences, in the one browser nobody
+   would have checked. A value used from two places belongs above both of them. */
+[data-satz] {
+  --entwicklung: radial-gradient(
+    140% 260% at 50% 50%,
+    var(--ink) 0 34%,
+    var(--muted-dim) 66% 100%
+  );
+}
+/* The promise develops INTO the borrowed colour. Same floor at the dim end, so
+   the accent — which is whatever the last project lent the page — never has to
+   carry the contrast on its own. */
+[data-satz="promise"] {
+  --entwicklung: radial-gradient(
+    140% 260% at 50% 50%,
+    var(--accent) 0 34%,
+    var(--muted-dim) 66% 100%
+  );
+}
+
 @media (prefers-reduced-motion: no-preference) {
   @supports ((animation-timeline: view()) and (animation-range: entry)) {
     @keyframes np-entwickeln {
@@ -570,11 +885,10 @@ h3,
          centre the type and the growth has an origin; leave it ranged left and
          this effect would have nothing to grow from. The layout and the motion
          are one decision here, which is the only reason the type is centred. */
-      background-image: radial-gradient(
-        140% 260% at 50% 50%,
-        var(--ink) 0 34%,
-        var(--muted-dim) 66% 100%
-      );
+      /* --entwicklung is declared above this block, ungated — FX.08 paints the
+         same field on the individual LINES of a beat, and those rules are not
+         under this @supports. See the note there. */
+      background-image: var(--entwicklung);
       background-size: 16% 16%;
       background-position: 50% 50%;
       background-repeat: no-repeat;
@@ -591,20 +905,126 @@ h3,
     /* The promise develops INTO the borrowed colour. Same floor at the dim end,
        so the accent — which is whatever the last project lent the page — never
        has to carry the contrast on its own. */
-    [data-satz="promise"] {
-      background-image: radial-gradient(
-        140% 260% at 50% 50%,
-        var(--accent) 0 34%,
-        var(--muted-dim) 66% 100%
-      );
-    }
   }
+}
+
+/* ——— FX.08: ABOUT IS A VOLUME ——————————————————————————————————————————
+   Layout only; the travel through it is GSAP (components/fx/AboutDepth.tsx).
+   The three beats stop being three blocks down the page and become three plates
+   in one held frame, at three different distances from the reader.
+
+   GATED ON AN ATTRIBUTE THE DRIVER WRITES, not on <html data-fx> — the one
+   place in this file that does it that way round, and the reason is in
+   AboutDepth.tsx at length: nothing here is measured, so the switch can be
+   owned by the thing that knows whether anything is driving it. It has to be,
+   because the flat layout is three sentences down the page and this one is
+   three sentences in ONE CELL — legible only while something is moving them
+   apart in depth. Gated in CSS it would be an unreadable pile for anyone
+   whose JavaScript never arrives.
+
+   No motion query either, for the same reason: the driver only writes the
+   attribute inside a `prefers-reduced-motion: no-preference` matchMedia, and
+   gives it straight back if that stops matching. Which also keeps this out of
+   the trap FX.03 documents — Lightning CSS silently drops a media rule
+   containing no-preference. */
+[data-about-stack="on"] {
+  display: grid;
+  /* THE VOLUME. 1100px against beats that travel from −1150 to +380 puts the
+     far end at half size and the near end at one and a half. Deep enough that
+     the eye reads distance rather than a scale tween; shallow enough that a
+     departing line passes the reader instead of tearing across them. */
+  perspective: 1100px;
+  /* The window the plates pass through. Without it a beat at the near end is
+     one and a half screens wide and paints over Under the Hood above and the
+     contact form below — the frame has to be a frame. */
+  overflow: clip;
+}
+
+[data-about-stack="on"] > [data-about-beat] {
+  /* All three in one cell. This is the whole layout change; everything else
+     here is a consequence of it. */
+  grid-area: 1 / 1;
+  /* Exactly one screen, so the pinned frame is the window. The Tailwind
+     min-heights underneath (92svh, 80, 80) are the flat page's rhythm and have
+     nothing to say about a held frame — two attributes beat one class, so they
+     need no variant and no second render path. */
+  min-height: 100svh;
+  /* The hairlines ruled BETWEEN the beats have nothing left to separate: in one
+     cell all three would draw on the same line at the top of the frame. */
+  border-top-width: 0;
+  will-change: transform, opacity;
+}
+
+/* THE DEVELOPMENT CHANGES HANDS while the beats are stacked, and it is not a
+   preference — view() reports where an element sits in the SCROLLPORT, and a
+   pinned element does not move in the scrollport. All three sweeps would freeze
+   at whatever fraction of their range the pin caught them at and stay there for
+   the whole run. Same two-tone sweep, same both ends clearing AA; the distance
+   drives it instead of the window, and AboutDepth.tsx writes background-size
+   directly. Stated here rather than left to the inline style because a running
+   CSS animation outranks an inline write — the driver could not take this over
+   by force even if it tried. */
+[data-about-stack="on"] [data-satz] {
+  animation: none;
+}
+
+/* ——— AND THE BEAT ARRIVES LINE BY LINE ————————————————————————————————
+   The plate travels; the lines set ON it travel too, each from a little
+   further back and a little later, so the sentence writes itself out of the
+   depth instead of sliding in as one rigid block. FX.08's own note argues why
+   this is the one section that gets to do that.
+
+   preserve-3d ON THE WHOLE CHAIN, and it is not optional. `perspective` sits on
+   the frame; a translateZ on a line is only projected by it if EVERY element in
+   between keeps a 3D rendering context. Miss one and the line's z is flattened
+   into its parent's plane: the stagger still runs, the depth silently does not,
+   and what is left is three lines fading at slightly different times. */
+[data-about-stack="on"] [data-about-beat],
+[data-about-stack="on"] [data-about-beat] > *,
+[data-about-stack="on"] [data-satz-text] {
+  transform-style: preserve-3d;
+}
+
+[data-about-stack="on"] .np-zeile {
+  /* SplitText is told tag: "span" — a div inside the inline seam span would be
+     invalid nesting — so the line has to be made a block here. */
+  display: block;
+}
+
+/* THE DEVELOPMENT MOVES DOWN TO THE LINE, and the reason is mechanical before
+   it is editorial: background-clip: text on a parent whose descendants carry 3D
+   transforms is a clip Chrome is not reliable about — the glyphs leave the
+   plane the mask was computed on, and what can come back is transparent text.
+   Putting the field on the element that actually moves removes the question.
+   It is also the better reading: the thing that travels is the thing that
+   develops, so a line is undeveloped exactly as long as it is far away.
+
+   [data-satz-geteilt] is written by SplitText's onSplit, never by the markup:
+   until the split has actually happened the parent must keep carrying the
+   field, or there is a frame of transparent glyphs over the page ground with
+   nothing clipped to them. */
+[data-about-stack="on"] [data-satz][data-satz-geteilt] {
+  background-image: none;
+}
+
+[data-about-stack="on"] [data-satz][data-satz-geteilt] .np-zeile {
+  background-image: var(--entwicklung);
+  background-size: 16% 16%;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 /* Forced colours throw the gradient away and would leave transparent glyphs.
    Cheaper to state than to debug in a screenshot from someone else's machine. */
 @media (forced-colors: active) {
-  [data-satz] {
+  /* .np-zeile listed too: under FX.08 the field is on the LINE, so throwing it
+     away only at the block would leave every split sentence transparent —
+     which is this rule's own failure case, moved one element down. */
+  [data-satz],
+  [data-satz] .np-zeile {
     background-image: none;
     color: CanvasText;
   }

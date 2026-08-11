@@ -38,11 +38,27 @@ import { useFx } from "@/components/fx/FxProvider";
  * fringes on an ink title. That is also what misregistration actually looks
  * like on paper.
  *
- * NO SCROLLTRIGGER, NO JAVASCRIPT. It reads --passer, which Passer already
- * publishes as this project's one controlling variable. A second trigger over
- * the same runway would be a second source of truth for one movement. If Passer
- * never publishes — reduced motion, or the effect switched off — the fallback is
- * 0, which resolves to a clean registered title. The honest still frame.
+ * REVERSED AGAIN, 10.08.2026, AND THIS TIME BY THE MATERIAL. The paragraph above
+ * describes a hero whose plates stayed on screen: fringe growing with --passer
+ * was then the same gesture as the plates separating. The material now CLEARS as
+ * the copy lands, and that broke the argument arithmetically — at the end of the
+ * run --passer is 1 and the plates are gone, so the fringe stood at maximum on a
+ * title alone on a clean screen, with nothing left to explain it. Three coloured
+ * copies of a heading with no visible cause is not misregistration, it is a
+ * rendering fault.
+ *
+ * So it rides --schleier, which is how much plate is still in front of the type,
+ * and the reading is better than either version: the title is inside the
+ * material, mis-registered BY it, and comes into register as it emerges. The
+ * fringe is not a decoration on the title — it is the material's own separation
+ * borrowed by whatever is standing behind it. It ends as clean ink, which is
+ * also the only end state a heading should have.
+ *
+ * NO SCROLLTRIGGER, NO JAVASCRIPT. Both numbers come from Passer, which is
+ * already doing the measurement; a second trigger over the same runway would be
+ * a second source of truth for one movement. If Passer never publishes — reduced
+ * motion, or the effect switched off — the fallback is 0, which resolves to a
+ * clean registered title. The honest still frame.
  */
 
 /** --ink separated into three additive channels. See the note above. */
@@ -78,12 +94,13 @@ export default function Konvergenz({ children }: { children: React.ReactNode }) 
               color: c.color,
               mixBlendMode: "screen",
               zIndex: 2,
-              // Absent at register, so there is nothing stacked on the ink while
-              // the page is still. It arrives as the plate slips.
-              opacity: "var(--passer, 0)",
+              // As much fringe as there is plate in front of the type, and none
+              // once it is through — so the title ends as clean ink and there is
+              // never a separation on screen without a cause.
+              opacity: "var(--schleier, 0)",
               // em, so the split scales with the clamp()ed display size instead
               // of being a fixed pixel offset that is huge on a phone.
-              transform: `translate(calc(var(--passer, 0) * ${c.dx}em), calc(var(--passer, 0) * ${c.dy}em))`,
+              transform: `translate(calc(var(--schleier, 0) * ${c.dx}em), calc(var(--schleier, 0) * ${c.dy}em))`,
             }}
           >
             {children}

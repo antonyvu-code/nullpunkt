@@ -62,7 +62,31 @@ export default function AccentScroll() {
       gsap.registerPlugin(ScrollTrigger);
 
       const root = document.documentElement;
-      const set = (hex: string) => root.style.setProperty("--accent", hex);
+
+      /* ——— THE POINTER OUTRANKS THE WHEEL ————————————————————————————————
+         This file's own note two paragraphs down says this component is the
+         ONLY writer of --accent. It was not: FieldNotes.tsx wrote the same
+         property from onMouseEnter, and both are last-writer-wins on the same
+         inline style. Standing still the pointer won, because nothing else was
+         writing; scrolling, the sweep wrote sixty times a second over the top
+         of it and the hover had no effect at all. Measured in Field Notes with
+         the wheel moving: the row published #A7C649 and the page wore #f99e61,
+         the sweep's interpolation at that scroll position — which reads exactly
+         as "hover sometimes doesn't work", because the two colours come from
+         the same ramp and the wrong one is not obviously wrong.
+
+         The rule, now that it is enforced rather than asserted: a reader who is
+         POINTING at something has said what they want the page to read, and no
+         measurement gets to argue. FieldNotes publishes the pointer as an
+         attribute on <html> and writes the colour itself; this guard keeps
+         every branch below from writing over it. --deflection and [data-probed]
+         are deliberately still computed — the needle is reporting where the
+         PAGE is, which the pointer does not change. */
+      const zeigt = () => root.hasAttribute("data-zeiger");
+      const set = (hex: string) => {
+        if (zeigt()) return;
+        root.style.setProperty("--accent", hex);
+      };
 
       /* The site's controlling variable — see the note in globals.css. This
          component is the only writer, because it is already the only thing on
@@ -255,6 +279,17 @@ export default function AccentScroll() {
       const st = ScrollTrigger.create({ start: 0, end: "max", onUpdate: apply, onRefresh: apply });
       apply();
 
+      /* THE DIAL COMES BACK THE MOMENT THE POINTER LEAVES, and not on the next
+         scroll. Without this, a reader who points at a note and then simply
+         moves the cursor away leaves the page wearing that row's colour until
+         they happen to turn the wheel — the guard above stops the measurement
+         writing, so something has to tell it the guard is gone. An attribute
+         observer fires twice per hover and never otherwise, which is cheaper
+         than any of the alternatives and does not need FieldNotes to know this
+         component exists. */
+      const beobachter = new MutationObserver(apply);
+      beobachter.observe(root, { attributeFilter: ["data-zeiger"] });
+
       /* The carriage is the one station that keeps moving after the scroll that
          moved it: its cards ride a scrubbed tween, which goes on easing for as
          long as the scrub asks once the wheel has stopped. Reading the dial on
@@ -275,6 +310,7 @@ export default function AccentScroll() {
       }
 
       return () => {
+        beobachter.disconnect();
         if (ticking) gsap.ticker.remove(ticking);
         st.kill();
         set(rest());

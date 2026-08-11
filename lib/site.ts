@@ -149,4 +149,36 @@ export const site = {
       hot: true,
     },
   ] as { k: { en: string; de: string }; v: { en: string; de: string }; hot?: boolean }[],
+
+  /**
+   * THE SCALE THE CHROME READS OFF — the home page's seven sections, in order.
+   *
+   * The header already printed SCR 022 % and DEFL 047 %: it says how far down a
+   * document the reader is without ever saying what they are looking at, which
+   * is a percentage on an unlabelled axis. This is the axis. The bar names the
+   * section under the reading line and opens as an index, so the one element on
+   * the page that is fixed to the top of the window is also the one that answers
+   * "where am I" and "take me there" — navigation in the instrument's own voice
+   * rather than three link words borrowed from an ordinary site header.
+   *
+   * S.00 IS THE HERO, AND IT IS THE ONLY ENTRY WITHOUT A SECTION ELEMENT. The
+   * page numbers its sections S.01…S.07 and the hero carries no marker, because
+   * the hero is not a section of the argument — it is the zero point the site is
+   * named after. Numbering it 00 and pointing it at scroll 0 states that, and
+   * costs nothing: it is also the way back to the top.
+   *
+   * The labels are the sections' OWN kickers, not a second set of names written
+   * for a menu. A reader who jumps to S.05 has to land on the words the index
+   * promised, or the index is describing a page that does not exist.
+   */
+  sections: [
+    { n: "00", id: "", label: { en: "NULLPUNKT — ZERO", de: "NULLPUNKT — NULL" } },
+    { n: "01", id: "selected", label: { en: "SELECTED", de: "AUSGEWÄHLT" } },
+    { n: "02", id: "field-notes", label: { en: "FIELD NOTES", de: "FELDNOTIZEN" } },
+    { n: "03", id: "werdegang", label: { en: "WERDEGANG", de: "WERDEGANG" } },
+    { n: "04", id: "capabilities", label: { en: "CAPABILITIES", de: "FÄHIGKEITEN" } },
+    { n: "05", id: "hood", label: { en: "UNDER THE HOOD", de: "UNTER DER HAUBE" } },
+    { n: "06", id: "about", label: { en: "ABOUT", de: "ÜBER MICH" } },
+    { n: "07", id: "contact", label: { en: "CONTACT", de: "KONTAKT" } },
+  ] as { n: string; id: string; label: { en: string; de: string } }[],
 };

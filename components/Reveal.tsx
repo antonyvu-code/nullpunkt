@@ -24,6 +24,9 @@ import { useFx } from "@/components/fx/FxProvider";
  */
 export default function Reveal() {
   const wipe = useFx("type-wipe");
+  /* Not this file's effect — read only so the wipe can stand out of FX.08's
+     way. See the filter at the h2 selector below. */
+  const tiefe = useFx("about-depth");
   const pathname = usePathname();
 
   useGSAP(
@@ -78,19 +81,34 @@ export default function Reveal() {
          type. Leaving it out here would make the capability heading the single
          h2 on the page that slides instead of wiping. */
       if (wipe) {
-        gsap.utils.toArray<HTMLElement>("[data-reveal] h2, [data-reveal-pinned] h2").forEach((el) => {
-          gsap.fromTo(
-            el,
-            { clipPath: "inset(0 0 100% 0)", yPercent: 6 },
-            {
-              clipPath: "inset(0 0 0% 0)",
-              yPercent: 0,
-              duration: 0.9,
-              ease: "power3.out",
-              scrollTrigger: { trigger: el, start: "top 88%", once: true },
-            },
-          );
-        });
+        gsap.utils
+          .toArray<HTMLElement>("[data-reveal] h2, [data-reveal-pinned] h2")
+          /* EXCEPT ABOUT'S CLAIM, while FX.08 is carrying it. That heading is
+             the first thing to come up out of the volume, and a wipe on top of
+             its arrival is the second idea about how one line appears that the
+             hero's own note refuses on the same grounds — and worse here,
+             because the wipe fires once at "top 88 %", which is BEFORE the pin
+             engages: it would be spent on a heading standing at the far end of
+             the volume, where nobody has seen it yet.
+             Filtered in the selector rather than killed at runtime, for the
+             reason Rack.tsx documents: this whole block is rebuilt on every
+             switch, so a kill from another component can only ever reach the
+             tweens that existed when it ran. Declared here, the order cannot go
+             wrong. */
+          .filter((el) => !(tiefe && el.closest("[data-about-beat]")))
+          .forEach((el) => {
+            gsap.fromTo(
+              el,
+              { clipPath: "inset(0 0 100% 0)", yPercent: 6 },
+              {
+                clipPath: "inset(0 0 0% 0)",
+                yPercent: 0,
+                duration: 0.9,
+                ease: "power3.out",
+                scrollTrigger: { trigger: el, start: "top 88%", once: true },
+              },
+            );
+          });
       }
 
       return () => abwurf.forEach((ab) => ab());
@@ -99,7 +117,7 @@ export default function Reveal() {
     // switching FX.07 off would leave the clip-paths from the previous context
     // standing under a re-run that has decided to do nothing, and the bench
     // would report the effect as permanent.
-    { dependencies: [pathname, wipe], revertOnUpdate: true },
+    { dependencies: [pathname, wipe, tiefe], revertOnUpdate: true },
   );
 
   return null;
