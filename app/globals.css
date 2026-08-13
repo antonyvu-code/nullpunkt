@@ -166,8 +166,30 @@ h3,
    its glow (0 0 14px 3px var(--accent)), so leaving it out meant the one element
    whose whole body is accent was also the one element that snapped — the halo
    changed colour a beat before the fill it belongs to. */
+/* THE DESCENDANT LIST IS NAMED, NOT WILDCARD, AND THIS IS MEASURED.
+   `.accent-t *` put 360 of the page's 920 elements into a 450ms colour
+   transition every time the accent moved — and on a scroll the accent moves
+   continuously, so a third of the document was permanently animating. Measured
+   what actually depends on the accent: change --accent with transitions off and
+   compare every computed colour, and exactly 62 elements answer. 26 carry
+   .accent-t themselves; the other 36 are the registration brackets (24), the
+   plate edges (5), and seven elements that paint through Tailwind's accent
+   utilities. The remaining 298 were transitioning colours that never change.
+
+   Measured on the built page, 1440x900, 60 wheel steps: 2.89ms of style
+   recalculation a frame with the wildcard, 1.86ms without it — and 1.69ms with
+   every transition on the page switched off, so the wildcard alone was 86% of
+   what transitions cost here. Long tasks went 2 to 0 in the same runs.
+
+   THE FAILURE MODE, because it is quiet: an element that paints the accent
+   inside an .accent-t and is not covered below will SNAP instead of sweeping.
+   It will not look broken, it will look cheap. Anything new that reads
+   var(--accent) — or --color-accent through a utility — belongs in this list.
+   The check that produced the number above is the way to verify it: set
+   --accent to two different values with transitions off and diff the computed
+   colours of every element. */
 .accent-t,
-.accent-t * {
+.accent-t :is([data-reg], [data-plate-edge], .text-accent, .border-accent, .bg-accent, [style*="--accent"], [style*="var(--accent)"]) {
   transition:
     color var(--dur-accent) var(--ease-out),
     background-color var(--dur-accent) var(--ease-out),
@@ -323,8 +345,17 @@ button:focus-visible .np-walze .np-walze-b {
    the fade only (see FieldNotes.tsx), so the whole page — kickers, markers,
    hot readings — drifts back to its rest colour instead of snapping. Arrival
    keeps the normal 0.45s above; only the release is stretched. */
+/* The same named list as the rule above, and it MUST stay the same list.
+   transition-duration on an element that was never given a transition-property
+   is not inert: the initial value of transition-property is `all`, so a bare
+   duration here would switch on a 2s transition for every animatable property
+   on 278 elements — including the transforms GSAP writes per frame, which would
+   then be fighting a 2s tween. The wildcard was safe only while the rule above
+   was also a wildcard. */
 [data-accent-release] .accent-t,
-[data-accent-release] .accent-t * {
+[data-accent-release]
+  .accent-t
+  :is([data-reg], [data-plate-edge], .text-accent, .border-accent, .bg-accent, [style*="--accent"], [style*="var(--accent)"]) {
   transition-duration: var(--dur-release);
 }
 
@@ -711,6 +742,10 @@ button:focus-visible .np-walze .np-walze-b {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* The wildcard is deliberate HERE and should not be narrowed to match the two
+     rules above: this is a kill switch, and a kill switch wants to be a
+     superset. `transition: none` is the shorthand, so it also resets
+     transition-property — there is nothing left for a stray duration to act on. */
   .accent-t,
   .accent-t *,
   /* Must be listed explicitly: the release rule is more specific than

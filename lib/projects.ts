@@ -88,6 +88,11 @@ export const zeroAccent = "#f2f0eb";
 export const projects: Project[] = [
   {
     slug: "rosi-ocean-co",
+    /* On the shelf 13.08.2026. The one case whose interesting part is a
+       constraint nobody chose: a template runtime that re-renders components
+       several times a load and wiped every registered ScrollTrigger on each
+       pass. That is the shape of the work an agency is actually buying. */
+    frontpage: true,
     index: "01",
     title: "ROSI Ocean Co.",
     year: "2026",
@@ -144,11 +149,18 @@ export const projects: Project[] = [
   {
     slug: "gutjahr-dachtechnik",
     featured: true,
-    /* Off the shelf on 30.07. — Whitepace took the slot. The site is now sent
+    /* BACK ON THE SHELF, 13.08.2026, and this reverses the 30.07. decision
+       recorded below rather than forgetting it.
+       Off the shelf on 30.07. — Whitepace took the slot. The site is now sent
        to agencies as well, and an agency's first question is whether a supplied
        design gets executed, not whether an unsolicited redesign was a good idea.
        Gutjahr stays in the archive, and GUTJAHR V2 already carries the redesign
-       argument under Field Notes. */
+       argument under Field Notes.
+       What changed: the shelf grew from four to six, so the slot is no longer
+       one-in-one-out — and of the twelve cases this is the only one that starts
+       from a real company's real site rather than from a brief nobody wrote.
+       Antony's call, 13.08. */
+    frontpage: true,
     index: "02",
     title: "Gutjahr Dachtechnik",
     year: "2026",
@@ -538,10 +550,17 @@ export const projects: Project[] = [
   },
   {
     slug: "whitepace",
-    /* On the shelf since 30.07., in Gutjahr's place: this is the agency channel's
-       evidence — a supplied design, executed section for section, with the
-       template beside the build in the case itself. */
-    frontpage: true,
+    /* OFF THE SHELF, 13.08.2026, and the argument it was put there for still
+       stands — it is only outranked.
+       On the shelf since 30.07., in Gutjahr's place: this is the agency
+       channel's evidence — a supplied design, executed section for section,
+       with the template beside the build in the case itself.
+       What outranks it: the shelf now shows six, and it was the one card whose
+       claim is "someone else designed this, I built it". That claim belongs in
+       the archive, where the case still makes it in full, rather than in the
+       six things a reader sees first. If the agency channel ever becomes the
+       main channel, this is the first case to bring back — with NITRO beside
+       it, since the pair is the argument, not either one alone. */
     index: "09",
     title: "Whitepace",
     year: "2026",
@@ -653,6 +672,10 @@ export const projects: Project[] = [
   },
   {
     slug: "calibre",
+    /* On the shelf 13.08.2026 — the range argument. A 3D movement running in
+       the page rather than a pre-rendered video, which is the one thing on this
+       shelf that cannot be faked in a screenshot. */
+    frontpage: true,
     index: "11",
     title: "Calibre",
     year: "2026",
@@ -784,11 +807,38 @@ export const frontpageProjects = projects.filter((p) => p.frontpage);
  * holds the live probe and the page's one filled button, so it wants the cell
  * the eye lands on — but that is a composition call, and this is where
  * composition calls are made.
+ *
+ * SIX, FROM 13.08.2026, and the first two are the reason. Measured before the
+ * change: 764 words over 13.4 screens is 65 words a screen, with four cases in
+ * front of the reader and twelve behind a click — on a page whose header says
+ * OPEN TO ROLES & AGENCY WORK, i.e. two thirds of the evidence was one click
+ * away from the person who came for evidence.
+ *
+ * The order is an argument, not a ranking. Gutjahr and ROSI lead because they
+ * are the two whose interesting part is a constraint nobody chose — a real
+ * company's real site, and a template runtime that wiped every ScrollTrigger on
+ * each render pass. The specimen sits third, which in a two-column grid is the
+ * left of the middle row and in the carriage is the middle of the run: the cell
+ * the eye lands on either way. Calibre and the last two carry the range.
+ *
+ * WHAT IT COSTS, and it is not free: the pinned run is exactly as long as the
+ * stock is wide, so six cards make the locked stretch about 3200px instead of
+ * 1937 — around 65% more scroll the reader cannot get out of except through the
+ * SKIP THE RUN link. If the run starts reading as long, this list is the knob,
+ * not the scrub.
  */
-export const shelfOrder = ["one-bit", "whitepace", "oscillate", "mono-architekten"];
+export const shelfOrder = [
+  "gutjahr-dachtechnik",
+  "rosi-ocean-co",
+  "one-bit",
+  "calibre",
+  "oscillate",
+  "mono-architekten",
+];
 
-/** The card that renders live rather than from a plate. It holds the middle
- *  slot of the shelf, and the home page rests calibrated to its signal. */
+/** The card that renders live rather than from a plate. Third of six since
+ *  13.08.2026 — still the middle of the run, and still the cell the eye lands
+ *  on; the home page rests calibrated to its signal. */
 export const specimenSlug = "one-bit";
 
 /** The case whose signal the home page rests on. Kept separate from the

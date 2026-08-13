@@ -67,7 +67,12 @@ sets `--accent` to a project's own color on mount and resets it to `zeroAccent`
 on unmount; `ProjectIndex`/`Selected` do the same on hover/focus for the home
 page's live index. Elements that should transition with the accent get the
 `.accent-t` class; the `[data-accent-release]` attribute (set in `FieldNotes.tsx`)
-stretches that transition to 2s for the "letting go" case. Keyboard focus is
+stretches that transition to 2s for the "letting go" case. **A descendant that
+paints the accent itself must be named in the list in `globals.css`** — the rule
+used to be `.accent-t *` and is now an explicit `:is(...)`, because the wildcard
+put 360 of the page's 920 elements into a colour transition when only 62 ever
+change colour. The failure mode of forgetting is quiet: the element snaps rather
+than sweeping. Keyboard focus is
 expected to trigger the same borrowing behavior as pointer hover — don't wire
 one without the other.
 

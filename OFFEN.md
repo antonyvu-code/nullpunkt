@@ -29,7 +29,27 @@ untouched.
 
 ---
 
-## 1 · The home page shows 4 of 12 projects
+## 1 · The home page shows 6 of 12 projects — decided 13.08.2026
+
+**Antony's call, taken 13.08:** six, ordered
+`gutjahr-dachtechnik · rosi-ocean-co · one-bit · calibre · oscillate ·
+mono-architekten`. Gutjahr comes back from the archive and Whitepace goes to it;
+ROSI and Calibre join. The two leading cases are the two whose interesting part
+is a constraint nobody chose — a real company's real site, and a template
+runtime that wiped every registered ScrollTrigger on each render pass. The
+specimen holds third, which is the middle of the run and the left of the middle
+row. The reasoning, including the 30.07. decision this reverses, is written into
+`lib/projects.ts` beside each flag rather than here.
+
+Measured after: the pinned run is 3228px instead of 1937 (+67%, as predicted
+from the card count), and the document is 15955px instead of 14664 — 1.4 screens
+more page. That is the price of the density fix and it was taken knowingly; if
+the run starts reading as long, `shelfOrder` is the knob, not the scrub.
+
+The original entry follows, because the argument in it is what the decision was
+made against.
+
+### The original entry, 07.08.2026
 
 **Biggest lever on this list, and the only one that is not a bug.**
 
@@ -45,6 +65,9 @@ than in front of them. Enlarging the ABOUT type made the ratio worse, not better
 **Antony decides.** Which cases come forward, whether the shelf grows or a second
 index appears under it, whether any of the eight uncatalogued ones deserve a
 write-up. This is editorial work, not engineering.
+
+*Answered above. Still open from this paragraph: whether any of the uncatalogued
+Field Notes deserves a write-up.*
 
 ---
 
@@ -274,6 +297,50 @@ Both measured rather than reasoned about, so nobody spends the day again:
   **It is the write itself.** Chrome dirties the inheriting tree when a custom
   property changes on the root, whether or not anything reads it.
 
+### 13.08, later the same day: it is the TRANSITIONS, and writing less does nothing
+
+The section above says any fix has to take both writes off the per-frame path.
+That was measured correctly and interpreted too narrowly. Three further runs:
+
+- **Guarding the writes works and buys nothing.** With the guard skipping
+  **989 of 996** `--deflection` writes and **973 of 996** `--accent` writes,
+  style recalculation moved 3.75 → 3.28 ms/frame. Thirty writes are enough to
+  keep the page fully animated, because each change starts a 450ms transition —
+  2s on release — on hundreds of elements.
+- **Registering the properties changes nothing.** `CSS.registerProperty` for
+  `--deflection` (`<number>`, `inherits: false`) and `--accent` (`<color>`):
+  3.60 vs 3.75. Option 2 below is answered — it is not the lever.
+- **Turning every transition off, with all writes left in place**: 3.75 → 2.15.
+
+So the cost is the running transitions, and the number that matters is how many
+elements are in one. Measured by changing `--accent` with transitions off and
+diffing every computed colour: of 920 nodes, **62 elements ever change colour**.
+The rule `.accent-t *` was putting **360** of them into a colour transition.
+
+**Shipped:** the descendant wildcard is replaced by a named list
+(`[data-reg]`, `[data-plate-edge]`, the three Tailwind accent utilities, inline
+`var(--accent)`), in the transition rule and in the `[data-accent-release]`
+duration rule that shadows it. Verified: all 62 painters still transition, none
+snap; elements carrying a live transition fall 614 → 404, colour transitions
+378 → 160.
+
+**What it bought, honestly: 2.89 → 2.74 ms/frame, long tasks 2 → 1.** Five per
+cent, not the thirty-six an earlier ablation promised — and that ablation was
+contaminated: injecting `.accent-t * { transition: none }` also removed the
+transform/filter/opacity transitions on 222 descendants, which are hover and
+reveal effects and have nothing to do with the accent. **A measurement that
+disables a selector disables everything that selector carries.** The corrected
+reading is that the per-element cost is small and the expensive thing is having
+any transition running at all: 0 transitions is 1.69 ms/frame, 82 is ~1.9, 160
+is 2.74, 378 is 2.89.
+
+The change stays regardless of the five per cent, for a reason that is not
+performance: `[data-accent-release]` set `transition-duration: 2s` through the
+same wildcard, and `transition-property` initialises to `all`. Narrowing the
+first rule without the second would have given 278 elements a two-second
+transition on every animatable property — including the transforms GSAP writes
+per frame.
+
 ### What that leaves, and it is Antony's call
 
 The only lever that pays is getting both per-frame writes off `:root`. That is
@@ -284,12 +351,17 @@ is how the borrow reaches the whole page. Options, none taken:
 1. Write them on the smallest subtree that consumes them. Cheap for
    `--deflection` if `--line` stops deriving from it — which means the hairlines
    stop breathing with the needle, and that is a look decision, not a perf one.
-2. Register both with `@property`. `--chrome-off` already does this with
-   `inherits: false`; whether Chrome's invalidation for a *registered* inherited
-   property is cheaper here is untested — worth one measurement before anything
-   is designed around it.
-3. Accept it. 3.61 ms of style a frame leaves ~13 ms of a 60 fps budget, and the
-   reduced-motion floor proves the page is correct when it matters.
+2. ~~Register both with `@property`.~~ **Measured 13.08: no effect** (3.60 vs
+   3.75). Closed.
+3. Accept it. **2.74 ms** of style a frame after the transition rule was
+   narrowed leaves ~14 ms of a 60 fps budget, and the reduced-motion floor
+   proves the page is correct when it matters.
+4. **New, and the only remaining lever with real headroom:** shorten the window
+   in which anything is transitioning. `--dur-release` is 2s, and the release is
+   what keeps 160 elements animating long after the reader has moved on. Halving
+   it would roughly halve that window. The asymmetry between taking (450ms) and
+   letting go (2s) IS the effect, so this is the same kind of decision as 1 —
+   which is why it is stated here rather than taken.
 
 ### The harness, and what its numbers are not
 
