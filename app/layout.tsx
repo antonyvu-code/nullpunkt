@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  Bricolage_Grotesque,
-  Instrument_Sans,
-  Spline_Sans_Mono,
-} from "next/font/google";
+import { Fira_Sans, Fira_Mono, Newsreader } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site";
 import Chrome from "@/components/Chrome";
@@ -19,20 +15,43 @@ import ShelfTransport from "@/components/fx/ShelfTransport";
 import AboutDepth from "@/components/fx/AboutDepth";
 import { DEFAULT_FX_ATTR } from "@/lib/fx";
 
-const bricolage = Bricolage_Grotesque({
+/* OFFIZIN's three roles, 13.08.2026 — see SIGNATURE-STYLE.md §2.4. The set was
+   registered for this project long before it was applied, and only the bespoke
+   element (Der Passer) had ever come from it. This is the type half.
+   The polarity half — paper ground, process inks — is NOT applied and is not
+   pending either: measured, all twelve borrowed case accents pass 4.5:1 on
+   #050505 and none pass on paper, so the ground stays dark until that has an
+   answer. OFFEN.md carries the numbers.
+
+   WHICH FACE TAKES WHICH ROLE is the one thing the registry did not say, and
+   the answer is not interchangeable: Fira Sans sets the plate, Newsreader is
+   what the plate prints, Fira Mono marks the plate. Sans and Mono are one
+   family, so an instrument label and the heading above it share a skeleton —
+   the label on a machine is drawn by whoever drew the machine. */
+
+const firaSans = Fira_Sans({
   subsets: ["latin"],
-  variable: "--font-bricolage",
-  axes: ["opsz", "wdth"],
+  /* Static family, so the weights are enumerated rather than a range — and 400
+     and 500 are the only two the site uses (16 font-medium, 3 font-normal, no
+     bold anywhere). Adding a weight here is adding a request. */
+  weight: ["400", "500"],
+  variable: "--font-fira-sans",
 });
 
-const instrument = Instrument_Sans({
+const newsreader = Newsreader({
   subsets: ["latin"],
-  variable: "--font-instrument",
+  /* opsz is why this face belongs to a print shop rather than to a preference:
+     a separate cut per size is what a foundry did with metal, and it is the one
+     axis here that is not decoration. Listed explicitly — next/font only ships
+     non-wght axes it is told about. */
+  axes: ["opsz"],
+  variable: "--font-newsreader",
 });
 
-const splineMono = Spline_Sans_Mono({
+const firaMono = Fira_Mono({
   subsets: ["latin"],
-  variable: "--font-spline-mono",
+  weight: ["400", "500"],
+  variable: "--font-fira-mono",
 });
 
 export const metadata: Metadata = {
@@ -90,7 +109,7 @@ export default function RootLayout({
     <html
       lang="en"
       data-fx={DEFAULT_FX_ATTR}
-      className={`${bricolage.variable} ${instrument.variable} ${splineMono.variable} antialiased`}
+      className={`${firaSans.variable} ${newsreader.variable} ${firaMono.variable} antialiased`}
     >
       <body className="min-h-screen">
         <a

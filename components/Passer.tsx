@@ -44,9 +44,11 @@ import { heroRunway } from "@/lib/hero";
  * for it.
  *
  * THE MASK WAITS FOR THE FONT. `document.fonts.ready` first, always: the mask is
- * drawn with Bricolage Grotesque and next/font resolves after first paint, so
- * building it eagerly rasterises the fallback face and the whole material is cut
- * from the wrong letterforms — silently, because it still looks like a word.
+ * cut from the page's display face (Fira Sans since 13.08.2026, read from
+ * --font-fira-sans rather than named here) and next/font resolves after first
+ * paint, so building it eagerly rasterises the fallback face and the whole
+ * material is cut from the wrong letterforms — silently, because it still looks
+ * like a word.
  *
  * Reduced motion gets the composed frame: the plates slightly apart with the
  * swarm already settled, which is a picture of the material. The registered
@@ -218,7 +220,18 @@ export default function Passer() {
       const mx2 = mc.getContext("2d", { willReadFrequently: true })!;
       let size = Math.min(w * 0.19, h * 0.42);
       mx2.fillStyle = "#fff";
-      mx2.font = `500 ${size}px "Bricolage Grotesque", sans-serif`;
+      /* THE FACE IS READ, NOT NAMED. This used to be the string "Bricolage
+         Grotesque" written twice, which meant the one place on the site that
+         cuts a material out of letterforms was also the one place that would not
+         follow a change of display face — it would have gone on cutting the word
+         from a face the page no longer sets, silently, because it still looks
+         like a word. next/font publishes the family (with its own fallback) into
+         this variable, so asking the document is asking the same source the h1
+         is set from. */
+      const face =
+        getComputedStyle(document.documentElement).getPropertyValue("--font-fira-sans").trim() ||
+        '"Fira Sans", sans-serif';
+      mx2.font = `500 ${size}px ${face}`;
       mx2.textAlign = "center";
       mx2.textBaseline = "middle";
       /* THE WORD HAS TO FIT THE FRAME. The size above is a cap read off the
@@ -231,7 +244,7 @@ export default function Passer() {
       const gemessen = mx2.measureText("NULLPUNKT").width;
       if (gemessen > maxW) {
         size *= maxW / gemessen;
-        mx2.font = `500 ${size}px "Bricolage Grotesque", sans-serif`;
+        mx2.font = `500 ${size}px ${face}`;
       }
       mx2.fillText("NULLPUNKT", w / 2, h * WORD_Y);
       const md = mx2.getImageData(0, 0, w, h).data;
