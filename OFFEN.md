@@ -1,4 +1,4 @@
-# OFFEN — 07.08.2026, Punkt 2 nachgetragen 08.08.2026
+# OFFEN — 07.08.2026, Punkt 2 nachgetragen 08.08.2026, Punkte 3–5 13.08.2026
 
 What is left, why it is left, and who decides. Every number here was measured on
 this machine with puppeteer against a real Edge, not read off a guideline.
@@ -131,52 +131,194 @@ proposed as urgent**. Antony's call.
 
 ---
 
-## 3 · 575 px of horizontal overflow
+## 3 · Horizontal overflow — the item was wrong, the bug under it was real
 
-Pre-existing, not from the ABOUT work — verified by measuring the old live build
-and the new one and getting the identical 575 px and 71 overflowing elements.
+**Closed 13.08.2026.** Two source changes, both verified below.
 
-Source is the shelf carriage: `a.accent-t.group` inside `ul.grid`, whose parent
-clips at `aspect-[16/10]` but whose own boxes extend past the viewport.
+### The page has never scrolled sideways
 
-Consequence is a page that scrolls sideways — cheap to dismiss on a desktop with
-a mouse, not cheap on a trackpad or a phone.
+`html { overflow-x: clip }` has been in `globals.css` since the first commit of
+this site (`406feff`), so the sideways scroll this item predicted could not
+happen. Measured on the built page: `documentElement.scrollWidth` equals
+`clientWidth` at 1440 and at 375, and `window.scrollTo(2000, y)` leaves
+`scrollX` at 0.
 
-**Note for whoever picks this up:** an earlier probe of mine reported 0 px here.
-That reading was taken before the FX layer had initialised and was simply wrong.
-Measure after the effects are up.
+What the 575 px counted was **element** overflow inside boxes that clip on
+purpose: the carriage, whose whole idea is stock running past both edges of its
+window, and the capability rack, whose modules wait off the sides before the
+scroll carries them in — `Rack.tsx` says so in its own header comment. At 375 px
+the page carries exactly one overflowing element: an 8 px decoration 4 px past
+the left edge.
+
+So the item as written was not a defect, and the 71 elements were the effect
+working. Left standing it would have cost someone a day of clipping things that
+are supposed to hang over.
+
+### What was actually broken: the browser scrolling the carriage on its own
+
+Found while checking the above. `overflow: hidden` makes the carriage window a
+scroll container that merely hides its bars — the browser stays free to scroll
+it, and does, whenever it wants to bring a card into view that the traverse has
+carried off the right edge. **Find-in-page is the everyday case:** Ctrl+F for a
+word on a specimen that has not arrived yet.
+
+Measured, 1440×900, built page, `scrollIntoView` on each of the four cards —
+which is what find-in-page does:
+
+| | `[data-transport].scrollLeft` | content column |
+|---|---|---|
+| before | 0 → 364 → 1009 → **1655**, permanent | in place |
+| `overflow: clip` alone | 0 | **569 px left**, permanent |
+| clip + the guard | 0 | in place |
+
+The middle row is why the one-line fix is not the fix: clip stops the READER
+scrolling an axis, it does not stop `scrollIntoView`. With the window no longer
+a scroll container the browser simply walked further up and scrolled `<html>` —
+which carries `overflow-x: clip` itself and still moved 569 px. The whole page
+then stands 569 px left of where it belongs, for the rest of the session.
+
+Both changes are therefore needed, and both are in:
+
+- `globals.css`, FX.03 — `overflow: clip` on `[data-transport]`.
+- `ShelfTransport.tsx` — a passive `scroll` listener on `document` and on the
+  window that puts `documentElement`, `body` and the window's `scrollLeft` back
+  to 0. A listener rather than a line in the focusin handler, because the
+  browser's scroll-into-view is not ordered against ours.
+
+Verified after, same instrument, `scrolled: []` in both modes:
+
+- **Tab** through all four cards: each lands on screen at x ≈ 400, scroll runs
+  3302 → 3947 → 4593 → 5238, nothing anywhere carries a scrollLeft. Unchanged
+  from before the fix — the focusin handler was always doing its half correctly.
+- **Find-in-page**: nothing moves, nothing is displaced.
+- `track.scrollWidth - win.clientWidth` reads 1937 before and after, so the pin
+  measures the same run it always did.
+
+**What it costs, stated so it is not rediscovered as a bug:** find-in-page will
+no longer travel the carriage to a specimen that is off screen. There is no
+event naming the element the browser was reaching for, so the choice was between
+a page that stays where it belongs and a run that silently breaks. Text on the
+specimens the run has already carried past the head is still found normally.
+
+### Method note, and it cost two wrong readings today
+
+**The in-app browser pane does not composite.** No rAF, no rendering steps, so
+scroll events are never dispatched and GSAP's scrub never advances. Anything
+frame-dependent measured there is fiction: this session first "measured" the
+keyboard traverse landing cards off screen and a scroll listener failing to
+fire — both artefacts of a pane that was not rendering, both gone the moment the
+same code ran in a headless Chromium that does. Measure timing and anything
+scroll-driven in a real browser; use the pane for structure and computed style.
 
 ---
 
-## 4 · Long tasks not yet attributed
+## 4 · Attributed, 13.08.2026 — and it is none of the four suspects
 
-227 ms blocked across a 60-step scroll, p99 47.2 ms, 18 frames of 848 below
-30 fps. Better than Trionn, clearly worse than Dragonfly's 30.5 ms p99.
+**The page is style-bound, not script-bound.** Of 6.17 s of main-thread task
+time across a 60-step scroll, 3.11 s is style recalculation and 1.01 s is
+scripting. The cause is that **`--accent` and `--deflection` are written to
+`:root` on every frame**, and a custom property on the root invalidates style
+for everything that could inherit it — which is the document.
 
-A reduced-motion run of the same page returns **0 long tasks and CLS 0**, so all
-of it is the motion layer. What is not yet known is which part. Candidates, none
-tested:
+Measured with the harness described below, 3 runs a condition, median, built
+page, 1440×900, identical 60-step wheel input. `style/frame` is the honest
+column: the conditions do not run the same number of frames.
 
-- Lenis, which puts scroll on the main thread — and therefore turns any long task
-  into a visibly frozen page, where native scroll would have kept moving on the
-  compositor. This is why the jank *feels* worse than the numbers look.
-- Two pins with `scrub: 0.7`.
-- Two canvases, one 1440×789.
-- `Chrome.tsx` runs a permanent `requestAnimationFrame` loop. The body is gated
-  to 500 ms but the loop itself never stops — which is the floor's own SC3
-  ("every rAF loop stops when it leaves the viewport") broken in the chrome.
+| condition | task | style recalc | frames | style/frame | long tasks |
+|---|---|---|---|---|---|
+| everything on | 6.17 s | 3.11 s | 861 | **3.61 ms** | 2 |
+| no `--accent` write | 5.49 s | 2.58 s | 1016 | 2.53 ms | 0 |
+| no `--deflection` write | 5.72 s | 2.78 s | 949 | 2.93 ms | 0 |
+| **no root custom-property writes at all** | 3.91 s | 0.44 s | 1234 | **0.36 ms** | 0 |
+| Lenis destroyed, native scroll | 3.89 s | 1.93 s | 757 | 2.55 ms | 1 |
+| `prefers-reduced-motion` | 0.39 s | 0.20 s | 1461 | 0.14 ms | 0 |
 
-Method that works: disable one thing at a time via `addStyleTag` on the live
-build and re-measure. Do not trust a localhost-versus-live comparison; that
-confound produced a bogus "0 ms" reading on 07.08.
+Per-frame writes counted over one run: `--deflection` 978, `--accent` 978,
+`--passer` 135, `--schleier` 135. The first two are `AccentScroll.tsx` and run
+every frame the page is scrolling.
+
+**Neither one alone is worth removing, and that is the important line.** Drop
+`--accent` and the recalc falls 30 %; drop `--deflection` and it falls 19 %; drop
+both and it falls **90 %**, because whichever write is left standing invalidates
+the same tree by itself. Any fix has to take both off the per-frame path or it
+buys almost nothing.
+
+### The four suspects, measured
+
+- **Lenis** costs about a third of total task time (6.17 → 3.89 s) — but not the
+  way this file guessed. Its own `raf` is **143 ms of the ticker's 2300 ms**. The
+  cost is indirect: smooth scrolling produces a scroll update every frame, and
+  every update walks ScrollTrigger and the scrubs behind it. Native scroll is
+  cheaper because it asks for less, not because Lenis is slow.
+- **The canvases are not the problem.** The hero (`Passer.tsx`) costs 3.7 ms a
+  frame while it is on screen — real money — but it ran 163 frames of 861,
+  i.e. it stops when it leaves the viewport exactly as SC3 requires. Removing it
+  entirely did not move total task time outside noise (5.72 vs 6.17 s). Three's
+  animation loop is 100 ms across the whole run.
+- **The two scrubbed pins** are inside the ticker's 2300 ms, and the ticker's
+  time is dominated by the style invalidation above, not by tween arithmetic.
+- **`Chrome.tsx`'s permanent loop** is 42.7 ms total, 0.05 ms a frame — cheap,
+  and still an SC3 violation. Worth knowing: its 500 ms-gated body carries the
+  single largest one-frame spike of any loop on the page, **18.9 ms**, from the
+  one `getComputedStyle` inside the gate.
+
+### Two fixes that were tried and did NOT work
+
+Both measured rather than reasoned about, so nobody spends the day again:
+
+- **Quantising the writes** (`--deflection` rounded to 0.05, `--accent` written
+  only on change): 3.61 → 3.31 ms/frame. Deflection genuinely changes by more
+  than a step nearly every frame during a scroll, so almost nothing is skipped.
+- **Pinning `--line` to a constant** — i.e. removing the one thing that reads
+  `--deflection` — 3.61 → 3.24 ms/frame. So it is not the dependency that costs.
+  **It is the write itself.** Chrome dirties the inheriting tree when a custom
+  property changes on the root, whether or not anything reads it.
+
+### What that leaves, and it is Antony's call
+
+The only lever that pays is getting both per-frame writes off `:root`. That is
+not a mechanical change: `--deflection` is *the controlling variable* by design
+(`globals.css` says so at length), and `--accent` being inherited from the root
+is how the borrow reaches the whole page. Options, none taken:
+
+1. Write them on the smallest subtree that consumes them. Cheap for
+   `--deflection` if `--line` stops deriving from it — which means the hairlines
+   stop breathing with the needle, and that is a look decision, not a perf one.
+2. Register both with `@property`. `--chrome-off` already does this with
+   `inherits: false`; whether Chrome's invalidation for a *registered* inherited
+   property is cheaper here is untested — worth one measurement before anything
+   is designed around it.
+3. Accept it. 3.61 ms of style a frame leaves ~13 ms of a 60 fps budget, and the
+   reduced-motion floor proves the page is correct when it matters.
+
+### The harness, and what its numbers are not
+
+`probe.mjs` in this session's scratchpad drives the Chromium that ms-playwright
+already installed, over CDP, from plain Node — no puppeteer, no new dependency.
+It reports Chrome's own cumulative counters plus the time spent inside every
+`requestAnimationFrame` callback, bucketed by the callback's own source, and can
+no-op one bucket, one property, or Lenis to ablate it. If it is worth keeping it
+belongs in `../messstrecke`, not here.
+
+- **Headless, so rAF is unthrottled** — 861 frames in 6.8 s is not what a real
+  browser does. Every absolute figure above is inflated by that. The claims are
+  the **ratios between conditions**, all measured on the same instrument.
+- Long-task counts are still noise at this sample size (0–2 a run). They are
+  reported for continuity with the table at the top of this file and nothing is
+  argued from them.
+- `--skip=<substring>` matches the minified callback source of **this** build.
+  It will need re-reading after any dependency bump.
 
 ---
 
 ## 5 · Toolchain, small and non-urgent
 
-- **Vercel builds with pnpm 10.28, this machine runs 11.18**, both reading one
-  lockfile. Green today. Pin with corepack in `package.json` before it stops
-  being green.
+- **pnpm is pinned, 13.08.2026.** `"packageManager": "pnpm@11.18.0"` in
+  `package.json` — the version this machine writes the lockfile with. Vercel was
+  building the same lockfile with 10.28 and will now use 11.18 through corepack.
+  `pnpm install --frozen-lockfile` and `pnpm build` are both green here; the
+  first deploy after this is the one to watch, because it is the first time the
+  hosted build runs the new version.
 - **Deployment Protection is on for previews.** Preview URLs need a bypass token,
   so they cannot be sent to anyone. Fine while previews are only for us.
 - **`next-env.d.ts` flips** between `.next/types` and `.next/dev/types` depending
