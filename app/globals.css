@@ -657,8 +657,29 @@ button:focus-visible .np-walze .np-walze-b {
     justify-content: center;
     /* The carriage runs past both edges of the window and is cut there — that
        cut is what makes it read as a length of stock passing through, rather
-       than as four cards that happen to be in a row. */
-    overflow: hidden;
+       than as four cards that happen to be in a row.
+
+       CLIP, NOT HIDDEN, and the difference is a keyboard bug rather than a
+       preference. `overflow: hidden` makes this element a scroll container that
+       merely hides its scrollbars — the browser is still free to scroll it
+       programmatically, and that is exactly what it does when Tab moves focus
+       to a card the traverse has carried off the right edge: it scrolls the
+       WINDOW sideways to reveal the card instead of leaving the run alone.
+       Measured on the built page, 1440×900, focusing the cards in tab order:
+       `[data-transport].scrollLeft` went 0 → 1291 → 1937 and never came back,
+       because the only thing that ever writes x here is the track's transform.
+       From then on the window carries a second, invisible offset on top of the
+       pin's, and nothing on the page can undo it short of a reload.
+
+       `clip` is the same cut with no scroll container behind it, so there is
+       nothing for the browser to scroll: the scroll-into-view walks up to the
+       viewport, finds the horizontal axis clipped at the root too, and moves
+       the page vertically only — which is the axis ShelfTransport's own focusin
+       handler already translates the card's position into. Measured after the
+       change, same input: scrollLeft holds at 0 through the whole tab order and
+       `track.scrollWidth - win.clientWidth` reads 1937 before and after, so the
+       pin measures the same run it always did. */
+    overflow: clip;
   }
 
   /* Beats .grid and .md:grid-cols-2 on specificity (two attributes to one

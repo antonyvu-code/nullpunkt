@@ -264,7 +264,56 @@ export default function ShelfTransport() {
         };
         win.addEventListener("focusin", zeigen);
 
-        return () => win.removeEventListener("focusin", zeigen);
+        /* THE OTHER WAY IN, WHICH THE HANDLER ABOVE CANNOT SEE.
+           `zeigen` covers Tab because Tab fires focusin. Nothing fires when the
+           browser scrolls a card into view on its own — find-in-page is the
+           everyday case: Ctrl+F for a word that sits on a specimen still off to
+           the right, and Chrome brings it into view by scrolling whatever box
+           it can find, with no event anyone can translate into a scroll
+           position.
+
+           Measured on the built page, 1440×900, scrollIntoView on each of the
+           four cards in turn, which is what find-in-page does:
+
+             overflow: hidden on the window → [data-transport].scrollLeft ran
+             0 → 364 → 1009 → 1655 and stayed there. The carriage then carries
+             an invisible second offset on top of the pin's transform for the
+             rest of the session, and nothing on the page can undo it.
+
+             overflow: clip on the window (globals.css, FX.03) → the window is
+             no longer a scroll container, so the search walks past it — and up
+             to <html>, whose scrollLeft went to 569 despite carrying
+             overflow-x: clip itself. Clip stops the READER scrolling an axis;
+             it does not stop scrollIntoView. Measured cost: the whole content
+             column standing 569px left of where it belongs, permanently.
+
+           So the clip alone moves the defect up a level rather than removing
+           it, and the honest fix is to put every box back. A scroll listener
+           rather than a line at the end of `zeigen`: the browser's own
+           scroll-into-view is not ordered against our handler, and this way it
+           does not matter which ran first. Root scroll events are dispatched at
+           `document`, not at <html>, which is why the listener sits there.
+
+           WHAT THIS DELIBERATELY DOES NOT DO: bring the card into view. There
+           is no event naming the element the browser was reaching for, so the
+           choice is between a page that stays where it belongs and a run that
+           silently breaks. Find-in-page will keep finding text on the specimens
+           the run has already carried past the head; it will not travel the
+           carriage to reach the ones it has not. */
+        const zurueck = () => {
+          const de = document.documentElement;
+          if (de.scrollLeft !== 0) de.scrollLeft = 0;
+          if (document.body.scrollLeft !== 0) document.body.scrollLeft = 0;
+          if (win.scrollLeft !== 0) win.scrollLeft = 0;
+        };
+        document.addEventListener("scroll", zurueck, { passive: true });
+        win.addEventListener("scroll", zurueck, { passive: true });
+
+        return () => {
+          win.removeEventListener("focusin", zeigen);
+          document.removeEventListener("scroll", zurueck);
+          win.removeEventListener("scroll", zurueck);
+        };
       });
 
       return () => mm.revert();
