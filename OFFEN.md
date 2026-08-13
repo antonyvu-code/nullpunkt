@@ -69,6 +69,15 @@ write-up. This is editorial work, not engineering.
 *Answered above. Still open from this paragraph: whether any of the uncatalogued
 Field Notes deserves a write-up.*
 
+**And a correction to this file, 13.08.2026.** Calling this item "open" was
+wrong on the day after it was written: `ZIELE.md` §7 closed the same question on
+08.08 with "**không đề xuất lại**" — do not propose again. Two files said
+opposite things about one decision, nobody reconciled them, and this one is the
+file that was read. **When they disagree, ZIELE.md wins**, and the other file
+gets corrected the moment the conflict is found. Before proposing anything that
+touches the aesthetic, the structure or the scope, read `ZIELE.md` §7 and §9
+first.
+
 ---
 
 ## 2 · CLS — fixed 08.08.2026, and the 07.08 attribution was wrong
