@@ -1,28 +1,49 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { MOTION_FPS } from "@/lib/motion";
 
 export default function SmoothScroll() {
+  /* THE CAP IS NOT PART OF THE SMOOTH SCROLL, and putting it there was a bug
+     that lasted one commit. GSAP's ticker runs whether or not this component
+     starts Lenis — AccentScroll's sweep is added to it, and so is anything else
+     gsap drives — so a cap written below the reduced-motion bail-out is a cap
+     that never applies in reduced motion. Measured: 281 rAF callbacks a second
+     still running with the setting on, the heaviest of them this very ticker.
+     That is the mode Antony reported as janky, and the one the cap was missing.
+
+     It also runs before registerPlugin and before any Lenis exists, because the
+     ticker is a global that other components have already added work to by the
+     time this effect runs. */
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    gsap.ticker.fps(MOTION_FPS);
+    gsap.ticker.lagSmoothing(0);
+  }, []);
+
+  /* Read live, for the same reason Passer.tsx does — see the note there. A
+     one-time read here left Lenis absent on a page whose ScrollTriggers had
+     since been switched on by gsap.matchMedia, so the scrubs ran against raw
+     native scroll with nothing smoothing them. */
+  const [reduce, setReduce] = useState<boolean | null>(null);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReduce(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    if (reduce !== false) return;
     gsap.registerPlugin(ScrollTrigger);
     const lenis = new Lenis({ lerp: 0.12 });
     (window as unknown as { lenis?: Lenis }).lenis = lenis;
     lenis.on("scroll", ScrollTrigger.update);
     const raf = (time: number) => lenis.raf(time * 1000);
     gsap.ticker.add(raf);
-    gsap.ticker.lagSmoothing(0);
-    /* ONE CAP FOR THE WHOLE SCROLL SYSTEM. Lenis is driven from this ticker
-       (autoRaf defaults to false, so this is its only driver) and every
-       ScrollTrigger updates from it too, so capping here caps the scrub, the
-       smoothing and every scroll-driven tween in one line. See lib/motion.ts for
-       the trace this number comes from. Set after add(), because fps() resets
-       the tick clock and doing it first would let one uncapped frame through. */
-    gsap.ticker.fps(MOTION_FPS);
 
     /* REFRESH ON RESIZE OURSELVES, because ScrollTrigger's own resize refresh
        cannot land on a Lenis page and silently stops running after the first
@@ -54,6 +75,6 @@ export default function SmoothScroll() {
       lenis.destroy();
       (window as unknown as { lenis?: Lenis }).lenis = undefined;
     };
-  }, []);
+  }, [reduce]);
   return null;
 }

@@ -707,6 +707,53 @@ it dirties the tree. What dirties 1,191 elements is the `:root` write.
 was taken against, and comes apart at 360Hz. That is the finding: not a
 regression, a hidden assumption.
 
+### It only stutters with reduced motion ON — which inverts the diagnosis
+
+Antony's next report: the page is smooth with animations on and janky with them
+off. That is the mode where nearly everything is supposed to stand down, so it
+had to be measured rather than reasoned about. Instrumented by patching `rAF`
+*before* any app script, so loops that capture the global at module init are
+caught too:
+
+| with reduced motion ON | before | after |
+|---|---|---|
+| rAF callbacks still running | 281/s across four loops | 286/s |
+| time inside the GSAP ticker | 277 ms / 5.8 s | **119 ms** |
+| all rAF callback time | 5.8% of wall | **2.9%** |
+| `--accent` / `--deflection` written to `:root` | 29/s | **19/s** |
+
+**Two things were wrong.** The `gsap.ticker.fps()` cap had been written *below*
+`SmoothScroll`'s reduced-motion bail-out, so it never applied in the one mode it
+was needed — the ticker is a global that AccentScroll and everything else gsap
+drives are added to, whether or not Lenis exists. And `SmoothScroll` still had
+the one-time `matchMedia` read that §9 fixed in `Passer`, so a page loaded under
+reduced motion never started Lenis even after the setting was turned off, leaving
+`gsap.matchMedia` scrubs running against raw native scroll. Both fixed.
+
+**Why OFF feels worse than ON despite doing less work.** With Lenis the scroll is
+interpolated, so a late frame is absorbed into the smoothing and the reader does
+not see it. Without Lenis the scroll is native and direct: the compositor could
+have handled it alone, but `--accent` and `--deflection` are still being written
+to `:root` on every tick, and each of those invalidates the whole document. Every
+main-thread hitch lands straight in the scroll. **Less work, more visible.**
+
+**Two loops were measured and deliberately left alone.** `Chrome.tsx`'s costs
+0.004ms per call, and it is the thing counting frames for the HUD's own FPS
+readout — capping it would make that readout lie about exactly what is being
+measured. Three's internal `Animation` keeps requesting frames after
+`setAnimationLoop(null)` and costs 0.006ms per call; stopping it means reaching
+into a private field. Neither is worth it at those numbers.
+
+**Still unproven:** whether any of this is *felt* at 360Hz. Headless tops out
+around 174–286fps and cannot report frame pacing (§2). The proof is a second
+trace from Antony's machine — compare renderer `Commit` (was 205/s, 32.2% over
+budget), mean `serviceScriptedAnimations` (was 2.34ms) and tasks ≥8ms (was 918).
+
+**Not done, and it is a design question rather than a mechanical one:** the
+accent sweep still runs under `prefers-reduced-motion`, writing `:root` 19 times
+a second. A scroll-driven colour change is arguably motion. Standing it down in
+that mode would remove the remaining whole-document invalidations outright.
+
 ---
 
 ## How we work on this
