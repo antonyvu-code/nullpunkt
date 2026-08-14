@@ -804,6 +804,101 @@ of a flag.**
 
 ---
 
+## 11 · The remaining jank is a hovering pointer, not the page — 14.08.2026
+
+Antony, after the sweep stood down: *"still worst at FIELD NOTES; the other
+sections maybe slightly and I can't tell for sure."* A third trace, recorded in
+reduced motion, said the main thread was no longer the problem at all:
+
+| trace 3 (19:06), 24.7s | |
+|---|---|
+| main thread busy | **6.1%** of wall |
+| `serviceScriptedAnimations` mean | **0.093 ms** |
+| style recalcs | **36**, 72 elements, **4 ms total** |
+| tasks ≥ 8ms | **1**, and it is `CpuProfiler::StartProfiling` — the recorder |
+| renderer `Commit` over 4.17ms | **1.9%** |
+
+There are only 395 input events in those 24.7s, so most of the recording is
+idle and the aggregate `DrawFrame` rate (7/s) means nothing. The page is doing
+almost nothing, and it still stutters. So the cost is not JavaScript.
+
+### It is the pointer sitting in the list while the rows scroll past it
+
+Chrome's own tracing, run over one section at a time, 2.8s of wheel scrolling
+each, reduced motion:
+
+| section | pointer parked in the corner | pointer inside the section |
+|---|---|---|
+| | paint / recalc | paint / recalc |
+| selected | 5.0 / 0.8 ms | **290.4 / 232.2 ms** |
+| **field-notes** | 5.0 / 0.6 ms | **188.6 / 141.6 ms** |
+| werdegang | 5.6 / 0.7 ms | 6.2 / 0.9 ms |
+| capabilities | 5.0 / 0.7 ms | 6.0 / 0.9 ms |
+| hood | 3.9 / 0.6 ms | 3.8 / 0.6 ms |
+| about | 3.1 / 0.5 ms | 3.3 / 0.5 ms |
+
+**Only the two sections with hover effects on large elements move, and they move
+by 30–60×.** The other four do not notice the pointer at all — which is exactly
+the shape of Antony's report. The mechanism: the cursor is still, the rows
+travel under it, and each row entering and leaving `:hover` costs a style
+invalidation and a repaint of a very large box.
+
+This is not a reduced-motion problem. `motion-reduce:transition-none` stops the
+transition; the state change still repaints. With motion on it is worse, because
+then the transitions actually run.
+
+**Why nothing found it earlier:** it is not main-thread JavaScript, and it only
+appears when the pointer is inside the scrolling area. Every automated run in
+this file had the pointer parked in a corner.
+
+### Making hover cheaper does not work — measured, four conditions
+
+| condition | paint | recalc | layerize |
+|---|---|---|---|
+| as shipped | 229.1 | 215.9 | 34.2 |
+| accent colour change neutralised | 210.5 | 187.9 | 32.3 |
+| translate neutralised | 223.7 | 208.0 | 33.4 |
+| **both neutralised** | **206.8** | **178.9** | **31.2** |
+
+Killing the colour change buys ~13% of the recalc, the translate ~4%, both
+together ~17% — and **90% of the cost survives**. Every ablation was asserted
+while hovering before its number was believed: the neutralised colour reads
+`rgb(138, 135, 129)`, the neutralised transform reads `none`.
+
+So the expense is not what hover *does*, it is that `:hover` *changes*. Tailwind
+compiles `group-hover:` to `.group:hover .child`, so every toggle invalidates the
+subtree to be re-matched whether or not any computed value ends up different. An
+`!important` override changes the value, not the need to go and look.
+
+**Which leaves one lever: stop `:hover` from resolving while the wheel is
+moving** — `pointer-events: none` during scroll, restored shortly after it
+stops. The cost is that scrolling past a case no longer borrows its colour; with
+motion on the sweep already does that job, and under reduced motion Antony has
+just decided the accent should not follow the scroll at all. Not implemented.
+
+### Three harness faults found while measuring this, all now fixed
+
+Each one produced a run that read as "the site is broken":
+
+1. **The launcher attached to `chrome://new-tab-page/`.** `Target.getTargets`
+   returns it as a page target, so taking the first one got the new tab about
+   one run in three: `docHeight` 900, no sections, every reading empty. Now the
+   filter prefers a non-`chrome://` target. Passing `about:blank` as a launch
+   argument to guarantee one was tried and **hung**; the fallback is to take
+   whatever page exists.
+2. **The motion preference was only ever stated in one direction.** The launch
+   flag adds `reduce` and nothing removes it, so with the flag absent headless
+   inherits the host — and Antony had left Windows' animation effects off. Every
+   "motion on" run was silently measuring a reduced-motion page. Now set
+   explicitly both ways via `Emulation.setEmulatedMedia`.
+3. **The page sometimes does not render for ~15s after load.** Cause not found.
+   Runs now retry rather than reporting a zero, because a failed lookup and a
+   real zero are indistinguishable in a results table — the first pass of the
+   ablation above lost its baseline row this way and the surviving numbers would
+   have been read as a result.
+
+---
+
 ## How we work on this
 
 Agreed 07.08.2026, after the `--deflection` episode — where I picked up a defect

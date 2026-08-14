@@ -70,10 +70,21 @@ export async function launch({ width = 1440, height = 900, dsf = 1, reducedMotio
   /* Attach to the one about:blank tab. The target list can come back before the
      page target has been registered — that race is what produced runs where the
      page loaded but nothing was measurable. Poll instead of assuming. */
+  /* PICK THE TARGET BY URL, NOT BY POSITION. Taking the first `page` target got
+     `chrome://new-tab-page/` often enough to matter: every measurement then came
+     back empty — docHeight 900, no sections, no --passer — which reads exactly
+     like the site failing to render. Prefer about:blank, accept any http(s)
+     target, and never a chrome:// one. */
   let page = null;
   for (let i = 0; i < 60 && !page; i++) {
     const { targetInfos } = await send("Target.getTargets");
-    page = targetInfos.find((t) => t.type === "page");
+    const pages = targetInfos.filter((t) => t.type === "page");
+    /* Prefer a real page over chrome://new-tab-page — attaching to the new tab
+       page produced runs where docHeight was 900, no sections existed and every
+       reading came back empty, which reads exactly like the site failing to
+       render. Fall back to whatever page exists rather than throwing: passing
+       `about:blank` as a launch argument was tried to guarantee one, and hung. */
+    page = pages.find((t) => !t.url.startsWith("chrome")) || pages[0];
     if (!page) await new Promise((r) => setTimeout(r, 200));
   }
   if (!page) throw new Error("no page target after 12s");
