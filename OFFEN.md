@@ -749,10 +749,58 @@ around 174–286fps and cannot report frame pacing (§2). The proof is a second
 trace from Antony's machine — compare renderer `Commit` (was 205/s, 32.2% over
 budget), mean `serviceScriptedAnimations` (was 2.34ms) and tasks ≥8ms (was 918).
 
-**Not done, and it is a design question rather than a mechanical one:** the
-accent sweep still runs under `prefers-reduced-motion`, writing `:root` 19 times
-a second. A scroll-driven colour change is arguably motion. Standing it down in
-that mode would remove the remaining whole-document invalidations outright.
+### Second trace, and the sweep stood down
+
+Antony recorded a second trace after the cap: *"less janky than before, but
+still janky."* The numbers moved a long way and then stopped short.
+
+| | trace 1 (11:33) | trace 2 (12:44) |
+|---|---|---|
+| main thread busy | 81.5% of wall | **22.8%** |
+| `serviceScriptedAnimations` mean | 2.343 ms | **0.280 ms** |
+| style recalcs | 16,998 | **1,923** |
+| tasks ≥ 8ms | 918 | **57** |
+| renderer `Commit` over 4.17ms | 32.2% | **3.2%** |
+| renderer `Commit` rate | 205/s | **339/s** at a 2.77ms median |
+
+**Read those as direction, not as a controlled comparison** — trace 1 was
+recorded with motion running and trace 2 with reduced motion, so they are not
+the same page. A clean pair would be two traces in one mode.
+
+What was left: 57 tasks of 8ms or more with a **39ms** worst case — 14 dropped
+frames at 360Hz, which is visible — and the 40 costliest recalcs still touching
+**1,173 elements each**. That is the whole document, and it is the price of a
+`:root` custom property: 1,173 elements inherit `--accent`, so every write
+re-checks all of them. Under reduced motion it was still being written 19 times
+a second.
+
+**Antony's call: the accent sweep stands down under `prefers-reduced-motion`.**
+The reasoning is worth keeping, because the sweep is not an obvious member of
+that family — nothing about it moves. A colour changing continuously as the
+reader scrolls is still something changing without them asking each time, which
+is what the setting is for.
+
+| with reduced motion ON | original | after the cap | **after standing down** |
+|---|---|---|---|
+| `--accent` / `--deflection` writes | 29/s | 19/s | **0/s** |
+| all rAF callback time | 5.8% of wall | 2.9% | **0.9%** |
+
+Motion mode measured unchanged: pins 4, `--passer` 1.0000, 65 writes/s, 22.8%.
+**The pointer still works in both modes** — verified with reduced motion on:
+accent at rest `#FF4A1C`, hovering a field note borrows `#F0A72E`, exactly the
+row's own stop, and it returns to rest afterwards. Only the *scroll-driven*
+borrow stops; a reader who points at something still gets an answer.
+
+### A harness trap worth more than the fix
+
+Every "motion on" run was silently measuring a reduced-motion page, because
+Antony had left Windows' animation effects switched off and headless Chromium
+inherits the host setting — the launch flag only ever adds `reduce`, never its
+opposite. It showed up as `pins 0` and `--passer` parked at the still in a run
+that had asked for full motion, which reads exactly like the change having
+broken the site. `scripts/cdp.mjs` now states the preference in both directions
+with `Emulation.setEmulatedMedia`. **Never infer a media state from the absence
+of a flag.**
 
 ---
 

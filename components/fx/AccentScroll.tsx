@@ -4,6 +4,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useFx } from "@/components/fx/FxProvider";
 
 /**
@@ -56,12 +57,59 @@ export default function AccentScroll() {
   const carrying = useFx("shelf-transport");
   const pathname = usePathname();
 
+  /* `null` until the first client effect — there is no window during the
+     prerender, and the gate below refuses to decide until the answer is known
+     rather than building the whole context twice. */
+  const [reduziert, setReduziert] = useState<boolean | null>(null);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReduziert(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
   useGSAP(
     () => {
       if (!tuned && !sweeping) return;
       gsap.registerPlugin(ScrollTrigger);
 
       const root = document.documentElement;
+
+      /* ——— THE SWEEP STANDS DOWN FOR REDUCED MOTION ————————————————————————
+         Antony's call, 14.08.2026, and the reasoning is worth keeping because
+         this is not an obvious member of the reduced-motion family: nothing here
+         moves. A colour that changes continuously as the reader scrolls is
+         still something changing without them asking for it each time, which is
+         what the setting is about, and it is the reading the WCAG guidance takes.
+
+         It is also, measured, the last expensive thing left in that mode. Two
+         traces from Antony's own 360Hz machine: capping the frame rate took the
+         main thread from 81.5% of the wall clock to 22.8% and tasks over 8ms
+         from 918 to 57 — but the worst was still 39ms, and the 40 costliest
+         style recalcs still touched 1,173 elements EACH. That number is the
+         whole document, and it is what a `:root` custom property costs: 1,173
+         elements inherit `--accent`, so every write re-checks all of them.
+         Under reduced motion this was still happening 19 times a second, for an
+         effect that mode had already switched off everything else for.
+
+         WHAT IS NOT DROPPED: the rest accent, and the pointer. Hovering a case
+         still borrows its colour — that is a reader asking, once, for a specific
+         answer, not a continuous animation. Only the scroll-driven borrow stops.
+         IT IS A DEPENDENCY, NOT A READ. The first version of this gate checked
+         the query once here and returned — which is the exact bug §9 of
+         OFFEN.md documents in two other components, in a new coat: turning the
+         setting back off would have left the sweep dead until a reload, because
+         nothing re-runs an effect whose dependencies did not change. `reduziert`
+         comes from state fed by a `change` listener and sits in the dependency
+         array below, so the whole context is reverted and rebuilt on a flip,
+         which is what every other reduced-motion branch on this page now does. */
+      if (reduziert !== false) {
+        /* Park at rest and publish a settled needle, so nothing downstream reads
+           an empty string and falls back to a value this component never chose. */
+        root.style.setProperty("--deflection", "0.000");
+        return () => root.style.removeProperty("--deflection");
+      }
 
       /* ——— THE POINTER OUTRANKS THE WHEEL ————————————————————————————————
          This file's own note two paragraphs down says this component is the
@@ -325,7 +373,7 @@ export default function AccentScroll() {
     // default, so flipping a switch off left the old context — triggers, inline
     // transforms and all — running underneath a re-run that had already decided
     // to do nothing. The bench would have shown every effect as permanent.
-    { dependencies: [tuned, sweeping, carrying, pathname], revertOnUpdate: true },
+    { dependencies: [tuned, sweeping, carrying, pathname, reduziert], revertOnUpdate: true },
   );
 
   return null;

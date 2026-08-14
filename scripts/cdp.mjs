@@ -82,6 +82,16 @@ export async function launch({ width = 1440, height = 900, dsf = 1, reducedMotio
 
   await s("Page.enable");
   await s("Runtime.enable");
+  /* STATE THE MOTION PREFERENCE IN BOTH DIRECTIONS. The launch flag only adds
+     `reduce`; with nothing passed, headless inherits the HOST's setting. On
+     14.08.2026 Antony left Windows' animation effects switched off and every
+     "motion on" run silently measured a reduced-motion page — pins 0, --passer
+     parked at the still — which reads as "the change broke the site". */
+  await s("Emulation.setEmulatedMedia", {
+    features: [
+      { name: "prefers-reduced-motion", value: reducedMotion ? "reduce" : "no-preference" },
+    ],
+  });
   await s("Emulation.setDeviceMetricsOverride", {
     width,
     height,
