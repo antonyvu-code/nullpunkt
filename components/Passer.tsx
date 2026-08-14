@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { heroRunway } from "@/lib/hero";
@@ -149,7 +149,33 @@ export default function Passer() {
   const hostRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  /* READ LIVE, NOT ONCE AT MOUNT, and that distinction is the whole bug this
+     state exists to fix.
+     `gsap.matchMedia()` — which Rack, ShelfTransport and AboutDepth all run on —
+     re-evaluates whenever the setting changes and enables or reverts its context
+     there and then. This component used to read `matchMedia(...).matches` a
+     single time inside the effect below. So toggling the OS setting with the tab
+     open left the page HALF REDUCED: measured 14.08.2026, `--passer` stuck at
+     the reduced still's 0.18 while `data-about-stack` flipped to "on" and four
+     pin-spacers appeared, document height 11176 -> 17282. The hero froze in a
+     still frame that no longer matched a page running at full motion — which is
+     a state neither mode was designed for, and the one an assistive-tech user
+     reaches by changing the setting to see what happens.
+     `null` until the first client effect: there is no window during the
+     prerender, and the effect below refuses to build until the answer is known
+     rather than building twice. */
+  const [reduce, setReduce] = useState<boolean | null>(null);
+
   useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReduce(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    if (reduce === null) return;
     const host = hostRef.current;
     const cv = canvasRef.current;
     if (!host || !cv) return;
@@ -157,7 +183,6 @@ export default function Passer() {
     if (!ctx) return;
 
     const root = document.documentElement;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const DPR = Math.min(window.devicePixelRatio || 1, 2); // craft floor: cap at 2
 
     let w = 0;
@@ -644,7 +669,7 @@ export default function Passer() {
       root.style.removeProperty("--passer");
       root.style.removeProperty("--schleier");
     };
-  }, []);
+  }, [reduce]);
 
   return (
     /* z-10, i.e. IN FRONT OF THE COPY — the flip that gives the hero its depth.

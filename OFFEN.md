@@ -587,6 +587,82 @@ headless Chromium on a machine that has a GPU. The 60 FPS warning in `ZIELE.md`
 
 ---
 
+## 9 · The page could end up half reduced — fixed 14.08.2026
+
+Found because Antony turned the Windows setting off with the tab already open,
+reported the page as janky, and sent screenshots that did not add up: the hero
+showed the reduced-motion still while ABOUT ran its full depth effect and clipped
+749px of heading off both edges.
+
+**Components disagreed about WHEN they read the setting.** Everything on
+`gsap.matchMedia()` — Rack, ShelfTransport, AboutDepth — re-evaluates whenever
+the query changes and enables or reverts its context on the spot. `Passer.tsx`
+read `matchMedia(...).matches` once inside its mount effect and never again.
+
+Measured on the built page, flipping the media feature at runtime:
+
+| | `matchMedia` | `--passer` | `data-about-stack` | pin-spacers | docHeight |
+|---|---|---|---|---|---|
+| loaded reduced | true | 0.18 | `""` | 0 | 11176 |
+| **flipped to motion, before** | false | **0.18** ← stuck | `"on"` | 4 | 17282 |
+| **flipped to motion, after** | false | **0** → 1.0 on scroll | `"on"` | 4 | 17282 |
+
+The hero froze in a still frame belonging to a mode the rest of the page had
+left. Neither mode designs for that, and the person most likely to reach it is
+the one changing the setting to see what it does.
+
+**Fix:** `Passer.tsx` holds the answer in state, seeded from a `change` listener
+on the media query, and its build effect depends on it — so a flip tears the
+canvas down through the cleanup that already existed and rebuilds on the other
+side. `null` until the first client effect, because there is no `window` during
+the prerender and building twice would rasterise the mask twice.
+
+Verified both directions. Motion → reduced mid-page: `--passer` 1.0000 → 0.18,
+`data-about-stack` cleared, pin-spacers 4 → 0, docHeight back to 11176, HUD back
+to the still. Reduced → motion: `--passer` 0.18 → 0, and 1.0000 once scrolled.
+
+**What this corrects in §8 above:** the ABOUT heading overflowing its viewport is
+**not** a reduced-motion defect. Measured at 1920 by wheeling through the whole
+section: reduced motion overflows by **0px**, motion on overflows by **749px**
+with `data-about-stack="on"` and a `matrix3d`. That is the depth effect at full
+scale and it is what Antony was looking at. Whether 749px of a sentence running
+off both edges is the intended reading of that effect is a separate question and
+has not been asked.
+
+**And a method note that cost three runs.** `scrollIntoView()` does not drive
+ScrollTrigger — the first attempts to reproduce this measured `data-about-stack`
+as `""` in *both* modes and concluded the state was unreachable. It was simply
+never entered. Scroll with real wheel events (`Input.dispatchMouseEvent`,
+`type: "mouseWheel"`) for anything scroll-driven. Measuring an element box rather
+than a text line box was the other wrong turn here: overflowing text still
+reports its box as fitting, so `getBoundingClientRect()` said "fits" while the
+glyphs were off screen. Use a `Range`'s client rects.
+
+---
+
+## 10 · Open: the page is janky on a high-refresh display
+
+Antony reports real stutter, on a **240Hz+ monitor**. Not yet measured, and it
+cannot be measured with the bench in `scripts/`: headless rAF is unthrottled, so
+frame pacing there is fiction (§2 method note).
+
+The arithmetic is at least suggestive. §4 measured **2.74ms of style
+recalculation per frame** after the transition rule was narrowed. A frame budget
+is 16.7ms at 60Hz, **4.17ms at 240Hz**, 2.78ms at 360Hz. Every number in this
+file was taken against a 60Hz assumption; at 240Hz style recalc alone is two
+thirds of the budget before anything else runs.
+
+If that is the cause, §4's list of levers is still the list, and option 1 —
+taking `--accent` and `--deflection` off `:root` — is still a look decision
+rather than a mechanical one. Note that §4 also measured that writing *less*
+does not help: the cost is having transitions running at all, not the writes.
+
+**Next step, and it needs Antony's machine:** a DevTools Performance recording of
+a scroll on the real display, which gives frame times and a recalc breakdown that
+no headless run can. Nothing here should be optimised before that exists.
+
+---
+
 ## How we work on this
 
 Agreed 07.08.2026, after the `--deflection` episode — where I picked up a defect
