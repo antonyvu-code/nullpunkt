@@ -642,24 +642,70 @@ glyphs were off screen. Use a `Range`'s client rects.
 
 ## 10 · Open: the page is janky on a high-refresh display
 
-Antony reports real stutter, on a **240Hz+ monitor**. Not yet measured, and it
-cannot be measured with the bench in `scripts/`: headless rAF is unthrottled, so
-frame pacing there is fiction (§2 method note).
+Antony reported real stutter. **Measured** from a 613MB DevTools trace he
+recorded scrolling the built page on his own machine — 36.4s, home page, the
+first frame-timing data this project has from real hardware.
 
-The arithmetic is at least suggestive. §4 measured **2.74ms of style
-recalculation per frame** after the transition rule was narrowed. A frame budget
-is 16.7ms at 60Hz, **4.17ms at 240Hz**, 2.78ms at 360Hz. Every number in this
-file was taken against a 60Hz assumption; at 240Hz style recalc alone is two
-thirds of the budget before anything else runs.
+### The display is 360Hz, and the compositor is not the problem
 
-If that is the cause, §4's list of levers is still the list, and option 1 —
-taking `--accent` and `--deflection` off `:root` — is still a look decision
-rather than a mechanical one. Note that §4 also measured that writing *less*
-does not help: the cost is having transitions running at all, not the writes.
+| stream | rate | median gap | p95 | p99 | worst |
+|---|---|---|---|---|---|
+| `BeginFrame` (Compositor) | **360/s** | 2.78 ms | 2.81 | 2.89 | 3.9 ms |
+| `DrawFrame` (Compositor) | 249/s | 2.83 ms | 11.00 | 21.10 | 413 ms |
+| `Commit` (renderer main) | 205/s | 3.33 ms | 17.94 | 32.06 | 59.3 ms |
 
-**Next step, and it needs Antony's machine:** a DevTools Performance recording of
-a scroll on the real display, which gives frame times and a recalc breakdown that
-no headless run can. Nothing here should be optimised before that exists.
+`BeginFrame` never misses once: **0 of 13,094** gaps exceed 4.17ms. The display
+asks for a frame every 2.78ms and the ask arrives on time, every time. The
+renderer answers 205–249 times a second. **32.2% of renderer commits overrun a
+whole frame, 12.8% overrun two, 5.1% overrun six.** That gap is the stutter.
+
+### Where the 36.4 seconds went, on the renderer main thread
+
+| | total | count | mean | max |
+|---|---|---|---|---|
+| `RunTask` (all main-thread work) | **29.6 s** | 45,207 | 0.66 ms | 57.1 ms |
+| `PageAnimator::serviceScriptedAnimations` | 17.4 s | 7,445 | 2.34 ms | 47.3 ms |
+| `FireAnimationFrame` | 13.0 s | **30,611** | 0.42 ms | 42.0 ms |
+| `UpdateLayoutTree` (style recalc) | 8.4 s | 16,998 | 0.49 ms | 33.0 ms |
+
+**The main thread is busy 81% of the wall clock.** rAF servicing alone averages
+**2.34ms against a 2.78ms frame** — the frame is over before style recalc starts.
+918 tasks run 8ms or longer; the worst is 57ms, which at 360Hz is 20 frames.
+
+### Four rAF loops, every frame
+
+30,611 `FireAnimationFrame` over 7,445 serviced frames — **4.1 callbacks per
+frame**. Named from the chunks:
+
+| callback | chunk | what it is |
+|---|---|---|
+| `t` ×1750 | `2mn-…` 115KB, `gsap`/`ScrollTrigger` | the GSAP ticker |
+| `l` ×875 | `0z8npx…` 41KB, `lenis`/`passer`/`deflection`/`accent` | Lenis |
+| `e` ×874 | `3y99w0…` **913KB**, `THREE`/`WebGPU`/`TSL` ×58 | **EchoProbe's Three.js render loop** |
+| `L` ×486 | a chunk since rebuilt away | — |
+
+EchoProbe is one decorative card and it is re-rendering a WebGPU scene at
+display rate on a 360Hz monitor.
+
+### The expensive recalcs are whole-document recalcs
+
+The 40 worst style recalcs cost **716ms between them and touch 1,191 elements
+each** — essentially the entire document, repeatedly. 1,191 is the signature of a
+custom property written on `:root`, which is exactly the lever §4 named and left
+open: `--accent` and `--deflection` (and `--passer`/`--schleier`) are written
+there every frame, so every write invalidates everything that inherits them.
+
+**Read the "what ran immediately before" attribution with care.** Style recalc
+runs once per frame after all rAF callbacks, so whichever callback happened to be
+last gets blamed — Three.js taking 21 of 40 says it usually runs last, not that
+it dirties the tree. What dirties 1,191 elements is the `:root` write.
+
+### What this changes
+
+**At 60Hz none of this would show.** Mean renderer commit is 3.33ms against a
+16.7ms budget. The site is comfortable on the hardware every number in this file
+was taken against, and comes apart at 360Hz. That is the finding: not a
+regression, a hidden assumption.
 
 ---
 

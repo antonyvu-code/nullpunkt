@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { MOTION_FPS } from "@/lib/motion";
 
 export default function SmoothScroll() {
   useEffect(() => {
@@ -15,6 +16,13 @@ export default function SmoothScroll() {
     const raf = (time: number) => lenis.raf(time * 1000);
     gsap.ticker.add(raf);
     gsap.ticker.lagSmoothing(0);
+    /* ONE CAP FOR THE WHOLE SCROLL SYSTEM. Lenis is driven from this ticker
+       (autoRaf defaults to false, so this is its only driver) and every
+       ScrollTrigger updates from it too, so capping here caps the scrub, the
+       smoothing and every scroll-driven tween in one line. See lib/motion.ts for
+       the trace this number comes from. Set after add(), because fps() resets
+       the tick clock and doing it first would let one uncapped frame through. */
+    gsap.ticker.fps(MOTION_FPS);
 
     /* REFRESH ON RESIZE OURSELVES, because ScrollTrigger's own resize refresh
        cannot land on a Lenis page and silently stops running after the first

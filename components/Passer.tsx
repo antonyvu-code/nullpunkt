@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { heroRunway } from "@/lib/hero";
+import { FRAME_MS } from "@/lib/motion";
 
 /**
  * DER PASSER — the hero's material.
@@ -492,6 +493,15 @@ export default function Passer() {
 
     const tick = (ts: number) => {
       if (!live || disposed) return;
+      /* CAPPED, and the swarm does not notice: every quantity below integrates
+         `dt`, so running this less often samples the same motion less finely
+         rather than slowing it down. On a 360Hz panel this was redrawing the
+         canvas 360 times a second for a material whose particles move a
+         fraction of a pixel between frames. lib/motion.ts has the trace. */
+      if (last && ts - last < FRAME_MS) {
+        raf = requestAnimationFrame(tick);
+        return;
+      }
       const dt = last ? Math.min((ts - last) / 1000, 0.05) : 0.016; // P2: delta time
       last = ts;
       const tx = mx > -9000 ? mx : w * 0.5;

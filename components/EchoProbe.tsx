@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { FRAME_MS } from "@/lib/motion";
 
 /**
  * ECHO-1, live — the centre specimen of SELECTED. The probe from the "One Bit
@@ -148,6 +149,14 @@ export default function EchoProbe() {
 
       const frame = () => {
         const now = performance.now();
+        /* CAPPED. This is one decorative card, and the trace in lib/motion.ts
+           caught it re-rendering a WebGPU scene at the display's own rate — 874
+           of the 4.1 rAF callbacks a frame, on a 360Hz panel. The rig turns by
+           0.00035 per millisecond, so a frame at 60 moves it a third of a degree;
+           nothing here is fast enough for the extra samples to be visible.
+           setAnimationLoop still fires at display rate — Three owns that — so
+           the gate is on the work, not on the callback. */
+        if (now - last < FRAME_MS) return;
         const dt = Math.min(now - last, 64); // clamp long gaps (tab wake)
         last = now;
         rig.rotation.y += 0.00035 * dt;
