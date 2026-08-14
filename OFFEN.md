@@ -899,7 +899,69 @@ Each one produced a run that read as "the site is broken":
 
 ---
 
-## How we work on this
+## 12 · It was never hover. It is one write of `--accent` on `:root`
+
+§11 concluded that a pointer sitting in the list while rows scroll under it was
+the cost, and that hover could only be made cheaper by ~17%. **That conclusion
+was drawn from CSS-only ablations, and it was wrong about the mechanism.**
+Every one of those ablations overrode what hover *painted* and left the
+JavaScript untouched — and the JavaScript is the whole story.
+
+`FieldNotes.tsx` calls `hold()` from `onMouseEnter`, and `hold()` does
+`root.style.setProperty("--accent", hex)`. Each row crossing the stationary
+pointer writes a custom property **on `<html>`**, and every element that
+inherits it is invalidated. Blocking that one write at runtime, changing
+nothing else:
+
+| condition | paint | recalc | layerize |
+|---|---|---|---|
+| as shipped | 218.0 | 222.6 | 33.2 |
+| **`--accent` write blocked** | **9.0** | **9.6** | **5.5** |
+| `--accent` + `--deflection` blocked | 9.4 | 9.7 | 5.5 |
+| every `:root` custom property blocked | 9.1 | 10.0 | 5.3 |
+
+**Ten writes cost 96% of the frame budget in that section** — about 22ms each.
+Blocking anything beyond `--accent` buys nothing, so it is that property alone.
+`CLAUDE.md` already records that only ~62 elements ever change colour; 1,173
+inherit the property. The invalidation is roughly nineteen times larger than the
+effect it serves.
+
+This is the same hot spot §4 named as "the remaining lever" and left open, now
+measured exactly — and it is not confined to FIELD NOTES or to hover. SELECTED
+writes it on card hover, which is why SELECTED measured worst of all. With motion
+on, the scroll sweep writes it **60 times a second**.
+
+### Five ways to make the write cheaper, all measured, four of them useless
+
+| attempt | paint | recalc | verdict |
+|---|---|---|---|
+| baseline | 218.7 | 226.1 | — |
+| `@property` registration (`syntax: "<color>"`) | 229.7 | 235.1 | no help, marginally worse |
+| write on `<body>` instead of `<html>` | 233.6 | 229.7 | no help — body has nearly every element under it |
+| write to the ~123 consuming elements instead | 231.2 | 235.9 | no help — the property still inherits, so each write invalidates that element's subtree, and now there are 123 of them |
+| `contain: layout paint` / `will-change` / `translateZ` on the rows | 205–226 | 220–224 | ~10% at best; containment does not contain style invalidation, because Blink dropped `contain: style` |
+| **write on `#field-notes` only** | **102.5** | **28.7** | recalc −87% — **but the rest of the page then stops borrowing the colour**, which is the site's one original idea |
+
+The pattern is consistent: **cost tracks the number of elements that INHERIT the
+property, and nothing else.** There is no cheap way to change a page-wide
+inherited custom property. Scoping works and scoping is exactly what the design
+forbids.
+
+### What is left, and it is no longer an engineering question
+
+- **Fewer writes.** Rejected: Antony does not want hover suppressed while
+  scrolling, and the crossings are only ~3.5/s anyway, so throttling below that
+  would visibly lag the borrow.
+- **Fewer inheritors.** Measured impossible without giving up the page-wide
+  borrow.
+- **A smaller borrow.** If the accent reached the chrome and the section but not
+  the whole document, the write could be scoped. That is a change to what the
+  effect *is*, not to how it is built.
+- **Accept it.** It costs ~22ms per hover crossing, which is invisible at 60Hz
+  and visible at 240Hz+ with the pointer inside SELECTED or FIELD NOTES.
+
+Nothing has been changed. Measured 14.08.2026, over the estimate given and
+stopped there rather than continuing to spend.
 
 Agreed 07.08.2026, after the `--deflection` episode — where I picked up a defect
 nobody had assigned, fixed it, and tripled the blocked main thread without ever
