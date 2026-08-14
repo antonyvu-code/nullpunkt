@@ -530,10 +530,32 @@ export default function Passer() {
 
         /* A composed still: plates apart, swarm already settled. Sixty fixed
            steps rather than one, because a single step would draw the swarm
-           mid-flight, which is a smear, not a frame. */
-        p = 0.38;
-        root.style.setProperty("--passer", "0.38");
-        root.style.setProperty("--schleier", schleier(0.38).toFixed(4));
+           mid-flight, which is a smear, not a frame.
+
+           HOW FAR APART IS THE WHOLE QUESTION, and it was 0.38 until 14.08.2026
+           without anyone having looked at the result. Three stills were rendered
+           and compared; 0.18 is Antony's call, and the two it beat are worth
+           writing down because neither is obviously wrong:
+
+             0     the plates converge and the wordmark becomes LEGIBLE — which
+                   is the trouble, not the prize. It then sits behind the h1 and
+                   the two lines of type compete. This is the real reason the
+                   still was never at 0, and the old comment here did not say it.
+             0.38  no collision, but the dot field separates into saturated
+                   magenta/yellow/cyan and the HUD reads 2.3 px OFF REGISTER —
+                   loud, on the one frame a reduced-motion reader ever sees.
+             0.18  the wordmark has dissolved enough not to compete, the field
+                   stays close to mono, and the material is still visible as
+                   material. The HUD still reads OFF REGISTER, at 0.5 px.
+
+           SO THE NAME IS STILL NOT ILLUSTRATED IN THIS FRAME, and that is a
+           knowing trade rather than an oversight: only 0 reads IN REGISTER, and
+           0 costs the headline. If the collision is ever solved another way —
+           the material sitting further back in the still — 0 becomes available
+           again and this number should be revisited, not defended. */
+        p = 0.18;
+        root.style.setProperty("--passer", "0.18");
+        root.style.setProperty("--schleier", schleier(0.18).toFixed(4));
         for (let i = 0; i < 60; i++) step(0.05);
         draw();
         writeReadout();
