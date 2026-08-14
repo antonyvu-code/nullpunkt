@@ -21,10 +21,17 @@ const RELEASE_MS = 2200;
  * single borrowed accent: moving down the rows turns the hue continuously
  * (see fieldNoteSweep). Arrival is at the page's normal accent speed; the
  * release is slowed to 2s, so the colour lingers after the cursor leaves
- * instead of snapping back. Reduced motion drops both, per globals.css.
+ * instead of snapping back — and for the length of that trace the scroll-driven
+ * sweep stays stood down, which is what stops the slow duration from being
+ * applied to a colour something else is writing every frame. Any scroll ends the
+ * trace and hands the dial back. Reduced motion drops both, per globals.css.
  */
 export default function FieldNotes() {
   const releaseTimer = useRef<number | null>(null);
+  /* Removes the scroll listener that ends a trace early. Held as a closure
+     rather than the listener itself so hold(), handBack() and unmount all take
+     the same one line to undo it. */
+  const stopWatch = useRef<(() => void) | null>(null);
   /* Whether anything is READING the page while the pointer is off the list.
      Not used to decide what a hover does — a hover always does the same thing —
      but to decide what LETTING GO means, which is a different question with a
@@ -38,6 +45,13 @@ export default function FieldNotes() {
     }
   };
 
+  const clearWatch = () => {
+    if (stopWatch.current !== null) {
+      stopWatch.current();
+      stopWatch.current = null;
+    }
+  };
+
   /** Tune in — normal speed, so pointing at a row answers immediately.
    *
    *  data-zeiger FIRST, then the colour. The attribute is what tells
@@ -48,37 +62,73 @@ export default function FieldNotes() {
    *  here would be fixing it in one direction only. */
   const hold = (hex: string) => {
     clearTimer();
+    clearWatch();
     document.documentElement.removeAttribute("data-accent-release");
     document.documentElement.setAttribute("data-zeiger", "");
     setAccent(hex);
   };
 
-  /** Let go.
+  /** Hand the dial back to whatever else is reading the page, leaving nothing
+   *  pinned on <html>. Both attributes come down together: a stray
+   *  data-accent-release outlives the fade and slows the next colour change, a
+   *  stray data-zeiger leaves the sweep politely standing down forever. */
+  const handBack = () => {
+    clearTimer();
+    clearWatch();
+    document.documentElement.removeAttribute("data-accent-release");
+    document.documentElement.removeAttribute("data-zeiger");
+  };
+
+  /** Let go — the page keeps a trace of the note you just left.
    *
-   *  WHO GETS THE DIAL BACK decides what happens here, and there are two
-   *  answers. With FX.01 or FX.05 running, the page has its own reading of this
-   *  spot and the honest thing is to hand it straight back: drop the attribute
-   *  and AccentScroll's observer restores the measured colour in the same
-   *  frame, at normal accent speed. Setting the 2s release as well would have
-   *  been actively wrong — the sweep writes on every scroll frame, so a 2s
-   *  transition on --accent makes the whole sweep crawl for as long as the
-   *  attribute is up, and the effect the reader sees is not a lingering trace
-   *  but a colour that has gone sluggish.
+   *  WHO GETS THE DIAL BACK decides what happens here, and until 14.08.2026 the
+   *  answer with FX.01 or FX.05 running was "immediately, so skip the trace
+   *  entirely". That was measured and it meant the 2s release **never ran on the
+   *  shipping page at all**: every effect defaults on, the panel that could turn
+   *  them off is dev-only, so the guard returned every single time. README
+   *  described a gesture the site did not have. See OFFEN.md §7.
    *
-   *  With both switches off nothing is measuring, and the slow fade back to
-   *  rest is the designed gesture it always was — the page keeps a trace of the
-   *  note you just left. The attribute must land BEFORE the colour changes, or
-   *  the transition is computed at the old duration and the fade stays short. */
+   *  The reason behind that guard was real and is kept: the sweep writes
+   *  --accent on every scroll frame, so a 2s transition while it is writing does
+   *  not read as a lingering trace, it reads as a colour that has gone sluggish.
+   *  What was wrong was the conclusion. The fix is not to drop the trace but to
+   *  keep the sweep STOOD DOWN for the length of it — data-zeiger stays up
+   *  through the fade, so nothing is writing --accent for those 2s and there is
+   *  nothing to go sluggish. Then both attributes come down together and the
+   *  sweep resumes at its normal 450ms.
+   *
+   *  THE PRICE, stated because it is the honest half: for those 2s the accent no
+   *  longer tracks the scroll. So any scroll ends the trace at once and hands the
+   *  dial straight back — a reader who has moved on gets the measurement, and the
+   *  trace is reserved for the gesture it was designed for, taking the pointer
+   *  off the list. It plays less often than it would have; it is never wrong.
+   *
+   *  The attribute must land BEFORE the colour changes, or the transition is
+   *  computed at the old duration and the fade stays short. */
   const release = () => {
     clearTimer();
-    document.documentElement.removeAttribute("data-zeiger");
-    if (gemessen) return;
-    document.documentElement.setAttribute("data-accent-release", "");
+    clearWatch();
+    const root = document.documentElement;
+
+    if (!gemessen) {
+      /* Nothing is reading the page — the dial has no other owner, so the
+         sweep can be released immediately and the fade is the whole story. */
+      root.removeAttribute("data-zeiger");
+      root.setAttribute("data-accent-release", "");
+      setAccent(homeRestAccent);
+      releaseTimer.current = window.setTimeout(handBack, RELEASE_MS);
+      return;
+    }
+
+    root.setAttribute("data-accent-release", "");
     setAccent(homeRestAccent);
-    releaseTimer.current = window.setTimeout(() => {
-      document.documentElement.removeAttribute("data-accent-release");
-      releaseTimer.current = null;
-    }, RELEASE_MS);
+    /* `once` is not enough on its own — the listener has to be removable, or a
+       trace ended by hold() or by unmount leaves it armed for a scroll that
+       arrives after this component stopped caring. */
+    const onScroll = () => handBack();
+    window.addEventListener("scroll", onScroll, { passive: true, once: true });
+    stopWatch.current = () => window.removeEventListener("scroll", onScroll);
+    releaseTimer.current = window.setTimeout(handBack, RELEASE_MS);
   };
 
   // Navigating away mid-fade would otherwise leave the slow duration pinned on
@@ -88,6 +138,7 @@ export default function FieldNotes() {
   useEffect(
     () => () => {
       clearTimer();
+      clearWatch();
       document.documentElement.removeAttribute("data-accent-release");
       document.documentElement.removeAttribute("data-zeiger");
     },
@@ -134,7 +185,7 @@ export default function FieldNotes() {
             <span className="flex flex-wrap items-baseline gap-x-5 gap-y-2 pr-12 transition-transform duration-700 ease-out group-hover:translate-x-5 group-hover:duration-200 motion-reduce:transition-none md:group-hover:translate-x-9">
               {/* .accent-t carries the timing here — it is declared outside
                   @layer, so it beats any Tailwind duration utility. That is
-                  what we want: the name then obeys the 1.2s release rule and
+                  what we want: the name then obeys the 2s release rule and
                   fades out with the rest of the page. */}
               <span className="accent-t font-display text-4xl font-medium leading-none tracking-tight text-muted group-hover:text-accent md:text-6xl lg:text-7xl">
                 {f.name}
