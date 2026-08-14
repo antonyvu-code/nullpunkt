@@ -171,9 +171,16 @@ proposed as urgent**. Antony's call.
 
 `html { overflow-x: clip }` has been in `globals.css` since the first commit of
 this site (`406feff`), so the sideways scroll this item predicted could not
-happen. Measured on the built page: `documentElement.scrollWidth` equals
-`clientWidth` at 1440 and at 375, and `window.scrollTo(2000, y)` leaves
-`scrollX` at 0.
+happen. Measured on the built page: the page **cannot be scrolled sideways** —
+`window.scrollTo(2000, y)` leaves `scrollX` at 0 — at 1440 and at 375.
+
+*Corrected 14.08.2026.* This paragraph used to add "`documentElement.scrollWidth`
+equals `clientWidth`", and that is not what holds. With six cases it reads 575px
+wider than `clientWidth` at 1440 with motion on, and exactly equal with
+reduced motion — i.e. the difference is the carriage traverse, which is the
+overflowing-on-purpose content this section is about. `overflow-x: clip` stops
+the axis from being scrolled; it does not shrink the reported content width.
+The claim that was verified is the one now written above.
 
 What the 575 px counted was **element** overflow inside boxes that clip on
 purpose: the carriage, whose whole idea is stock running past both edges of its
@@ -365,12 +372,15 @@ is how the borrow reaches the whole page. Options, none taken:
 3. Accept it. **2.74 ms** of style a frame after the transition rule was
    narrowed leaves ~14 ms of a 60 fps budget, and the reduced-motion floor
    proves the page is correct when it matters.
-4. **New, and the only remaining lever with real headroom:** shorten the window
+4. ~~**New, and the only remaining lever with real headroom:** shorten the window
    in which anything is transitioning. `--dur-release` is 2s, and the release is
    what keeps 160 elements animating long after the reader has moved on. Halving
    it would roughly halve that window. The asymmetry between taking (450ms) and
    letting go (2s) IS the effect, so this is the same kind of decision as 1 —
-   which is why it is stated here rather than taken.
+   which is why it is stated here rather than taken.~~
+   **CLOSED 14.08.2026 — it is not a lever, because the release never runs.**
+   See §7 below. Halving `--dur-release` buys exactly zero, and there is nothing
+   here for Antony to weigh: the trade this option describes does not exist.
 
 ### The harness, and what its numbers are not
 
@@ -421,6 +431,159 @@ belongs in `../messstrecke`, not here.
 - The per-word reveal in Versuch 01 chapter 06 is the technique ABOUT did **not**
   take, on cost grounds. If a cheap per-word variant is ever wanted, that is
   where the experiment lives.
+
+---
+
+## 7 · The 2s release never runs — measured 14.08.2026
+
+**`--dur-release: 2s` is dead at runtime on the page as it ships.** Not rare, not
+hard to reach: unreachable.
+
+`FieldNotes.tsx` opens `release()` with
+
+```ts
+const gemessen = useFx("accent-scroll") || useFx("notes-sweep");
+…
+if (gemessen) return;   // before data-accent-release is ever set
+```
+
+and every FX ships **on** — `lib/fx.ts` is `Object.fromEntries(FX.map(f => [f.id, true]))`.
+The switches that could turn those two off live in a panel gated to
+`NODE_ENV === "development"`, and the `np-fx` storage key was deliberately
+neutered (see the comment above `useState(DEFAULTS)`), so in production nothing
+can flip them. `gemessen` is therefore a constant `true`, and the guard returns
+every time.
+
+Measured on the built page, 1440×900, headless Chromium, pointer driven onto a
+real field-note row and then off the list:
+
+| | |
+|---|---|
+| hover landed | yes — `data-zeiger` up, `--accent` `#ceb830` → `#F0A72E`, the row's own stop |
+| `data-accent-release` raised | **0×** |
+| total time the attribute was up | **0 ms** |
+| elements that *would* carry ≥1.5s if it were raised | 122 |
+
+On letting go, `--accent` went to `#c8ba33` — the scroll sweep's own reading,
+handed straight back at the normal 450ms. Which is exactly what the comment
+inside `release()` says should happen while something is measuring, and it is
+right to: a 2s transition on `--accent` while the sweep writes every frame makes
+the whole sweep crawl. **The guard is correct. The problem is what it leaves.**
+
+### What that costs, and it is not performance
+
+The perf angle closes itself (§4 option 4 above). What is left is a documentation
+defect in the one file a recruiter might read:
+
+- `README.md` — "letting go returns it — slowly, through a `[data-accent-release]`
+  attribute that stretches the transition to 2s". Describes behaviour the live
+  site does not have. This is inside the accent-borrowing system, one of the four
+  decisions the README exists to state.
+- `globals.css` line ~106 — "letting go is slower than taking. That asymmetry IS
+  the effect".
+- `CLAUDE.md` — "the `[data-accent-release]` attribute (set in `FieldNotes.tsx`)
+  stretches that transition to 2s".
+- `FieldNotes.tsx` line ~137 says "the 1.2s release rule" — a fourth number, and
+  the wrong one either way.
+
+**Antony's call, and it is a design question, not a cleanup:**
+
+1. **Let the asymmetry go.** Delete `--dur-release`, the two rules in
+   `globals.css`, the `release()` branch and `RELEASE_MS`; correct README and
+   CLAUDE.md. Honest, smaller, and the site loses a stated decision.
+2. **Make it run.** The release only makes sense when nothing else owns the dial,
+   so this means deciding the sweep does *not* own the dial after a deliberate
+   hover — e.g. hold the borrowed colour for a beat before handing back. That is
+   new behaviour, not a fix, and it has to be looked at before it is believed.
+3. **Keep the code, correct the prose.** Say plainly that the slow release is the
+   behaviour with FX.01/FX.05 off, and that the shipping default hands the dial
+   straight back. Cheapest, and leaves a documented effect nobody can see.
+
+Nothing has been changed. Option 3 is the smallest, option 1 is the most honest,
+option 2 is the only one that gets the effect onto the live page.
+
+---
+
+## 8 · reduced-motion and the phone, looked at — 14.08.2026
+
+First time either was seen rather than reasoned about. Built page, headless
+Chromium, nine frames down the page per condition; contact sheet and every frame
+in this session's scratchpad (`shots/index.html`).
+
+| condition | doc height | overflow-x | content present but unpainted | headings |
+|---|---|---|---|---|
+| 1440 · motion | 15931 | 575 ¹ | 13 (below the fold, reveals not yet fired) | 17 |
+| 1440 · reduced-motion | 10677 | 0 | **0** | 17 |
+| 390×844 · motion | 15339 | 0 | 13 | 17 |
+| 390×844 · reduced-motion | 13035 | **0** | **0** | 17 |
+
+**The reduced-motion build is structurally sound.** No blank boxes, no reveal
+stuck at `opacity: 0`, the full document outline intact, nothing overflowing.
+The page shortens because both pins stop reserving their spacers, which is the
+designed behaviour and not a loss of content.
+
+¹ `documentElement.scrollWidth - clientWidth` reads 575, not the 0 recorded in
+§3. §3's claim that the page never scrolls sideways still holds — `overflow-x:
+clip` means the axis cannot be scrolled — but the *reported* content width does
+exceed the viewport, and it does so only with motion on, i.e. it is the carriage
+traverse. §3 measured four cases; there are six now. The wording there ("equals
+clientWidth") should say "cannot be scrolled", which is what was actually
+verified.
+
+### Two things to look at, both Antony's
+
+**a · The reduced-motion hero is the OFF-REGISTER frame.** `Passer.tsx` sets
+`--passer` to `0.38` under reduced motion — deliberate, and the comment says why
+("a composed still: plates apart, swarm already settled"; the host also drops to
+`z-index: -10` so grain does not sit on the manifesto). Measured: `--passer 0.38`,
+`--schleier 0.9543`, HUD reads **`REGISTER ▸ 2.3 px · OFF REGISTER`**. With motion
+on at the top of the page it reads `0.0 px · IN REGISTER`.
+
+So the reader who has reduced motion switched on sees exactly one frame of this
+hero for the whole visit, and it is the frame where the three plates do *not*
+line up — on a site named for the moment they do. The still is also markedly more
+saturated: at 0.38 the dot field is magenta/yellow/cyan rather than the near-mono
+field of the registered frame.
+
+**Resolved the same day — 0.38 → 0.18, Antony's call after looking at three
+rendered stills.** Rendering `--passer 0` is what settled it, and it showed
+something no comment in the file had recorded: at 0 the plates converge and the
+wordmark becomes *legible*, whereupon it sits behind the h1 and the two lines of
+type compete. That collision — not the loss of the material — is the real reason
+the still had never been at 0. 0.18 dissolves the wordmark enough to stop the
+competition while keeping the field close to mono.
+
+| still | HUD | field |
+|---|---|---|
+| `--passer 0` | 0.0 px · **IN REGISTER** | near-mono — but the wordmark fights the h1 |
+| **`--passer 0.18`** ← shipped | 0.5 px · OFF REGISTER | close to mono, wordmark dissolved |
+| `--passer 0.38` (was) | 2.3 px · OFF REGISTER | saturated magenta/yellow/cyan |
+
+Verified on the built page, three consecutive runs: `--passer 0.18`,
+`--schleier 1.0000`, `document.fonts.status` loaded, HUD `REGISTER ▸ 0.5 px`.
+
+**The name is still not illustrated in this frame, and that is knowingly bought,
+not overlooked** — only 0 reads IN REGISTER and 0 costs the headline. If the
+collision is ever solved another way (the material sitting further back in the
+still), 0 becomes available again and 0.18 should be revisited rather than
+defended. The reasoning is written into `Passer.tsx` beside the number.
+
+**b · The wordmark breaks up at 390px.** The halftone cell does not scale with
+the viewport, so NULLPUNKT is rendered by too few dots per letter and reads as
+`NJLLPJ.\KT`. It is the first thing on the page and it is the site's own name.
+Measured only as an emulated 390×844 viewport; on a real phone the DPR is 3, so
+this may look better there — **that is the reason to test on real hardware and
+not a reason to change the cell size yet.**
+
+Everything below the hero holds up on the phone: Werdegang, the specimen stack
+and the plates are all legible and well spaced, and the sections that pin on
+desktop correctly have no driver under 768px.
+
+### Still not done
+
+**No real device, and no machine without a GPU.** These are emulated viewports in
+headless Chromium on a machine that has a GPU. The 60 FPS warning in `ZIELE.md`
+§10d-bis stands untouched, and so does the wordmark question above.
 
 ---
 
