@@ -90,6 +90,28 @@ also needs a designed static frame under `prefers-reduced-motion`, not just a
 blank box — follow the existing components' pattern rather than adding a bare
 opacity:1 fallback.
 
+**And read that media query LIVE, never once at mount.** A reader can flip the
+OS setting with the tab open. Reading it once does not merely miss the change —
+it leaves the page *half reduced*: on 14.08.2026 `--passer` stayed parked at the
+still's 0.18 while `data-about-stack` flipped to "on", four pin-spacers appeared
+and the document grew from 11176 to 17282px, because everything on
+`gsap.matchMedia()` re-evaluates live and everything on a plain
+`matchMedia(...).matches` does not. Neither mode designs for that state, and the
+person most likely to reach it is the one changing the setting to see what it
+does. Three components had this bug in one day. The pattern is in `Passer.tsx`,
+`SmoothScroll.tsx` and `AccentScroll.tsx`: state seeded from a `change` listener,
+and that state in the effect's dependency array so the whole context tears down
+and rebuilds on a flip. Anything already using `gsap.matchMedia()` is live
+already. `EchoProbe`, `Reveal`, `Registration` and `DrawLines` still read once
+and are the outstanding cases; `Loader` reads once and legitimately does not care.
+
+**A cap on per-frame work belongs outside any reduced-motion branch.** `lib/motion.ts`
+holds `MOTION_FPS`, and `gsap.ticker.fps()` is set in its own effect in
+`SmoothScroll` — *before* the reduced-motion check, not after. The ticker is a
+global that AccentScroll and every other gsap consumer are added to, so a cap
+written below that early return is a cap that never applies in reduced motion,
+which is where it was most needed.
+
 **Route layout:**
 ```
 app/
