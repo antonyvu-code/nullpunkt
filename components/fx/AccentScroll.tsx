@@ -81,7 +81,16 @@ export default function AccentScroll() {
          this is not an obvious member of the reduced-motion family: nothing here
          moves. A colour that changes continuously as the reader scrolls is
          still something changing without them asking for it each time, which is
-         what the setting is about, and it is the reading the WCAG guidance takes.
+         what the setting is about.
+
+         AND THAT IS A DESIGN JUDGEMENT, NOT A STANDARD. An earlier version of
+         this comment claimed the WCAG guidance reads it that way. It does not:
+         2.3.3 governs *motion animation* and its definition explicitly excludes
+         changes of colour, blur or opacity that do not convey a sense of
+         movement. Standing the sweep down is defensible on its own two feet —
+         Antony's call about how still the page should be when it is asked to be
+         still, and it removes nineteen whole-document invalidations a second —
+         and neither of those needs a standard behind it. Corrected 14.08.2026.
 
          It is also, measured, the last expensive thing left in that mode. Two
          traces from Antony's own 360Hz machine: capping the frame rate took the
