@@ -1,0 +1,136 @@
+/* Minimal CDP client on plain Node 24 (global WebSocket, no dependency).
+   Same idea as the probe.mjs OFFEN §4 describes, rebuilt because that one
+   lived in a scratchpad and is gone. */
+import { spawn } from "node:child_process";
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+const CHROME = join(
+  process.env.LOCALAPPDATA,
+  "ms-playwright",
+  "chromium-1234",
+  "chrome-win64",
+  "chrome.exe",
+);
+
+export async function launch({ width = 1440, height = 900, dsf = 1, reducedMotion = false, mobile = false } = {}) {
+  const port = 9200 + Math.floor(Math.random() * 500);
+  const args = [
+    `--remote-debugging-port=${port}`,
+    `--user-data-dir=${mkdtempSync(join(tmpdir(), "cdp-"))}`,
+    "--headless=new",
+    "--no-first-run",
+    "--no-default-browser-check",
+    "--disable-extensions",
+    "--hide-scrollbars",
+    `--window-size=${width},${height}`,
+    "--force-device-scale-factor=" + dsf,
+  ];
+  if (reducedMotion) args.push("--force-prefers-reduced-motion=reduce");
+  const proc = spawn(CHROME, args, { stdio: "ignore" });
+
+  let wsUrl = null;
+  for (let i = 0; i < 120 && !wsUrl; i++) {
+    await new Promise((r) => setTimeout(r, 250));
+    try {
+      const r = await fetch(`http://127.0.0.1:${port}/json/version`);
+      wsUrl = (await r.json()).webSocketDebuggerUrl;
+    } catch {}
+  }
+  if (!wsUrl) throw new Error("chrome did not come up");
+
+  const ws = new WebSocket(wsUrl);
+  await new Promise((res, rej) => {
+    ws.addEventListener("open", res, { once: true });
+    ws.addEventListener("error", rej, { once: true });
+  });
+
+  let id = 0;
+  const pending = new Map();
+  const listeners = [];
+  ws.addEventListener("message", (ev) => {
+    const msg = JSON.parse(ev.data);
+    if (msg.id && pending.has(msg.id)) {
+      const { res, rej } = pending.get(msg.id);
+      pending.delete(msg.id);
+      msg.error ? rej(new Error(msg.error.message)) : res(msg.result);
+    } else if (msg.method) {
+      for (const l of listeners) l(msg);
+    }
+  });
+
+  const send = (method, params = {}, sessionId) =>
+    new Promise((res, rej) => {
+      const mid = ++id;
+      pending.set(mid, { res, rej });
+      ws.send(JSON.stringify({ id: mid, method, params, sessionId }));
+    });
+
+  /* Attach to the one about:blank tab. The target list can come back before the
+     page target has been registered — that race is what produced runs where the
+     page loaded but nothing was measurable. Poll instead of assuming. */
+  let page = null;
+  for (let i = 0; i < 60 && !page; i++) {
+    const { targetInfos } = await send("Target.getTargets");
+    page = targetInfos.find((t) => t.type === "page");
+    if (!page) await new Promise((r) => setTimeout(r, 200));
+  }
+  if (!page) throw new Error("no page target after 12s");
+  const { sessionId } = await send("Target.attachToTarget", { targetId: page.targetId, flatten: true });
+  const s = (method, params) => send(method, params, sessionId);
+
+  await s("Page.enable");
+  await s("Runtime.enable");
+  await s("Emulation.setDeviceMetricsOverride", {
+    width,
+    height,
+    deviceScaleFactor: dsf,
+    mobile,
+    screenWidth: width,
+    screenHeight: height,
+  });
+
+  const on = (fn) => listeners.push(fn);
+
+  const evaluate = async (expr) => {
+    const r = await s("Runtime.evaluate", {
+      expression: `(async () => { ${expr} })()`,
+      awaitPromise: true,
+      returnByValue: true,
+    });
+    if (r.exceptionDetails) throw new Error(JSON.stringify(r.exceptionDetails.exception?.description || r.exceptionDetails));
+    return r.result.value;
+  };
+
+  const goto = async (url) => {
+    const done = new Promise((res) => {
+      const fn = (m) => {
+        if (m.method === "Page.loadEventFired") res();
+      };
+      on(fn);
+    });
+    await s("Page.navigate", { url });
+    await done;
+  };
+
+  const screenshot = async () => (await s("Page.captureScreenshot", { format: "png" })).data;
+
+  const close = async () => {
+    try { ws.close(); } catch {}
+    proc.kill();
+  };
+
+  return { s, evaluate, goto, screenshot, close, on, sessionId };
+}
+
+/** A wheel-driven scroll: N steps of `dy`, one animation frame apart, which is
+    what Lenis + ScrollTrigger actually respond to. */
+export const WHEEL = (page, { steps = 60, dy = 220, settle = 40 } = {}) =>
+  page.s("Input.dispatchMouseEvent", { type: "mouseWheel", x: 700, y: 450, deltaX: 0, deltaY: dy })
+    .then(async () => {
+      for (let i = 1; i < steps; i++) {
+        await page.s("Input.dispatchMouseEvent", { type: "mouseWheel", x: 700, y: 450, deltaX: 0, deltaY: dy });
+        await new Promise((r) => setTimeout(r, settle));
+      }
+    });

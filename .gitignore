@@ -23,3 +23,6 @@ next-env.d.ts
 Thumbs.db
 
 .vercel
+
+# measuring-bench output (scripts/README.md)
+scripts/shots/
