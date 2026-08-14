@@ -154,8 +154,12 @@ export default function Rack() {
             start: "center center",
             end: "+=45%",
             /* Enough lag that the modules feel carried rather than dragged, not
-               so much that they are still moving after the wheel has stopped. */
-            scrub: 0.7,
+               so much that they are still moving after the wheel has stopped.
+               0.4 rather than 0.7, chosen 14.08.2026 off a filmstrip of three
+               settings sampled at the same nine points of this pin — the
+               heavier value left modules still travelling after the wheel had
+               stopped, which is the half of this sentence it was failing. */
+            scrub: 0.4,
             invalidateOnRefresh: true,
             /* Below the shelf's pin (2) and above everything else (0). Pinning
                inserts a spacer as tall as the run, so every section under this
@@ -183,19 +187,24 @@ export default function Rack() {
             /* Inside a scrub, stagger is what spreads the modules across the
                range instead of landing them all on the same frame — it is the
                sequence, not a delay. */
-            stagger: 0.18,
+            stagger: 0.12,
             ease: "power2.out",
           },
         );
 
         /* A beat of pin left over after the last module lands. The timeline is
-           1 + 5 × 0.18 = 1.9 units long and the scrub trails the wheel by 0.7s,
+           1 + 5 × 0.12 = 1.6 units long and the scrub trails the wheel by 0.4s,
            so without this the sixth module is still catching up in the frame the
            pin lets go — the page starts moving while the rack is not finished.
-           0.3 units puts the last landing at 86 % of the run and leaves the rest
+           0.3 units puts the last landing at 84 % of the run and leaves the rest
            for the scrub to settle. It is the same hold the deck version needed
-           at its end, for the same reason. */
-        tl.to({}, { duration: 0.3 }, 1.9);
+           at its end, for the same reason.
+
+           THIS NUMBER IS DERIVED, NOT CHOSEN: it is 1 + (modules − 1) × stagger.
+           A seventh module, or another stagger, moves it. Changing either above
+           and leaving 1.6 here puts the hold in the wrong place silently — the
+           rack still fills, and the last module is simply cut off by the release. */
+        tl.to({}, { duration: 0.3 }, 1.6);
 
         return () => {
           tl.scrollTrigger?.kill();
