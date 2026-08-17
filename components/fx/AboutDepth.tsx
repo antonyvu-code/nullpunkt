@@ -205,7 +205,17 @@ export default function AboutDepth() {
             /* The frame is exactly one screen (globals.css gives every beat
                100svh), so the top of it at the top of the window IS the frame
                filling the window. */
-            start: "top top",
+            /* BELOW THE FIXED BAR, not behind it. `top top` put the frame's top
+               edge at the window's top edge, which is where the header already
+               is — so a frame that is "exactly one screen" was one screen inside
+               a screen that has 57px of chrome across it, and the beats centred
+               in a box whose top the reader cannot see. Same correction, same
+               measurement, as the shelf's pin (OFFEN §21); the beats' own
+               min-height subtracts the same --kopf so the frame and its contents
+               agree about how tall a screen is. */
+            start: () =>
+              "top top+=" +
+              Math.round(document.querySelector("[data-chrome]")?.getBoundingClientRect().height ?? 0),
             /* 185 % of the frame — and the frame is a screen, so this is
                185 % of the window either way the percentage is read.
                Where the number comes from: the three beats were 92 + 80 + 80 =

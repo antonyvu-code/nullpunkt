@@ -1073,15 +1073,40 @@ button:focus-visible .np-walze .np-walze-b {
   width: 100%;
 }
 
+/* THE SECTION'S NAME, PARKED AT THE TOP OF THE FRAME — 17.08.2026.
+   Another cell in the same grid area, so it costs no layout: the beats are all
+   at 1/1 and this joins them, pinned to the start edge instead of centred. It
+   carries no [data-about-beat], so AboutDepth's collection never picks it up
+   and it neither travels in z nor fades — it is the label on the frame, and a
+   label that moved with the plates would be a fourth plate.
+   z-index above the beats because a departing one grows toward the reader and
+   would otherwise pass in front of the label rather than behind it. */
+[data-about-stack="on"] > [data-about-kopf] {
+  grid-area: 1 / 1;
+  align-self: start;
+  z-index: 2;
+  margin-bottom: 0;
+  /* Clear of the fixed bar, and then some. The frame starts below the bar now
+     (AboutDepth reads --kopf the same way ShelfTransport does), so this is
+     breathing room inside the frame rather than a correction for the header. */
+  padding-top: 2.5rem;
+  pointer-events: none;
+}
+
 [data-about-stack="on"] > [data-about-beat] {
   /* All three in one cell. This is the whole layout change; everything else
      here is a consequence of it. */
   grid-area: 1 / 1;
-  /* Exactly one screen, so the pinned frame is the window. The Tailwind
-     min-heights underneath (92svh, 80, 80) are the flat page's rhythm and have
-     nothing to say about a held frame — two attributes beat one class, so they
-     need no variant and no second render path. */
-  min-height: 100svh;
+  /* One screen MINUS THE FIXED BAR. It was a flat 100svh, which made the frame
+     exactly a window tall while the window has a header across the top of it —
+     so the three beats were centred in a box whose top 57px a reader cannot
+     see, and sat about half that above the optical centre. --kopf is published
+     by Chrome.tsx; the same subtraction is on the shelf's pin window and for
+     the same reason (OFFEN §21). The Tailwind min-heights underneath
+     (92svh, 80, 80) are the flat page's rhythm and have nothing to say about a
+     held frame — two attributes beat one class, so they need no variant and no
+     second render path. */
+  min-height: calc(100svh - var(--kopf, 0px));
   /* The hairlines ruled BETWEEN the beats have nothing left to separate: in one
      cell all three would draw on the same line at the top of the frame. */
   border-top-width: 0;

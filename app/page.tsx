@@ -528,12 +528,18 @@ export default function Home() {
         style={{ borderColor: "var(--line)" }}
         data-reveal-pinned
       >
-        <div className="mb-12 flex flex-wrap items-baseline justify-between gap-3">
-          <p className="hud hud-wide text-accent accent-t">
-            <L en="ABOUT — ROLE OR AGENCY WORK" de="ÜBER MICH — STELLE ODER AGENTURARBEIT" />
-          </p>
-          <p className="hud text-muted-dim">S.06 / {SECTIONS}</p>
-        </div>
+        {/* MOVED INSIDE THE STACK, 17.08.2026. It used to sit here, above the
+            frame, which meant it scrolled away the moment the pin engaged: for
+            the whole run — the entire argument — S.06 was the one section on
+            the page with no name and no number on it. The fixed bar does print
+            "S.06 ABOUT" throughout, so nothing was lost that a reader could not
+            find; what was lost was the label being where the thing it labels
+            is.
+            It is not a beat: `AboutDepth` collects `[data-about-beat]` and this
+            carries no such attribute, so the depth machinery never sees it. In
+            the flat build it is still simply the first block in the section,
+            which is exactly what it was. globals.css parks it at the top of the
+            frame when the effect is on. */}
 
         {/* THREE MOVEMENTS, ONE SECTION. The page numbers its sections S.01…S.07
             and calls itself seven sections in CLAUDE.md, so these are not three
@@ -561,6 +567,16 @@ export default function Home() {
             the face tightens as it grows — display type behaving like display
             type, instead of body copy scaled up. */}
         <div data-about-stack="">
+          <div
+            data-about-kopf=""
+            className="mb-12 flex flex-wrap items-baseline justify-between gap-3"
+          >
+            <p className="hud hud-wide text-accent accent-t">
+              <L en="ABOUT — ROLE OR AGENCY WORK" de="ÜBER MICH — STELLE ODER AGENTURARBEIT" />
+            </p>
+            <p className="hud text-muted-dim">S.06 / {SECTIONS}</p>
+          </div>
+
           <div data-about-beat="" className="flex min-h-[92svh] flex-col items-center justify-center overflow-x-clip text-center">
             {/* IT CROSSES THE PAGE'S OWN RULES, and that is the one liberty taken
                 here. Every other edge on this site aligns to --gutter, which the
