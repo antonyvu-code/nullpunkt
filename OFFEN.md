@@ -1371,3 +1371,50 @@ on any list, and neither should go on one before the send.
 11.18.0 and Vercel reads that pin, so the local and remote builds currently agree
 about the version. Upgrading three weeks before sending would trade a working
 agreement for a newer number.
+
+---
+
+## 18 · The shelf card now says what it is — and one window height pays for it
+
+Written 17.08.2026. `lib/projects.ts` has carried `label`, `year`, `role` and
+`oneLiner` on every case since the start; the shelf printed the `kind` and
+nothing else. Six cards answered *what is this* with a category and left *whose
+idea was it*, *when*, and *what did he do* to a click.
+
+The sharper half: **all six front-page cases are `LAB`** — self-initiated,
+nobody commissioned them. Gutjahr, which `ZIELE.md` §7 calls "a real company's
+real site", is in the data an *unsolicited redesign study*: the company is real,
+the brief was not. The page was not saying so. On a site whose logbook records
+the faults of its own instruments, the front page was the one surface still
+quiet about the inconvenient fact.
+
+The card now reads `LAB · 2026 · CONCEPT & BUILD`, the title, and the case's own
+one-liner — which was already written honestly ("not a client brief", "concept
+brand", "a fictional Berlin architecture studio") and was only ever visible one
+click in.
+
+### What it cost, measured, and what is still open
+
+The pin anchors the card **84–155px from the top of the window**, so card height
+is a hard budget, not a preference. First version gave `role` a line of its own:
+**751px**, and VIEW CASE fell off the bottom of every window under ~850.
+
+| window height | card 612 (before) | card 751 (first try) | card 675 (shipped) |
+|---|---|---|---|
+| 900 | fits | +33 spare | **+72 spare** |
+| 820 | fits | **cut 14** | **+31 spare** |
+| 768 | fits | **cut 66** | **+6 spare** |
+| 720 | +24 spare | **cut 114** | **cut 38** |
+
+Fixed by folding `role` into the meta line in place of `kind` — the one-liner
+restates the kind anyway ("WebGL proof" against "a personal technical
+experiment") and never states the role — and by setting the one-liner at 0.82rem
+on a 52ch measure. 44ch is the better measure on paper and cost a fourth line on
+four of the six cards; the pin has no fourth line to give.
+
+**Open, and it is Antony's call: 720px-tall windows still lose the bottom 38px of
+the card**, i.e. the VIEW CASE strip. Not a dead end — the whole card is a
+`<Link>`, so the case is still one click away — but the affordance is clipped
+where it used to fit. Closing it means capping every one-liner at ~104
+characters (two lines at 52ch), which is a copy decision, not a CSS one. Three
+of the six are over: Calibre 181, OSCILLATE 160, Gutjahr 152.

@@ -332,7 +332,33 @@ export default function Selected() {
                     className="flex flex-1 flex-col justify-center border-t px-6 py-6 text-center"
                     style={{ borderColor: "var(--line)" }}
                   >
-                    <p className="hud text-muted-dim">{p.kind.toUpperCase()}</p>
+                    {/* LABEL · YEAR · KIND, not the kind on its own.
+                        `lib/projects.ts` has carried `label`, `year`, `role` and
+                        `oneLiner` on every case since the beginning and the
+                        shelf printed none of them, so six cards answered "what
+                        is this" with a category and left "whose idea was it",
+                        "when", and "what did he actually do" to a click. Every
+                        front-page case is LAB — self-initiated, nobody
+                        commissioned it — and a shelf that does not say so lets a
+                        reader assume client work and find out otherwise on the
+                        next page. The label is first for that reason: the site
+                        records the faults of its own instruments in OFFEN, and
+                        the front page was the one place still quiet about the
+                        inconvenient thing. Same triple the case page opens with
+                        (`work/[slug]`), so shelf and case say one sentence.
+
+                        ROLE AND NOT KIND IN THE THIRD SLOT, AND THAT IS A HEIGHT
+                        DECISION AS MUCH AS AN EDITORIAL ONE. Role first had a
+                        line of its own; measured, that put the card at 751px
+                        against a pin that anchors it 84px from the top, so
+                        VIEW CASE fell off the bottom at every window shorter
+                        than ~850 (cut 14px at 820, 66 at 768, 114 at 720). The
+                        kind is what the one-liner below restates anyway —
+                        "WebGL proof" against "a personal technical experiment" —
+                        while the role is the thing it never says. */}
+                    <p className="hud text-muted-dim">
+                      {p.label} · {p.year} · {p.role.toUpperCase()}
+                    </p>
                     {/* h3 under the section's h2: the case titles are what a
                         screen-reader user navigating by heading is looking for,
                         and they were plain paragraphs. Not caught by FX.07,
@@ -346,6 +372,22 @@ export default function Selected() {
                     <h3 className="font-display mt-2 text-2xl font-medium leading-tight text-ink group-hover:text-accent group-focus-visible:text-accent group-data-[near]:text-accent">
                       {p.title}
                     </h3>
+
+                    {/* WHAT IT IS, IN ITS OWN WORDS. The one-liners were written
+                        honestly and were only ever readable on the case page:
+                        "a personal technical experiment, not a client brief",
+                        "concept brand", "a fictional Berlin architecture
+                        studio". They say LAB in plain language, which is the
+                        whole reason they belong out here.
+                        Held to 52ch — a centred measure costs the eye the start
+                        of every line, so it stays payable only while the lines
+                        are few (the same rule the About beats are set on). 44ch
+                        was tried first and is the narrower, better measure on
+                        paper; it also cost a fourth line on four of the six
+                        cards, and the pin has no fourth line to give. */}
+                    <p className="mx-auto mt-2.5 max-w-[52ch] text-[0.82rem] leading-snug text-muted">
+                      <L en={p.oneLiner} de={p.de?.oneLiner ?? p.oneLiner} />
+                    </p>
                   </div>
 
                   {/* Action — the centre card carries the one filled button. */}
