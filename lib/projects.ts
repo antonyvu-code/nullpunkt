@@ -103,7 +103,7 @@ export const projects: Project[] = [
     status: "Brand concept",
     stack: ["Custom .dc runtime", "Canvas 2D", "GSAP ScrollTrigger", "i18n EN/VI"],
     oneLiner:
-      "An ocean-lifestyle brand told as one continuous page, where every section is an instrument you can touch.",
+      "An ocean-lifestyle brand as one continuous page, where every section is an instrument you can touch.",
     metaLine: "ONE-PAGE · 6 LANG · CANVAS",
     liveUrl: "https://nullpunkt-rosi.vercel.app",
     metrics: [
@@ -173,7 +173,7 @@ export const projects: Project[] = [
       "Gutjahr Dachtechnik is a real Hannover roofing company. This is an unsolicited study — not commissioned, not affiliated. Only the public content of their 2013 site was used.",
     stack: ["Static HTML/CSS/JS", "GSAP + SplitText", "Lenis", "WebP pipeline"],
     oneLiner:
-      "A Hannover roofing company's 2013 TYPO3 site rebuilt twice: once as “Schiefer & Kupfer”, once in a borrowed design language — same content, two systems.",
+      "A Hannover roofing company's 2013 TYPO3 site, rebuilt twice on spec: same content, two design systems.",
     metaLine: "REDESIGN STUDY · WCAG AA · 2 VERSIONS",
     liveUrl: "https://nullpunkt-gutjahr.vercel.app",
     metrics: [
@@ -340,7 +340,7 @@ export const projects: Project[] = [
     status: "Studio concept, Berlin",
     stack: ["Next.js 16 App Router", "GSAP + Lenis", "Self-built i18n DE/EN"],
     oneLiner:
-      "A fictional Berlin architecture studio — the Nullpunkt style with its polarity inverted: paper-white ground, ink text, one warm gray accent.",
+      "A fictional Berlin architecture studio: the Nullpunkt system with its polarity inverted, on paper.",
     metaLine: "STUDIO · DE/EN · INVERTED",
     liveUrl: "https://nullpunkt-mono.vercel.app",
     metrics: [
@@ -396,7 +396,7 @@ export const projects: Project[] = [
     status: "Interactive concept",
     stack: ["Vite + vanilla JS", "Canvas 2D waveform", "System type pairing", "HOT / COLD signal switch"],
     oneLiner:
-      "An independent electronic label and 24-hour radio built to prove a single claim: a page can carry exactly one saturated colour and let that colour mean “alive”.",
+      "An electronic label and 24-hour radio, built to prove one claim: a single saturated colour can mean “alive”.",
     metaLine: "RADIO · SINGLE-SIGNAL · VITE",
     liveUrl: "https://nullpunkt-oscillate.vercel.app",
     metrics: [
@@ -685,7 +685,7 @@ export const projects: Project[] = [
     role: "Concept & build",
     status: "Brand concept",
     stack: ["Three.js WebGPU/TSL", "GSAP"],
-    oneLiner: "A brand website for a high-end watch manufacture (concept brand): no pre-rendered video, but an actual 3D watch running live in the browser that literally comes apart as you scroll.",
+    oneLiner: "An invented watch manufacture: no pre-rendered video, a real 3D calibre that comes apart as you scroll.",
     metaLine: "BRAND · 3D · WEBGPU · LIVE-RENDERED",
     liveUrl: "https://nullpunkt-calibre.vercel.app",
     metrics: [
@@ -723,7 +723,7 @@ export const projects: Project[] = [
     ],
     de: {
       title: "Calibre",
-      oneLiner: "Eine Markenwebsite für eine hochwertige Uhrenmanufaktur (Konzeptmarke): keine vorgerenderten Videos, sondern eine echte 3D-Uhr, die live im Browser läuft und sich beim Scrollen buchstäblich zerlegt.",
+      oneLiner: "Eine erfundene Uhrenmanufaktur: kein vorgerendertes Video, ein echtes 3D-Kaliber, das beim Scrollen zerfällt.",
     },
   },
   {
@@ -743,7 +743,7 @@ export const projects: Project[] = [
     role: "Concept & build",
     status: "Technical proof",
     stack: ["Three.js WebGPU/TSL", "GSAP"],
-    oneLiner: "A personal technical experiment, not a client brief: how far can a single value be pushed as a storytelling device?",
+    oneLiner: "A personal experiment, not a client brief: how far can one bit per pixel be pushed as storytelling?",
     metaLine: "WEBGL PROOF · 60FPS · TSL DITHER",
     liveUrl: "https://nullpunkt-one-bit.vercel.app",
     metrics: [
@@ -781,7 +781,7 @@ export const projects: Project[] = [
     ],
     de: {
       title: "One Bit From Home",
-      oneLiner: "Ein persönliches Technik-Experiment, kein Kundenauftrag: wie weit lässt sich ein einziger Wert als Erzählmittel treiben?",
+      oneLiner: "Ein persönliches Experiment, kein Kundenauftrag: wie weit trägt ein Bit pro Pixel als Erzählmittel?",
     },
   },
 ];
