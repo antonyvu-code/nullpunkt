@@ -1541,3 +1541,70 @@ Desktop reduced-motion: **0 cards ever develop** — the same as before this
 change, since the gate never let desktop through at all. Whether a reduced-motion
 reader should get the pass at all is a separate question and is not answered
 here.
+
+---
+
+## 21 · The pinned block was always one header too tall — fixed 17.08.2026
+
+Antony, from a 1904-wide window: during the run in SELECTED the section's name
+and number are not there. Screenshot showed them half-eaten by the fixed bar.
+
+**Two causes, and the second only shows on wide monitors.**
+
+1. `ShelfTransport` pinned with `start: "top top"` and the window is
+   `min-height: 100svh`, so the pinned block's top edge went to the viewport's
+   top edge — behind a header that is `fixed` over it. The block was therefore
+   **always exactly one header taller than its room**, at every width. At 1440
+   there was enough slack in the block for that to go unnoticed.
+2. `--carriage-card: 44vw` is a ratio with no ceiling, and the plate is locked
+   to 16:10, so the card's **height** grew with the monitor: 634×662 at 1440,
+   838×790 at 1904, and it would have been 1126 wide at 2560. At 1904 the card
+   alone nearly filled the window and the heading was what got pushed out.
+
+Measured before: heading at top 46 against a header bottom of 57 — eaten by
+11px, with `S.01 / 07` eaten by 23.
+
+**And today's own work made it worse.** Putting the one-liner and the meta line
+on the card (§18) added ~50px of card height, which is ~50px the heading no
+longer had. The defect predates it; the visibility does not.
+
+### The header now publishes its own height
+
+`--kopf`, written by `Chrome.tsx` from a `ResizeObserver`. It cannot be a
+constant: the bar is **86px at 768**, **68 at 1024** and **57 from 1440** up,
+because the readout wraps. Anything filling "the rest of the screen" has to
+subtract a number that changes with width.
+
+The pin window is `calc(100svh - var(--kopf, 0px))`, both of the shelf's
+triggers start at `top top+=kopf()` (the parallax one too, or the plates would
+drift before the run began), and the card is `min(44vw, 640px)`.
+
+### Verified, pointer parked outside the section, sampled through the pinned run
+
+| window | header | heading clear of bar | VIEW CASE clear | card | cards probed |
+|---|---|---|---|---|---|
+| 2560×1000 | 57 | **+125** | +69 | 640×666 | 6 |
+| 1904×942 | 57 | **+96** | +40 | 640×666 | 6 |
+| 1680×942 | 57 | +96 | +40 | 640×666 | 6 |
+| 1440×900 | 57 | +77 | +21 | 634×662 | 6 |
+| 1280×800 | 57 | +49 | **−7** | 563×618 | 6 |
+| 1024×768 | 68 | +62 | **−5** | 451×560 | 5 |
+
+Horizontal overflow is unchanged in kind — `overflow-x: clip` holds and
+`scrollX` stays **0** at 1440, 1904 and 2560 even when scripted to 9999px. The
+reported `overflowX` number grows with the cap (the track's lead-in is
+`(100% − card)/2`, so a smaller card means a wider lead-in), which is the motion
+artefact `scripts/README.md` trap 6 already describes, not a page that scrolls.
+
+**What got slightly worse, stated:** at 1280×800 and 1024×768 the VIEW CASE
+strip is now clipped by 5–7px, where before the heading was clipped instead.
+That is a trade of 7px of button for 11–23px of section label, taken knowingly.
+
+### ABOUT was left alone, on purpose
+
+S.06's kicker sits **outside** `[data-about-stack]`, so it is outside what
+`AboutDepth` pins and it is gone for the whole run — structural, not overflow.
+Antony's call was to leave it: the fixed bar already prints `S.06 ABOUT` the
+entire time, so the identity is not lost, and the three beats are composed to
+hold the frame alone. Putting a label back in would give the passing line
+something to collide with.

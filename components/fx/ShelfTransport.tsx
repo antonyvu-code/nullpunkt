@@ -106,12 +106,26 @@ export default function ShelfTransport() {
            specimen reaches the head. Anything here that reaches past this
            section's own boundary is this effect deciding how the NEXT one gets
            to appear, which is not its business. */
+        /* The fixed bar's height, read at refresh rather than captured: it is
+           86 at 768, 68 at 1024 and 57 from 1440 up, so a window resized across
+           those widths must move the pin with it. Chrome.tsx publishes it as
+           --kopf; this reads the element, because ScrollTrigger wants a number
+           and a getComputedStyle round-trip for a value we can measure directly
+           only adds a way for the two to disagree. */
+        const kopf = () =>
+          Math.round(document.querySelector("[data-chrome]")?.getBoundingClientRect().height ?? 0);
+
         const tween = gsap.to(track, {
           x: () => -travel(),
           ease: "none",
           scrollTrigger: {
             trigger: win,
-            start: "top top",
+            /* BELOW THE BAR, NOT UNDER IT. `top top` puts the pinned block's top
+               edge at the viewport's top edge, which is behind a header that is
+               fixed over it — so the block was always one header taller than its
+               room, and at 1904 the section's own heading and number were the
+               part that got eaten. OFFEN §21. */
+            start: () => "top top+=" + kopf(),
             end: () => "+=" + travel(),
             pin: true,
             /* TRANSFORM, NOT position: fixed — and this is the whole of the
@@ -212,7 +226,12 @@ export default function ShelfTransport() {
               ease: "none",
               scrollTrigger: {
                 trigger: win,
-                start: "top top",
+                /* The same start as the pin above, and it has to be the same
+                   expression: this drives the plates' parallax across exactly
+                   the stretch the carriage is pinned for, and a start that
+                   disagreed by one header would leave the plates drifting
+                   before the run began. */
+                start: () => "top top+=" + kopf(),
                 end: () => "+=" + travel(),
                 scrub: 1,
                 invalidateOnRefresh: true,

@@ -710,8 +710,21 @@ button:focus-visible .np-walze .np-walze-b {
        explains why anything less stops arguing. Stated once, because the
        lead-in below has to be derived from it and the two drifting apart is
        exactly how the last specimen stops reaching the head. */
-    --carriage-card: 44vw;
-    min-height: 100svh;
+    /* CAPPED AT 640, 17.08.2026. 44vw alone is a ratio with no ceiling: it gave
+       a card 634px wide at 1440, 838 at 1904 and 1126 at 2560, and since the
+       plate is locked to 16:10 the card's HEIGHT grew with the monitor too —
+       790px tall at 1904, which no longer fits under a fixed header inside one
+       screen. A specimen plate a metre wide is also not a better specimen; 640
+       is the size the shelf was composed at and the size the rest of the page's
+       measure is set against. Below 1455 nothing changes, because 44vw is the
+       smaller of the two there. */
+    --carriage-card: min(44vw, 640px);
+    /* MINUS THE HEADER, or the pinned block is a screen tall inside a screen
+       that already has a fixed bar across the top of it — see --kopf in
+       Chrome.tsx for the measurement that found this. The fallback is 0px so a
+       page without the bar (or a first paint before the observer runs) gets the
+       old behaviour rather than a broken calc. */
+    min-height: calc(100svh - var(--kopf, 0px));
     display: flex;
     flex-direction: column;
     justify-content: center;

@@ -155,6 +155,33 @@ export default function Chrome() {
      it correct, and it is what a bar that reports a position should do. */
   useEffect(() => setOffen(false), [marke]);
 
+  /* THE BAR PUBLISHES ITS OWN HEIGHT, because two other things need it and
+     neither can be told a constant. This header is `fixed`, so it takes 57px
+     out of the usable window at 1440 — and 68 at 1024, and 86 at 768, where the
+     readout wraps. Anything that wants to fill "the rest of the screen" has to
+     subtract a number that changes with width.
+
+     What went wrong without it, measured 17.08.2026: the shelf's pin window is
+     100svh and its pin starts at `top top`, so the pinned block was always
+     exactly one header taller than the space it had. At 1440 the slack in the
+     block absorbed it; at 1904, where a card is 838 wide and 790 tall, it did
+     not, and S.01's own heading sat 11px under this bar with its section number
+     23px under it.
+
+     Written from a ResizeObserver rather than once at mount: the height changes
+     with the wrap, and a window dragged across that width would otherwise leave
+     every consumer holding the old number. */
+  useEffect(() => {
+    const bar = document.querySelector<HTMLElement>("[data-chrome]");
+    if (!bar) return;
+    const publish = () =>
+      document.documentElement.style.setProperty("--kopf", `${Math.round(bar.getBoundingClientRect().height)}px`);
+    publish();
+    const ro = new ResizeObserver(publish);
+    ro.observe(bar);
+    return () => ro.disconnect();
+  }, []);
+
   return (
     <>
       {/* data-chrome is the hook the hero's reveal lifts this bar with — the
