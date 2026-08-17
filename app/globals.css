@@ -1037,32 +1037,40 @@ button:focus-visible .np-walze .np-walze-b {
      contact form below — the frame has to be a frame. */
   overflow: clip;
 
-  /* AND THE FRAME IS THE WINDOW, NOT THE COLUMN — fixed 17.08.2026.
-     Two deliberate decisions were cancelling each other. The claim is set at
-     `w-[112%]` on purpose: page.tsx calls it "the one liberty taken here", a
-     line allowed over the page's own POS 08% / 92% rules so it reads as a
-     refusal. This clip was cutting exactly that overhang off, because it
-     clipped at the column edge — and the numbers matched to the pixel:
-     1791 − 1599 = 192px at a 1904 window, which is what was measured
-     disappearing, 96px from each end of the sentence, at FULL opacity, before
-     the departing tween had begun to fade anything. On the flat page (FX.08
-     off) the same h2 overhangs correctly, so the section looked right until the
-     effect was switched on, and only at widths where the balanced line actually
-     fills the measure — 1440 never showed it, 1904 always did.
+}
 
-     `overflow: clip` clips at the PADDING box, so the fix is to give the frame
-     the page's own margin back as padding and pull the box out by the same
-     amount: the layout box the beats are laid out in is unchanged (still the
-     column), while the clipping region becomes the whole window. A beat at
-     z = +380 is still caught — it is one and a half screens wide and the window
-     is one — which is the job this clip was here to do.
+/* THE CLAIM GIVES UP ITS OVERHANG WHILE THE FRAME IS ON — 17.08.2026, and this
+   is the second attempt at it; the first one is written up because it was
+   wrong in an instructive way.
 
-     9.5238% is derived, not chosen: `--gutter` is 8% OF THE PAGE, but a margin
-     on a child of <main> resolves against main's content box, which is 84% of
-     the page — 8 / 0.84. Same number, same reason, as the UNDER THE HOOD band;
-     if `--gutter` moves, both move. */
-  margin-inline: -9.5238%;
-  padding-inline: 9.5238%;
+   THE FAULT. `page.tsx` sets the claim at `w-[112%]` on purpose and calls it
+   "the one liberty taken here": a line allowed over the page's own POS 08% /
+   92% rules so it reads as a refusal. The frame above carries `overflow: clip`
+   so a beat at the near end cannot paint over Under the Hood and the contact
+   form. The clip was taken at the column edge, so it removed exactly the
+   overhang the h2 exists to make — 1791 − 1599 = 192px at a 1904 window, 96
+   from each end of the sentence, at FULL opacity, for ~300px of scroll. Not the
+   pass; a static cut. 1440 never showed it because the balanced line does not
+   fill the measure there. With the effect off the same h2 overhangs correctly.
+
+   THE FIRST FIX, AND WHY IT MADE THINGS WORSE. `overflow: clip` clips at the
+   padding box, so the frame was given the page margin back as padding and
+   pulled out by the same amount — layout box unchanged, clip region the whole
+   window. It measured correct in isolation and was wrong on the page, because
+   THE FRAME IS PINNED: ScrollTrigger freezes a pinned element's box by writing
+   its measurements inline, and what it writes is
+   `margin: 0; width: 1599.38px; padding: 0 152.312px`. It kept the padding and
+   zeroed the margin. With border-box that took the content box from 1599 to
+   1295 and moved all three beats 152px off centre — which is what Antony saw
+   as "the typography is not centred". A negative margin cannot survive a pin.
+
+   SO THE TYPE GIVES WAY, NOT THE FRAME. While the effect is on, the claim sits
+   at 100% and is never clipped at rest; the flat page and reduced motion keep
+   the 112% liberty, which is where it can actually be honoured. What is lost is
+   real and worth naming: in the depth build the line no longer crosses the
+   page's margin, so the refusal is only in the static build. */
+[data-about-stack="on"] h2[data-satz] {
+  width: 100%;
 }
 
 [data-about-stack="on"] > [data-about-beat] {
