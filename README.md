@@ -84,6 +84,19 @@ the *One Bit From Home* case, rebuilt with a TSL node material doing 4×4 Bayer
 dithering in two tones. `three/webgpu` is imported inside `useEffect`, so the
 homepage stays statically prerendered; WebGPU falls back to WebGL2 by itself.
 
+*And when there is no GPU at all it falls back to the screenshot, which is the
+part worth reading.* Measured under `chrome --disable-gpu`: WebGL2 is not there
+either, so the renderer dereferenced a null context and left a 632×395 empty
+box — on the one machine where nothing else on the page had failed. A fallback
+chain needs a rung for "there is no rung". The cell now asks
+[`lib/gpu.ts`](lib/gpu.ts) for a real context before importing anything, and
+without one it hands the cell to this case's PLATE A: the specimen becomes what
+its four siblings already are, and the plate it becomes happens to be the most
+literal one on the shelf — *two colours and one bit per pixel*. Nothing moves
+when it swaps (the cell is fixed at 16:10), the live path is what every reader
+with a GPU still gets, and the reader without one downloads three chunks fewer
+rather than 252KB they cannot use.
+
 **Numbers carry their source.**
 Every figure in a case study is a `{ label, value, source }` triple — "70K
 triangles" says nothing without *counted where*. The rule is enforced by the

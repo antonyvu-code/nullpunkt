@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -12,6 +13,7 @@ import { L } from "@/components/Lang";
 import { Walze } from "@/components/Walze";
 import EchoProbe from "@/components/EchoProbe";
 import Registration from "@/components/Registration";
+import { hasGpuBackend } from "@/lib/gpu";
 
 /**
  * The shelf is the curated cut itself, not a second hand-written list. When
@@ -108,6 +110,21 @@ function loslassen(e: React.MouseEvent<HTMLUListElement>) {
  * a second copy of this component.
  */
 export default function Selected() {
+  /* LIVE FIRST, THEN FALL BACK — never the other way round.
+     The specimen cell renders the probe on the server and on the first client
+     paint, and only steps down to PLATE A once an effect has established there
+     is no GPU stack (`lib/gpu.ts`, and OFFEN §16 for the machine that found
+     this). Seeding it the other way would look safer and cost every reader with
+     a working GPU an image request for a plate they never see — and the
+     prerendered HTML has to be one HTML, the same for everybody.
+     Nothing moves when it swaps: [data-plate] fixes the cell at 16:10 and both
+     branches fill it absolutely, so the baseline's CLS 0 (§13) is not spent
+     here. */
+  const [gpu, setGpu] = useState(true);
+  useEffect(() => {
+    if (!hasGpuBackend()) setGpu(false);
+  }, []);
+
   return (
     <section
       id="selected"
@@ -247,7 +264,15 @@ export default function Selected() {
                       trimmed down its sides. Change the plate format and this
                       number has to move with it. */}
                   <div data-plate="" className="relative aspect-[16/10] w-full overflow-hidden">
-                    {primary ? (
+                    {/* `gpu`, not just `primary`. A reader with no hardware
+                        acceleration got a 632×395 empty box here — see the note
+                        on the state above. The step down is to this case's own
+                        PLATE A, so the card becomes what the other four already
+                        are: a specimen. It happens to be the most literal plate
+                        on the shelf — "TWO COLOURS AND ONE BIT PER PIXEL" — so
+                        the dither the probe draws in real time arrives as the
+                        thing it was drawing. */}
+                    {primary && gpu ? (
                       // Absolute, not in flow. EchoProbe is h-full w-full and
                       // sizes its canvas from the parent's measured rect — left
                       // in flow it would feed its own height back into a cell

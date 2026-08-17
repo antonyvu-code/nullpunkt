@@ -1258,6 +1258,62 @@ of a rendered frame, a composed still drawn in Canvas 2D in the same language as
 M4, or no card at all. Note that hiding it collides with the spirit of M2
 (a degraded mode must not lose content).
 
+### Closed 17.08.2026 — it falls back to PLATE A
+
+Not a fourth option, the cheapest of the three: the cell hands itself to the
+case's **own PLATE A**, so the specimen degrades into exactly what the other
+four cards on the shelf already are. No new visual language, no drawing to
+maintain, and M2 is satisfied because the content is not lost — the reader gets
+the same thing the case page would give them.
+
+It reads as a decision rather than as a patch for one reason: `one-bit-a.jpg` is
+captioned *TWO COLOURS AND ONE BIT PER PIXEL*. The dither the probe computes in
+real time arrives as a photograph of the dither it was computing. A machine that
+cannot run the press gets the plate.
+
+- `lib/gpu.ts` now holds the one probe, because two places need the same answer
+  and must not disagree: EchoProbe, which enforces the 252KB refusal, and
+  Selected, which decides what the cell shows.
+- **Live first, then fall back.** The prerender and the first client paint are
+  the canvas for everybody; an effect steps down to the plate. Seeding it the
+  other way would cost every reader with a GPU an image request for a plate they
+  never see, and the prerendered HTML has to be one HTML.
+- Nothing moves in the swap — `[data-plate]` fixes the cell at 16:10 and both
+  branches fill it absolutely, so §13's CLS 0 is not spent here.
+
+**Verified, `pnpm build` green, both conditions in one session at 1440×900:**
+
+| | GPU | `--disable-gpu` |
+|---|---|---|
+| unmasked renderer | RTX 5070 Ti / D3D11 | **no WebGL context** |
+| specimen cell | canvas 631×394, tumbling | **PLATE A, painted** (`w=750`) |
+| console errors/warnings/throws | 0 | 0 |
+| chunk requests | 19 | **16** |
+| docHeight · headings | 15931 · 17 | 15931 · 17 |
+
+### The instrument said "in view" while the card was 255px off the right edge
+
+Worth more than the fix, and the same family as trap 5. The first three runs
+reported the plate as **loaded into the DOM and never painted** — `currentSrc`
+empty, `naturalWidth` 0 — which reads exactly like a broken image, and the
+cropped screenshot backed it up by coming out black.
+
+Both readings were the instrument. The arrival test checked `top` and `bottom`
+only; at the scroll position it settled on, the specimen sat at **x 1695…2326**
+in a 1440 viewport, because FX.03 turns that shelf into a carriage and the card
+was still out on the track. `IntersectionObserver` said `isIntersecting: false`,
+so Chrome was *correctly* refusing to load a lazy image that was off screen. A
+hand-written `fetch` of the same URL returned **200 in 65ms** — which is what
+proved the server, the file and the path were all fine and the test was not.
+
+The black crop was a second, independent fault: CDP `Page.captureScreenshot`
+takes its `clip` in **document** coordinates, and it was being handed
+viewport-relative ones from a page scrolled to 4400px, so it photographed a
+patch of the hero.
+
+**On a page with a horizontal carriage, an in-view test that checks one axis is
+not an in-view test.** Now in `scripts/README.md` as trap 7.
+
 ### ⚠ Check the plan before clicking
 
 The team name `atv1989info-4591's projects` is auto-generated and is most likely

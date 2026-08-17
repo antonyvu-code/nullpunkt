@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { FRAME_MS } from "@/lib/motion";
+import { hasGpuBackend } from "@/lib/gpu";
 
 /**
  * ECHO-1, live — the centre specimen of SELECTED. The probe from the "One Bit
@@ -24,16 +25,15 @@ import { FRAME_MS } from "@/lib/motion";
  * canvas still at its 300×150 default, on the one machine where nothing else on
  * the page had failed. A fallback chain needs a rung for "there is no rung".
  *
- * So the backend is checked before anything is imported — a reader who cannot
- * use it does not pay 252KB to find that out — and `init()` is guarded as well,
- * because a present `navigator.gpu` does not promise a working adapter.
- * The empty card is deliberate for now: what it should show instead is an
- * aesthetic decision and is still open.
+ * So the backend is checked before anything is imported (`lib/gpu.ts`, which
+ * also records why gating on `navigator.gpu` is worthless) — a reader who
+ * cannot use it does not pay 252KB to find that out — and `init()` is guarded
+ * as well, because a present adapter interface does not promise a working one.
  *
- * Both guards were needed and the first one had to be rewritten: gating on
- * `"gpu" in navigator` looked right, passed under `--disable-gpu`, and let the
- * whole chunk download before failing. The interface being present says nothing
- * about an adapter being available.
+ * WHAT THE READER SEES INSTEAD IS NO LONGER THIS FILE'S PROBLEM. Settled
+ * 17.08.2026: `Selected` asks `lib/gpu.ts` the same question and gives the cell
+ * to PLATE A, so the specimen degrades into what its four siblings already are.
+ * This component returns without rendering and stays a probe.
  */
 export default function EchoProbe() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -45,26 +45,12 @@ export default function EchoProbe() {
     let disposed = false;
     let cleanup = () => {};
 
-    /* THE GATE IS WebGL, NOT `navigator.gpu`. Checking `"gpu" in navigator` was
-       tried first and is worthless: under `chrome --disable-gpu` the property is
-       still there — the interface exists, the adapter does not — so the gate
-       passed, 252KB came down, and the renderer warned and threw anyway.
-       Measured: the throw stopped, the download did not.
-       A context is the honest signal. Both backends come off the same GPU stack,
-       so no WebGL means no adapter either. The one case this gets wrong —
-       WebGPU present while WebGL is absent — skips the card rather than
-       crashing, which is the same outcome as failing, minus the console noise.
-       Probed on a THROWAWAY canvas, never on ours: a canvas keeps the first
-       context type it is given, so asking this one would spend it. */
-    const hasBackend = (() => {
-      try {
-        const probe = document.createElement("canvas");
-        return !!(probe.getContext("webgl2") || probe.getContext("webgl"));
-      } catch {
-        return false;
-      }
-    })();
-    if (!hasBackend) return;
+    /* The first rung, and it stays here even though Selected asks the same
+       question one level up: this component is what downloads the 252KB, so
+       this component is where the refusal has to be enforceable. Selected
+       unmounting us is a rendering decision; this is a guarantee.
+       Why the gate is a context and not `navigator.gpu` is in lib/gpu.ts. */
+    if (!hasGpuBackend()) return;
 
     (async () => {
       const THREE = await import("three/webgpu");

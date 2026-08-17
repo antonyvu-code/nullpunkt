@@ -80,3 +80,16 @@ returning, so a run cannot report numbers from a cell it is not in.
    `scrollX` is **0**, so nothing scrolls sideways. A single probe run reported
    0 at 1440 and two `shots.mjs` runs reported 575 at the same width: a stateful
    animated page needs the same run-count discipline as any other measurement.
+7. **"In view" on this page is a two-axis question, and a clip is not.** FX.03
+   runs the shelf sideways, so a card can be perfectly placed vertically and
+   still be off the right edge — measured 17.08.2026 at x 1695…2326 in a 1440
+   viewport while a `top`/`bottom` test called it visible. Everything downstream
+   then lies in a plausible way: the lazy plate in that card reported
+   `currentSrc: ""` and `naturalWidth: 0`, which reads as a broken image and is
+   in fact Chrome doing exactly the right thing. `IntersectionObserver` is the
+   honest test; a hand-written `fetch` of the same URL (200 in 65ms) is what
+   separates a broken asset from a mis-aimed instrument.
+   And `Page.captureScreenshot`'s `clip` is in **document** coordinates — hand it
+   a `getBoundingClientRect()` from a scrolled page and it photographs somewhere
+   else entirely, which on this page means a black rectangle from the hero. Add
+   `scrollY`/`scrollX`, or crop from a full screenshot.
