@@ -1767,3 +1767,53 @@ weakest and where the NVDA read has to look.
   bench asserts, which is Antony's call on the page's outline.
 - Contrast in the **borrowed-accent** state across all 12 case colours: already
   measured in `ZIELE.md` §9-neu — 12/12 over 4.5:1 on the dark ground.
+
+---
+
+## 24 · Where the next session starts — written 17.08.2026, end of the morning
+
+Stage 4 was **paused deliberately, not abandoned**, one pass in. Antony's reason:
+he wants small changes to the frame and the motion first, and those are §1/§3
+work — going back into stage 4 before they land would mean sweeping a page that
+is about to move.
+
+**Read in this order:** `../ZIELE.md` §7 and §9 · this file §18–§23 · then the
+open items below. Everything argued today is in §18–§23, including the three
+readings that turned out to be the instrument rather than the page.
+
+### Open and waiting on Antony
+
+- **Small changes to the frame and the motion.** Named but not yet specified —
+  ask what they are before proposing anything. This is the whole reason stage 4
+  stopped where it did.
+- **Field note names are `<span>`s at 4xl–7xl on `/` and `/work`.** The same
+  defect class as §23's Defect 2, in the largest type on both pages. Making them
+  headings takes the home page from **17 to about 25**, and 17 is the number the
+  bench asserts to prove a run attached to the right page — so the assertion in
+  `scripts/` moves with it. Antony's call on the outline.
+- **720px-tall windows** still lose 25px of the shelf card (§18). Accepted; the
+  way to close it is copy, not CSS.
+- **Beat 1 of About** still clips 178–331px while it departs (§22). A conflict
+  between a full-width plate and a window-sized frame, not a bug.
+- **Reduced-motion desktop gets no develop pass at all** (§20). Never did; not a
+  regression; nobody has decided whether it should.
+
+### Open and needing no decision, only doing
+
+- **NVDA + Chrome**, in QUY-TRINH §4's order: landmarks → headings → Tab top to
+  bottom → the project's S3, hover and focus giving the same answer. Aimed at
+  `/`, one case page, and `/work`.
+- **Contrast over the canvas and over the plate images** — the one thing §23's
+  sweep provably cannot see.
+
+### Before the Bewerbung, and none of these has ever run
+
+The alias · the repo going public · **a real phone**. The phone is ten minutes
+with a device already in the room and is the cheapest of everything on this
+page.
+
+### State of the tree
+
+16 commits today, all on `main`, **not pushed**. Working tree clean, `pnpm build`
+green, and every number quoted above was measured on the built page rather than
+in dev.
