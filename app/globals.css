@@ -413,20 +413,46 @@ button:focus-visible .np-walze .np-walze-b {
   --scan: 1;
 }
 
-/* The pointer is not the only probe. On touch there is no hover at all, so the
-   card the page is currently borrowing from is the card being read — the same
-   gap, and the same fix, as the accent itself.
+/* The pointer is not the only probe. The card the page is currently borrowing
+   from is the card being read, and that is true whether a pointer exists or not
+   — AccentScroll writes [data-probed] on every device.
 
-   Gated on (hover: none) rather than left unconditional: where a pointer
-   exists, hover already answers this, and having plates develop on scroll AS
-   WELL would put four passes on screen for a gesture the reader did not aim.
-   AccentScroll writes [data-probed] on every device; this is what decides who
-   honours it, which keeps the decision in one declarative place instead of a
-   media query duplicated in JS. */
-@media (hover: none) {
-  [data-probed] {
-    --scan: 1;
-  }
+   THIS WAS GATED ON (hover: none) UNTIL 17.08.2026, and the gate was wrong from
+   the reader's side. The argument for it was that where a pointer exists, hover
+   already answers this, and developing on scroll as well would put "four passes
+   on screen for a gesture the reader did not aim". The premise is what failed:
+   [data-probed] is written on exactly ONE element at a time — AccentScroll's
+   probe() removes it from the previous card before setting the next — so this
+   was never four passes, it was one. What the gate actually bought was a shelf
+   that sat completely inert on a desktop unless the pointer happened to be
+   inside it: the page borrowed the colour, the chrome changed, and the six
+   cards it was borrowing FROM showed nothing. The carriage's whole argument is
+   that the wheel drives the probe and the pointer is not the only way in
+   (FX.03); the stylesheet was quietly denying it on the devices that have a
+   wheel.
+
+   THE POINTER STILL WINS WHEN THERE IS ONE. Same rule the accent itself follows
+   in AccentScroll (`data-zeiger`): a reader who is pointing at something has
+   said what they want read, and no measurement gets to argue. So while any card
+   in the list is [data-near], the scroll probe stands down on every other card
+   — otherwise the hovered card and the measured card would both be developed
+   and the reader would see two answers to one question. */
+[data-card][data-probed] {
+  --scan: 1;
+}
+
+[data-transport-track]:has([data-card][data-near]) [data-card][data-probed]:not([data-near]) {
+  --scan: 0;
+}
+
+/* And the title with it. `group-data-[probed]:text-accent` in Selected.tsx puts
+   the measured card's heading on the accent; this takes it back off when the
+   pointer has overruled the measurement, because --accent is by then the
+   HOVERED card's colour and a heading wearing another card's green is worse
+   than a heading that stayed ink. Written here rather than in the class list
+   because the condition is about a sibling, which a utility class cannot see. */
+[data-transport-track]:has([data-card][data-near]) [data-card][data-probed]:not([data-near]) h3 {
+  color: var(--ink);
 }
 
 /* ——— REGISTRATION ————————————————————————————————————————————————————————

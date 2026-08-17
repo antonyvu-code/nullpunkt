@@ -1469,3 +1469,75 @@ Verified at five widths, band vs window and hood's text vs a normal section:
 
 If `--gutter` ever moves off 8%, 9.5238% has to move with it. It is derived, not
 chosen, and the comment in `app/page.tsx` carries the derivation.
+
+---
+
+## 20 · The shelf was inert on the machine it was designed for — 17.08.2026
+
+Antony, scrolling with the pointer parked outside the section: the six cards do
+not change and no plate develops. Two separate faults under one symptom, both
+found by measurement, both older than today.
+
+### One: the develop pass was gated to touch devices
+
+```css
+@media (hover: none) { [data-probed] { --scan: 1; } }
+```
+
+The stated reason was that where a pointer exists hover already answers this,
+and developing on scroll as well would put *"four passes on screen for a gesture
+the reader did not aim"*. **The premise was false.** `AccentScroll.probe()`
+removes `data-probed` from the previous element before setting the next, so it
+has always been on exactly ONE element at a time. There were never four passes.
+
+What the gate actually bought: a shelf that sat completely inert on a desktop
+unless the pointer happened to be inside it. The page borrowed the colour, the
+chrome changed — and the six cards it was borrowing *from* showed nothing. FX.03
+exists to argue that the wheel drives the probe and the pointer is not the only
+way in; the stylesheet was denying it on every device that has a wheel.
+
+Measured after, pointer at the window's corner, scrolling the pinned run:
+
+| scroll | accent | cards lit | which |
+|---|---|---|---|
+| 3800 | #F5901E | 1 | ROSI Ocean Co. |
+| 4400 | #4CE04C | 1 | One Bit From Home |
+| 5000 | #C8A24B | 1 | Calibre |
+| 5600 | #FF4A1C | 1 | OSCILLATE |
+
+### Two: the shelf's hover-borrow never actually held
+
+Pointing at a card that is *not* the one being measured exposed it: the hovered
+card lit up **wearing the measured card's colour**. `AccentScroll` re-applies on
+every scroll update and, while the carriage is on screen, **on every tick**, so a
+colour written by `Selected`'s hover was overwritten within a frame.
+
+The mechanism to prevent exactly this already existed and the shelf was not
+using it: `FieldNotes` raises `data-zeiger` on `<html>` and `AccentScroll`
+refuses to write while it is up — *a reader who is pointing has said what they
+want read, and no measurement gets to argue*. `Selected` now raises and lowers
+the same flag, in the same order (flag first, then the colour). One mechanism,
+not two.
+
+This was never visible before because the plate did not develop on desktop, and
+because probe and pointer usually agree about which card is in the middle.
+
+### Verified, full cycle, and the stuck-flag case FieldNotes hit first
+
+| step | data-zeiger | accent | lit |
+|---|---|---|---|
+| before hover | false | #C8A24B | Calibre |
+| hovering another card | **true** | **#4CE04C** | One Bit From Home |
+| pointer leaves the list | false | #C8A24B | Calibre |
+| scrolling on | false | #FF4A1C | OSCILLATE |
+
+Never more than one card lit in any state. An unmount cleanup lowers the flag as
+well, because a reader who clicks a card with the cursor still inside it would
+otherwise hand `/work` a document with `data-zeiger` up and no shelf left to
+lower it — every scroll-driven borrow on that page would stand down for good.
+
+Phone (390, touch): unchanged, all six develop in turn, never more than one.
+Desktop reduced-motion: **0 cards ever develop** — the same as before this
+change, since the gate never let desktop through at all. Whether a reduced-motion
+reader should get the pass at all is a separate question and is not answered
+here.

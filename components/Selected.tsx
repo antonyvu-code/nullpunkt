@@ -87,6 +87,18 @@ function naechste(e: React.MouseEvent<HTMLUListElement>) {
   if (!beste) return;
   for (const k of karten) if (k !== beste) k.removeAttribute("data-near");
   beste.setAttribute("data-near", "");
+  /* data-zeiger FIRST, then the colour — the same order and the same attribute
+     FieldNotes uses, because this is the same problem and deserves one
+     mechanism rather than two.
+     WHY IT IS NEEDED HERE AT ALL, measured 17.08.2026: AccentScroll re-applies
+     on every scroll update AND on every tick while the carriage is on screen,
+     so a colour written by hover was being overwritten within a frame. The
+     shelf's hover-borrow has therefore never actually held while the carriage
+     was running — it looked like it did, because the probe and the pointer
+     usually agree about which card is in the middle. Pointing at a DIFFERENT
+     card was the case that exposed it: the hovered card lit up wearing the
+     measured card's colour. */
+  document.documentElement.setAttribute("data-zeiger", "");
   if (beste.dataset.accent) setAccent(beste.dataset.accent);
 }
 
@@ -94,6 +106,10 @@ function loslassen(e: React.MouseEvent<HTMLUListElement>) {
   e.currentTarget
     .querySelectorAll<HTMLElement>("[data-near]")
     .forEach((k) => k.removeAttribute("data-near"));
+  /* Lowered before the rest colour is written, or the write below is the one
+     that gets refused. A stray data-zeiger leaves the whole page's scroll-driven
+     borrow politely standing down forever — FieldNotes learned that one first. */
+  document.documentElement.removeAttribute("data-zeiger");
   setAccent(homeAccent);
 }
 
@@ -124,6 +140,13 @@ export default function Selected() {
   useEffect(() => {
     if (!hasGpuBackend()) setGpu(false);
   }, []);
+
+  /* And lower the flag on the way out. `loslassen` covers the pointer leaving
+     the list, but not this component leaving the page — a reader who clicks a
+     card while the cursor is still inside it would hand /work a document that
+     has data-zeiger up and no shelf left to lower it, and every scroll-driven
+     borrow on the next page would stand down for good. */
+  useEffect(() => () => document.documentElement.removeAttribute("data-zeiger"), []);
 
   return (
     <section
@@ -369,7 +392,12 @@ export default function Selected() {
                         state: a plate in full colour under a heading that had
                         gone back to ink, for as long as the cursor sat in the
                         gap between two cards. */}
-                    <h3 className="font-display mt-2 text-2xl font-medium leading-tight text-ink group-hover:text-accent group-focus-visible:text-accent group-data-[near]:text-accent">
+                    {/* group-data-[probed] alongside the three pointer answers,
+                        so the title follows the plate: the card the wheel is
+                        reading turns accent the same way the card under the
+                        cursor does. globals.css hands the pointer priority back
+                        when there is one — see the note on [data-probed]. */}
+                    <h3 className="font-display mt-2 text-2xl font-medium leading-tight text-ink group-hover:text-accent group-focus-visible:text-accent group-data-[near]:text-accent group-data-[probed]:text-accent">
                       {p.title}
                     </h3>
 
