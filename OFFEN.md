@@ -1412,9 +1412,60 @@ experiment") and never states the role — and by setting the one-liner at 0.82r
 on a 52ch measure. 44ch is the better measure on paper and cost a fourth line on
 four of the six cards; the pin has no fourth line to give.
 
-**Open, and it is Antony's call: 720px-tall windows still lose the bottom 38px of
-the card**, i.e. the VIEW CASE strip. Not a dead end — the whole card is a
-`<Link>`, so the case is still one click away — but the affordance is clipped
-where it used to fit. Closing it means capping every one-liner at ~104
-characters (two lines at 52ch), which is a copy decision, not a CSS one. Three
-of the six are over: Calibre 181, OSCILLATE 160, Gutjahr 152.
+### The one-liners were cut, and 720 was accepted — both 17.08.2026
+
+All six were over two lines, not three of them: 181, 160, 152, 140, 115, 105
+characters. They are 98–108 now and **all six measure exactly two lines at
+52ch**, checked on the built page rather than counted by hand. The words kept
+are the honest ones — *not a client brief*, *invented*, *a fictional Berlin
+architecture studio*, *on spec* — since those are why the line is on the front
+page at all. Calibre and One Bit carry German copy and were cut with them, or
+the DE card would run three lines where the EN card runs two.
+
+Card 675 → **662px**: clears 900 (+78), 820 (+38), 768 (+12).
+
+**720 still cuts 25px, and Antony accepted it.** What is left is not in the text
+— it is the card's own padding, and buying it back means tightening the caption,
+the header strip and the filled button on all six cards at once. Two things made
+the trade easy: the whole card is a `<Link>`, so a clipped VIEW CASE strip costs
+an affordance and not the destination; and a real 1366×768 laptop leaves roughly
+650px of viewport, which **the original 612px card never served either**. This
+is a pre-existing edge made 50px worse, not a new class of failure.
+
+---
+
+## 19 · UNDER THE HOOD was neither aligned nor full bleed — fixed 17.08.2026
+
+Antony's eye, then the measurement. S.05 was the one section whose width read
+wrong, and it was not the text: measured at 1440, **every** section's content
+starts at 115 including this one. What was wide is the `--surface` band, which
+ran **72 → 1368** — 43px past the text on each side and still 72px short of the
+window.
+
+`--bleed` is `clamp(1.25rem, 3vw, 4.5rem)` = 43px at 1440, while the page margin
+`--gutter` is 8% = 115px. So the band bled to a value smaller than the margin it
+was bleeding out of: not on the page's grid, not on the window's edge, on
+nothing. Every other rule here is on a stated scale — the hero readout prints
+POS 08% / 92% out loud — which is why 43px of overhang read as *slightly too
+wide* rather than as a decision.
+
+**Full bleed, and the number is derived.** The obvious fix is the trap
+`globals.css` already documents: `--gutter` is 8% *of the page*, but a negative
+margin on a child of `<main>` resolves against **main's content box**, so `-8%`
+gives 96.8px and leaves an 18px sliver. Main's content is 84% of the page, so
+the same distance against it is **8 / 0.84 = 9.5238%** — a percentage of the
+same page width, therefore exact at every window size. `vw` was rejected for the
+reason `globals.css` gives: it counts the scrollbar.
+
+Verified at five widths, band vs window and hood's text vs a normal section:
+
+| width | band | hood text | other section | overflowX |
+|---|---|---|---|---|
+| 1440 | 0 → 1440 | 115 | 115 | 0 |
+| 1280 | 0 → 1280 | 102 | 102 | 0 |
+| 1024 | 0 → 1024 | 82 | 82 | 0 |
+| 820 | 0 → 820 | 66 | 66 | 0 |
+| 390 | 0 → 390 | 31 | 31 | 0 |
+
+If `--gutter` ever moves off 8%, 9.5238% has to move with it. It is derived, not
+chosen, and the comment in `app/page.tsx` carries the derivation.

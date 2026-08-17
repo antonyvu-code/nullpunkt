@@ -439,7 +439,27 @@ export default function Home() {
           mistake in everything else rather than as the page's own width. */}
       <section
         id="hood"
-        className="-mx-[var(--bleed)] border-y px-[var(--bleed)] py-16 md:grid md:grid-cols-12 md:gap-x-6 md:py-24"
+        /* FULL BLEED, AND 9.5238% IS DERIVED — DO NOT RETYPE IT AS A GUESS.
+           This band used `--bleed` (clamp 1.25rem…4.5rem) and so reached 72px
+           from the window at 1440 while every other edge on the page sits at
+           115: not aligned, and not full bleed either, which is exactly how it
+           read — slightly too wide, for no stated reason. Every other rule here
+           is on the instrument's scale (POS 08% / 92%, printed in the hero
+           readout); that one was on nothing.
+
+           The obvious fix is the trap `globals.css` warns about: `--gutter` is
+           8% OF THE PAGE, but a negative margin on a child of <main> resolves
+           against MAIN'S CONTENT BOX, so -8% here is 96.8px, not 115.2, and
+           leaves an 18px sliver. Main's content is 84% of the page (100 − 2×8),
+           so the same distance expressed against it is 8 / 0.84 = 9.5238%.
+           Being a percentage of the same page width, it is exact at every
+           window size, not just at 1440. If `--gutter` ever moves off 8%, this
+           number has to move with it — it is derived, not chosen.
+
+           vw was the other candidate and is wrong for the reason `globals.css`
+           already gives: vw counts the scrollbar, so 100vw would hang the band
+           half a scrollbar past the edge on every machine that has one. */
+        className="-mx-[9.5238%] border-y px-[9.5238%] py-16 md:grid md:grid-cols-12 md:gap-x-6 md:py-24"
         style={{ borderColor: "var(--line)", background: "var(--surface)" }}
         data-reveal
       >
