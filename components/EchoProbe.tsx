@@ -12,9 +12,28 @@ import { FRAME_MS } from "@/lib/motion";
  * field instead of sitting in a black box.
  *
  * It tumbles slowly on its station. Off-screen the loop parks itself; reduced
- * motion holds a single posed frame; and WebGPURenderer falls back to WebGL2 on
- * its own when the GPU backend is unavailable — three/webgpu is loaded lazily so
- * none of it touches the server bundle.
+ * motion holds a single posed frame; and three/webgpu is loaded lazily so none
+ * of it touches the server bundle.
+ *
+ * WEBGPURenderer FALLS BACK TO WebGL2 ON ITS OWN — AND THAT IS NOT ENOUGH.
+ * Measured 15.08.2026 under `chrome --disable-gpu` (OFFEN §16): the fallback
+ * engages exactly as designed, logs "WebGPU is not available, running under
+ * WebGL2 backend", and then dereferences a **null** context, because WebGL2 is
+ * not there either — `TypeError: Cannot read properties of null (reading
+ * 'getSupportedExtensions')`. The card was left a 632×395 empty box with the
+ * canvas still at its 300×150 default, on the one machine where nothing else on
+ * the page had failed. A fallback chain needs a rung for "there is no rung".
+ *
+ * So the backend is checked before anything is imported — a reader who cannot
+ * use it does not pay 252KB to find that out — and `init()` is guarded as well,
+ * because a present `navigator.gpu` does not promise a working adapter.
+ * The empty card is deliberate for now: what it should show instead is an
+ * aesthetic decision and is still open.
+ *
+ * Both guards were needed and the first one had to be rewritten: gating on
+ * `"gpu" in navigator` looked right, passed under `--disable-gpu`, and let the
+ * whole chunk download before failing. The interface being present says nothing
+ * about an adapter being available.
  */
 export default function EchoProbe() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -25,6 +44,27 @@ export default function EchoProbe() {
 
     let disposed = false;
     let cleanup = () => {};
+
+    /* THE GATE IS WebGL, NOT `navigator.gpu`. Checking `"gpu" in navigator` was
+       tried first and is worthless: under `chrome --disable-gpu` the property is
+       still there — the interface exists, the adapter does not — so the gate
+       passed, 252KB came down, and the renderer warned and threw anyway.
+       Measured: the throw stopped, the download did not.
+       A context is the honest signal. Both backends come off the same GPU stack,
+       so no WebGL means no adapter either. The one case this gets wrong —
+       WebGPU present while WebGL is absent — skips the card rather than
+       crashing, which is the same outcome as failing, minus the console noise.
+       Probed on a THROWAWAY canvas, never on ours: a canvas keeps the first
+       context type it is given, so asking this one would spend it. */
+    const hasBackend = (() => {
+      try {
+        const probe = document.createElement("canvas");
+        return !!(probe.getContext("webgl2") || probe.getContext("webgl"));
+      } catch {
+        return false;
+      }
+    })();
+    if (!hasBackend) return;
 
     (async () => {
       const THREE = await import("three/webgpu");
@@ -111,8 +151,17 @@ export default function EchoProbe() {
         return { probe, mat };
       };
 
-      const renderer = new THREE.WebGPURenderer({ canvas, antialias: true, alpha: true });
-      await renderer.init();
+      /* The second rung. `navigator.gpu` existing does not mean an adapter will
+         be handed over, and the WebGL2 fallback throws rather than returning —
+         so the failure has to be caught here or it escapes as an unhandled
+         rejection on the reader's console. */
+      let renderer: InstanceType<typeof THREE.WebGPURenderer>;
+      try {
+        renderer = new THREE.WebGPURenderer({ canvas, antialias: true, alpha: true });
+        await renderer.init();
+      } catch {
+        return; // no backend after all — the card stays empty, silently
+      }
       if (disposed) {
         renderer.dispose();
         return;
