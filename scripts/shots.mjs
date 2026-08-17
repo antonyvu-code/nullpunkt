@@ -9,18 +9,34 @@ import { join } from "node:path";
 const OUT = join(import.meta.dirname, "shots");
 mkdirSync(OUT, { recursive: true });
 
+/* Four conditions became six on 15.08.2026, and two of the original four were
+   wrong — see cdp.mjs on why `mobile: true` does not make a touch device.
+
+   THE PHONE CONDITIONS WERE RUNNING AS A NARROW DESKTOP. Without touch
+   emulation the page reports `hover: hover`, so `@media (hover: none)` in
+   globals.css never applied and the [data-probed] path — the whole substitute
+   for hover on touch — was never once exercised, including in the
+   reduced-motion review of 14.08.
+
+   THE TABLET ROW IS NEW, and it is the cell nothing had ever run in: wide
+   enough that Rack, ShelfTransport and AccentScroll all switch on at
+   `min-width: 768px`, with no hover to drive the index. Landscape is 1366 on
+   purpose — an iPad Pro 12.9 is desktop-width with a coarse pointer, which is
+   the furthest the two axes get from each other. */
 const CONDS = [
-  { id: "desk-motion", w: 1440, h: 900, rm: false, mobile: false, label: "Desktop 1440 · motion on" },
-  { id: "desk-reduced", w: 1440, h: 900, rm: true, mobile: false, label: "Desktop 1440 · prefers-reduced-motion" },
-  { id: "phone-motion", w: 390, h: 844, rm: false, mobile: true, label: "Phone 390×844 · motion on" },
-  { id: "phone-reduced", w: 390, h: 844, rm: true, mobile: true, label: "Phone 390×844 · prefers-reduced-motion" },
+  { id: "desk-motion", w: 1440, h: 900, rm: false, mobile: false, touch: false, label: "Desktop 1440 · motion on" },
+  { id: "desk-reduced", w: 1440, h: 900, rm: true, mobile: false, touch: false, label: "Desktop 1440 · prefers-reduced-motion" },
+  { id: "tab-portrait", w: 820, h: 1180, rm: false, mobile: true, touch: true, label: "Tablet 820×1180 portrait · motion on" },
+  { id: "tab-landscape", w: 1366, h: 1024, rm: false, mobile: true, touch: true, label: "Tablet 1366×1024 landscape · motion on" },
+  { id: "phone-motion", w: 390, h: 844, rm: false, mobile: true, touch: true, label: "Phone 390×844 · motion on" },
+  { id: "phone-reduced", w: 390, h: 844, rm: true, mobile: true, touch: true, label: "Phone 390×844 · prefers-reduced-motion" },
 ];
 
 const STEPS = 9;
 const report = [];
 
 for (const c of CONDS) {
-  const p = await launch({ width: c.w, height: c.h, reducedMotion: c.rm, mobile: c.mobile });
+  const p = await launch({ width: c.w, height: c.h, reducedMotion: c.rm, mobile: c.mobile, touch: c.touch });
   await p.goto("http://localhost:3000/");
   await p.evaluate(`await new Promise(r => setTimeout(r, 3500));`);
 
@@ -76,8 +92,12 @@ for (const c of CONDS) {
              headings: [...document.querySelectorAll('h1,h2,h3')].length };
   `);
 
-  report.push({ ...c, meta, frames, audit });
-  console.log(`${c.label.padEnd(46)} rm=${meta.rm}  docH=${meta.docH}  overflowX=${meta.overflowX}  hidden=${audit.hiddenCount}  headings=${audit.headings}  canvas=${JSON.stringify(audit.canv)}`);
+  report.push({ ...c, media: p.media, meta, frames, audit });
+  console.log(
+    `${c.label.padEnd(42)} hover=${p.media.hover.padEnd(5)} ptr=${p.media.pointer.padEnd(6)} ` +
+    `rm=${String(meta.rm).padEnd(5)} docH=${String(meta.docH).padEnd(6)} overflowX=${String(meta.overflowX).padEnd(4)} ` +
+    `hidden=${String(audit.hiddenCount).padEnd(3)} headings=${audit.headings} canvas=${JSON.stringify(audit.canv)}`,
+  );
   await p.close();
   await new Promise((r) => setTimeout(r, 800));
 }
