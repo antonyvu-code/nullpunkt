@@ -1608,3 +1608,73 @@ Antony's call was to leave it: the fixed bar already prints `S.06 ABOUT` the
 entire time, so the identity is not lost, and the three beats are composed to
 hold the frame alone. Putting a label back in would give the passing line
 something to collide with.
+
+---
+
+## 22 · The About claim was being cut by its own frame — fixed 17.08.2026
+
+Antony, from the running build: the claim reads *"m a communication designe"* —
+the first and last glyphs gone, at a 1904-wide window. Looked at three times
+before it was understood, and the first two readings were wrong.
+
+**Wrong reading 1: "it is the pass, by design."** The beats travel in z and a
+departing one is meant to pass the reader, so a clipped line at the moment of
+passing would be the effect working. Measured: the cut ran for **~300px of
+scroll at opacity 1**, which is not a pass, it is a static defect.
+
+**Wrong reading 2: "the beat is scaled 1.53× and overflows the window."** The
+matrix said `scale: 1` at every sample, which is true and useless — the beats
+are translated in **z** under a `perspective`, so the element grows without any
+scale in its own transform. The rect is the only honest measurement here.
+
+**What it actually is: two deliberate decisions cancelling each other.**
+
+| | width at 1904 |
+|---|---|
+| `section#about`, `[data-about-stack]` | 1599 (the column) |
+| `h2[data-satz]`, at `w-[112%]` | **1791** |
+| difference | **192** |
+
+`page.tsx` sets the claim at `w-[112%]` on purpose and calls it *"the one liberty
+taken here"* — a line allowed over the page's own POS 08% / 92% rules so it
+reads as a refusal. `[data-about-stack]` carries `overflow: clip` so a beat at
+the near end cannot paint over the sections above and below. The clip was taken
+at the **column** edge, so it removed exactly the overhang the h2 exists to
+make: 1791 − 1599 = **192px**, 96 from each end of the sentence — the number
+that was measured disappearing, to the pixel.
+
+It only shows where the balanced line actually fills the measure. **1440 never
+showed it; 1904 always did.** And with FX.08 off the same h2 overhangs
+correctly, so the flat page was right and the effect was wrong.
+
+**The fix is the frame, not the type.** `overflow: clip` clips at the *padding*
+box, so the stack now takes the page margin back as padding and pulls its box
+out by the same amount — layout box unchanged (still the column), clipping
+region now the whole window. A beat at z = +380 is still caught, which is the
+job the clip was added for. The number is `9.5238%` = 8 / 0.84, derived the same
+way and for the same reason as the UNDER THE HOOD band in §19.
+
+**Verified, worst clip measured while the beat is still legible (opacity ≥ 0.5):**
+
+| window | before | after |
+|---|---|---|
+| 1904×942 | 192px, at opacity **1**, for ~300px of scroll | **0** |
+| 1440×900 | 0 (line never filled the measure) | **0** |
+| 1280×800 | — | 47px |
+| 2560×1000 | — | 188px |
+
+At the reading position at 1904 the sentence now measures 1450px inside a 1904
+window with both ends clear, and reads whole.
+
+### What is left, and it is a conflict of ideas rather than a bug
+
+The residue at 1280 and 2560 is the departure itself. `AboutDepth` runs z and
+opacity on **one linear ramp of the same duration**, so at opacity 0.5 the beat
+is already at z ≈ 190 — 1.21× — and at 2560 that is wider than the window before
+the fade has got anywhere. Closing it completely means fading over roughly the
+first quarter of the departure, which turns "passes the reader" into "blinks
+out"; the alternative is a shorter `NAH`, which flattens the volume the section
+is built on. A sentence set at 112% of an 84% column cannot also travel toward
+the reader inside a window-sized frame at every width. **Antony's call, not
+urgent:** the state Antony photographed — legible and cut — no longer exists at
+1440 or 1904.
