@@ -1106,6 +1106,7 @@ ZIELE now carries a one-line pointer to here.
   **v11.18.0**, 35s, green. But the log states the lockfile was produced by
   **pnpm@10.x** — 11.18 reads it without rewriting it. The real test is the first
   `pnpm install` that rewrites the lockfile in 11.x format.
+  **Wrong, and disproved 17.08.2026 — there is no 11.x format.** See §17.
 
 ### Before the Bewerbung goes out (~08.09.2026)
 
@@ -1146,10 +1147,12 @@ ZIELE now carries a one-line pointer to here.
       or **an explicit, written acceptance of the risk before sending***. What is
       being accepted: the tablet cell (≥768px **and** `hover: none`) currently
       takes the full pin machinery **by default rather than by decision** — §14.
-- [ ] **Run `pnpm install` once** so the lockfile moves to 11.x format, then
+- [x] ~~**Run `pnpm install` once** so the lockfile moves to 11.x format, then
       rebuild. Do not let that first run land on the day of sending;
       `ERR_PNPM_OUTDATED_LOCKFILE` is a common build failure and it would fire at
-      the most expensive possible moment.
+      the most expensive possible moment.~~ **Done 17.08.2026, and the item was
+      built on a false premise — §17.** Ran, nothing to migrate, the risk it was
+      guarding against does not exist. Four items in the last week, not five.
 - [x] ~~Look at the `prefers-reduced-motion` build **by eye**.~~ **Done
       14.08.2026.** Structure sound: 0 elements carrying content that paints
       nothing, 17 headings, no horizontal overflow, at both 1440 and 390. Static
@@ -1168,6 +1171,13 @@ The cost, stated and accepted: nothing schedules these, so the default is that
 they all land in the same week, and the first failure of any of them has no buffer
 behind it. The cheap two — the phone and `--disable-gpu` — are not blocked by any
 of this and should simply be done in the next session.
+
+**17.08.2026 — down to two, and one of them was never a task.** `--disable-gpu`
+ran on 15.08 (§16) and `pnpm install` ran today (§17), where it turned out there
+was nothing to migrate. What is left that has never run: **the alias**, **the
+repo going public**, and **the phone** — and the phone is ten minutes with a
+device that is already in the room. Two of the four were retired by doing them
+early, which is the whole argument for doing the cheap ones out of order.
 
 ---
 
@@ -1320,3 +1330,44 @@ The team name `atv1989info-4591's projects` is auto-generated and is most likely
 **Hobby**. Documentation confirms Hobby protects previews and deployment URLs
 only; production domain protection needs **Pro or Enterprise**. Verify the plan
 before changing anything — a wrong move on Vercel is hard to take back.
+
+---
+
+## 17 · The lockfile migration — ran 17.08.2026, and there was nothing to migrate
+
+The checklist carried this as one of the four never-run items, with a named
+failure it was there to prevent: `ERR_PNPM_OUTDATED_LOCKFILE` firing on the day
+the Bewerbung goes out. It rested on a line in the Vercel build log saying the
+lockfile was produced by **pnpm@10.x**, read as "this file is in an old format
+and the next install will rewrite it".
+
+**There is no 11.x lockfile format.** `pnpm install` reported *Already up to
+date* in 381ms and changed **nothing** — `git status` clean, the header still
+`lockfileVersion: '9.0'`.
+
+That could have been pnpm declining to touch a file it considered good enough,
+so it was tested rather than assumed: a **throwaway directory with nothing but
+this `package.json`**, resolved from scratch with `pnpm install --lockfile-only`.
+pnpm 11.18.0 writes **`lockfileVersion: '9.0'`** when it has no lockfile to be
+polite about. 9.0 *is* the current format; pnpm@10 and pnpm@11 both write it.
+The build log was naming which pnpm last touched the file, not which format the
+file is in.
+
+**And the risk itself does not exist here.** The exact command a Vercel build
+runs — `pnpm install --frozen-lockfile` — was run against this repo: **exit 0**,
+*Already up to date*. That is the failure mode the item was guarding against,
+executed on purpose, passing. `pnpm build` after it: green, 32 routes.
+
+**One thing worth keeping, and it is the opposite of a worry.** The fresh
+resolution in the throwaway directory is **not** the same tree as the one in the
+lockfile: `@tailwindcss/*` 4.3.2, `@types/react`, `@types/react-dom`,
+`@types/three` and `@emnapi/runtime` all resolve to newer patches today, because
+`package.json` carries `^` ranges on them. The lockfile is what stops that drift
+from reaching a build. So the danger was never a stale lockfile — it is
+**deleting** the lockfile, or running `pnpm update`, in the last week. Neither is
+on any list, and neither should go on one before the send.
+
+*Noted, not acted on:* pnpm offers 11.18.0 → 11.22.0. `packageManager` pins
+11.18.0 and Vercel reads that pin, so the local and remote builds currently agree
+about the version. Upgrading three weeks before sending would trade a working
+agreement for a newer number.
