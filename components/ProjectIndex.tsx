@@ -100,7 +100,20 @@ export default function ProjectIndex({ items = projects }: { items?: Project[] }
                 )}
               </span>
               <span className="min-w-0">
-                <span className="block text-xl text-muted group-hover:text-ink group-focus-visible:text-ink md:text-2xl">
+                {/* h2, NOT a span — and this is the same defect Selected.tsx
+                    already fixed on the home shelf, left standing on the one
+                    page that is nothing but case titles. Measured 17.08.2026 in
+                    the stage-4 sweep: `/work` had exactly ONE heading on the
+                    whole page, its h1, while twelve case names sat in 24px
+                    spans. A reader navigating by heading — which is how a
+                    screen-reader user reads an index — was handed a page with
+                    no index in it.
+                    h2 rather than h3: the sections here are labelled with
+                    `aria-label` and a hud kicker rather than with headings, so
+                    the case titles sit directly under the page's h1 and that is
+                    the honest outline. Preflight strips a heading's own margin
+                    and size, so the tag change costs nothing visually. */}
+                <h2 className="block text-xl font-normal text-muted group-hover:text-ink group-focus-visible:text-ink md:text-2xl">
                   {p.title}
                   {markFeatured && p.featured && (
                     <span
@@ -118,7 +131,7 @@ export default function ProjectIndex({ items = projects }: { items?: Project[] }
                       REBUILD
                     </span>
                   )}
-                </span>
+                </h2>
                 <span className="hud mt-1 block text-muted-dim md:hidden">{p.metaLine}</span>
               </span>
               <span className="hud hidden text-muted-dim group-hover:text-accent md:block">

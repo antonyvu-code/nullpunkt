@@ -1678,3 +1678,92 @@ is built on. A sentence set at 112% of an 84% column cannot also travel toward
 the reader inside a window-sized frame at every width. **Antony's call, not
 urgent:** the state Antony photographed — legible and cut — no longer exists at
 1440 or 1904.
+
+---
+
+## 23 · Stage 4, first pass — every route, and it found two real defects
+
+17.08.2026. `QUY-TRINH.md` §4's overriding rule is *run on every route*, and its
+own indictment was that every check this project had ever run was run on the
+home page — 3% of the site. This is the first sweep that was not.
+
+**What "32 routes" actually is:** 17 HTML pages (home, `/work`, two legal pages,
+the 404, and 12 case studies) plus 13 `opengraph-image` endpoints. The image
+routes cannot carry an accessibility defect but they can 404 or serve the wrong
+type — checked separately, **13/13 return 200 with an image content-type**.
+
+The sweep checks five of the six WebAIM Million categories mechanically
+(contrast, missing alt, missing form labels, empty links, empty buttons) plus
+heading structure, landmarks, title, and horizontal overflow. The sixth,
+document language, was verified separately: `Lang.tsx` writes
+`documentElement.lang` on switch. Per Deque this catches ~57% of what is there;
+it is a sieve for where to spend a screen reader, not a certificate.
+
+### Defect 1 — the 404 page was white-on-white
+
+There was **no `app/not-found.tsx`**, so Next served its own built-in one, and
+that component ships inline styles including `background: #fff` on BODY. The
+site's `html` is `#050505` and its ink is `#f2f0eb`, so the page rendered the
+site's own text on Next's white ground: **16 elements under 4.5:1, the wordmark
+at 1.14:1**. An unreadable page, live, for as long as the project has existed —
+and invisible because nobody had ever asked a route that does not exist.
+
+Fixed by writing the page that should have been there: same layout, same voice,
+an h1, and two ways on rather than one, because a 404 that only offers "go home"
+sends a reader who wanted one case back to the top of a 17-screen page.
+**Contrast failures 16 → 0.**
+
+### Defect 2 — `/work` had one heading on the whole page
+
+`Selected.tsx` already carries the note for this: *"the case titles are what a
+screen-reader user navigating by heading is looking for, and they were plain
+paragraphs."* That was fixed on the home shelf and left standing on the page
+that is **nothing but case titles** — twelve of them, in 24px `<span>`s, under a
+single h1. A reader navigating by heading was handed an index with no index in
+it. `ProjectIndex` now emits `h2`. **Headings 1 → 13.**
+
+### The sweep after both fixes
+
+| route | h1 | headings | alt | empty link | empty btn | unlabelled field | contrast | scrollX |
+|---|---|---|---|---|---|---|---|---|
+| `/` | 1* | 17* | 0 | 0 | 0 | 0 | 0* | 0* |
+| `/work` | 1 | **13** | 0 | 0 | 0 | 0 | 0 | 0 |
+| `/impressum` | 1 | 7 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `/datenschutz` | 1 | 8 | 0 | 0 | 0 | 0 | 0 | 0 |
+| 404 | 1 | 1 | 0 | 0 | 0 | 0 | **0** | 0 |
+| 12 × `/work/[slug]` | 1 each | 4–5 | 0 | 0 | 0 | 0 | 0 | 0 |
+
+### Three readings marked * were the instrument, not the page
+
+Worth more than the table, and the same discipline §16 and trap 7 already record.
+
+1. **`h1: 0` on the home page.** The sweep filters to visible elements, and the
+   hero's h1 is at `opacity: 0` until its reveal runs. It is in the DOM, it is
+   `--ink`, and it reaches opacity 1 on scroll; the page has **17** headings and
+   exactly one h1, as it always did.
+2. **`scrollX: 575` on the home page.** The check read `scrollX` in the same
+   tick as the `scrollTo` that provokes it. Waiting 400ms returns **0**, and
+   `overflow-x: clip` holds — the same motion artefact trap 6 describes, since
+   `/` is the only route with parked carriage cards past the right edge.
+3. **One contrast failure at 2.13:1 on the home page**, named as the hero's h1.
+   **Not reproducible:** two later runs measured that element at **17.9:1** with
+   colour `#f2f0eb` against `#050505`. Recorded as unreproduced rather than as
+   clean.
+
+**And a real limit of this instrument, stated so no one quotes it too far:** the
+contrast check resolves a background by walking up for the nearest opaque CSS
+colour. It therefore knows nothing about text over the hero's **canvas** or over
+a **plate image**. Those two cases are exactly where an automated pass is
+weakest and where the NVDA read has to look.
+
+### What stage 4 still owes
+
+- **NVDA + Chrome**, in the order QUY-TRINH sets: landmarks → headings → Tab
+  from top to bottom → the project's own S3, hover and focus giving the same
+  result. Now aimed: `/`, one case page, and `/work`.
+- **Field notes names are `<span>`s at 4xl–7xl**, on both `/` and `/work` — the
+  same defect class as Defect 2, in the largest type on those pages. Not fixed
+  here because it changes the home page's heading count away from the **17** the
+  bench asserts, which is Antony's call on the page's outline.
+- Contrast in the **borrowed-accent** state across all 12 case colours: already
+  measured in `ZIELE.md` §9-neu — 12/12 over 4.5:1 on the dark ground.
