@@ -637,17 +637,28 @@ export default function Home() {
                 </li>
               ))}
             </ul>
+
+            {/* Antony Vu is the working name; the CV and the certificates carry
+                the legal one. Stated once so the two documents read as one
+                person — which is why it belongs HERE, under the two links it
+                explains, and not where it was.
+                It used to close the section from OUTSIDE the stack: a full-width
+                rule and then the only left-aligned line in a section that is
+                centred from top to bottom, ~250px below the links, after the pin
+                had already released. It read as the page's footer rather than as
+                a sentence about the documents directly above it.
+                Inside the beat it is inside the pinned volume, so it now travels
+                in depth with the promise instead of standing still. That is the
+                price and it was taken deliberately: a note nobody connects to
+                anything is worse than a note that moves. */}
+            <p className="hud mt-10 text-muted-dim">
+              <L
+                en={`${site.wordmark} IS THE NAME I WORK UNDER — ON PAPER, ${site.legalName.toUpperCase()}`}
+                de={`${site.wordmark} IST MEIN ARBEITSNAME — BÜRGERLICH ${site.legalName.toUpperCase()}`}
+              />
+            </p>
           </div>
         </div>
-
-        {/* Antony Vu is the working name; the CV and the certificates carry the
-            legal one. Stated once so the two documents read as one person. */}
-        <p className="hud mt-14 border-t pt-5 text-muted-dim" style={{ borderColor: "var(--line)" }}>
-          <L
-            en={`${site.wordmark} IS THE NAME I WORK UNDER — ON PAPER, ${site.legalName.toUpperCase()}`}
-            de={`${site.wordmark} IST MEIN ARBEITSNAME — BÜRGERLICH ${site.legalName.toUpperCase()}`}
-          />
-        </p>
       </section>
 
       <section
