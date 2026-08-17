@@ -635,16 +635,13 @@ button:focus-visible .np-walze .np-walze-b {
   }
 }
 
-/* Loader: the zero point snaps into the crosshair. */
-.np-zero {
-  transform: translate(-50%, -50%) scale(0);
-  animation: np-zero var(--dur-zero) 0.15s var(--ease-snap) forwards;
-}
-@keyframes np-zero {
-  to {
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
+/* `.np-zero` lived here until 17.08.2026 — the loader's flare dot snapping into
+   a crosshair. The loader is now three plates converging into register, drawn
+   in canvas, so the element that carried this class is gone and the rule went
+   with it rather than being left for someone to find later and wonder about.
+   `--dur-zero` and `--ease-snap` stay: the tokens are still declared and named
+   in the palette block, and an unused token costs nothing while a rule that
+   matches nothing is a lie about the page. */
 
 /* Field notes: the LIVE dot breathes on the page's current accent. */
 .np-pulse {
@@ -796,7 +793,6 @@ button:focus-visible .np-walze .np-walze-b {
   [data-accent-release] .accent-t * {
     transition: none;
   }
-  .np-zero,
   .np-pulse {
     animation: none;
   }
@@ -834,9 +830,6 @@ button:focus-visible .np-walze .np-walze-b {
     transform: none;
     filter: none;
     opacity: 1;
-  }
-  .np-zero {
-    transform: translate(-50%, -50%) scale(1);
   }
 
   /* FX.03 hands the shelf back as a grid. A carriage with nothing driving it
