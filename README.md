@@ -14,7 +14,7 @@ rather than decorating with them.
 
 ## What is worth reading in here
 
-If you came to see how something is built, these are the four places where an
+If you came to see how something is built, these are the five places where an
 actual decision was made.
 
 *(The hero entry described `components/Scope.tsx` until 09.08.2026. That
@@ -46,9 +46,22 @@ out of step with itself, and that is the difference between a material and a
 spreadsheet. The plates never rotate: real misregistration is a slip and a
 fraction of a degree, not a skew.
 
-It is Canvas 2D with a cached radial sprite, no Three.js — the first-load budget
-is 500KB and this page already spends 703KB, so the one screen that has to be
-right in 50ms could not afford a 3D library. The mask waits for
+It is Canvas 2D with a cached radial sprite, no Three.js. The first-load budget
+is 500KB; measured 15.08.2026 on the built page with a cold cache, counting
+stopped at `load`, this page spends **483.7KB over 22 requests** — a median of
+four valid runs out of five, spread 0. That leaves **16.3KB of headroom**, and a
+3D library is 170KB gzipped. The screen that has to be right in the first 50ms is
+the one screen that cannot borrow from later.
+
+*(An earlier draft of this paragraph said 703KB. That figure was the whole page
+measured after scrolling to the bottom, not the first load, and it was wrong to
+put it here: the deliberate late chunk — `three/webgpu` imported inside
+`useEffect` so the homepage stays statically prerendered — is exactly what the
+budget is defined to exclude. The argument against a 3D library in the hero
+survives, but on the opposite footing: not "the page is already over" but "the
+hero is inside the first load and there is 16.3KB left".)*
+
+The mask waits for
 `document.fonts.ready`, or it rasterises the fallback face and cuts the whole
 material from the wrong letterforms. The loop parks when the hero leaves the
 viewport, and `prefers-reduced-motion` gets the plates slightly apart with the
@@ -75,6 +88,29 @@ homepage stays statically prerendered; WebGPU falls back to WebGL2 by itself.
 Every figure in a case study is a `{ label, value, source }` triple — "70K
 triangles" says nothing without *counted where*. The rule is enforced by the
 shape of the data, not by good intentions ([`lib/projects.ts`](lib/projects.ts)).
+
+**The pinned sections spend scroll at 1:1, which is why they are not
+scrolljacking.** Two sections hold the page still while something moves, and
+that is the pattern usability research is hardest on: Nielsen Norman Group found
+most participants at least mildly disoriented by scrolljacking, some reading the
+altered behaviour as a bug in the site. The finding is about a broken mental
+model — people expect to scroll vertically *at a rate related to how they are
+physically moving the input device*.
+
+So neither pin invents scroll distance. The shelf
+([`components/fx/ShelfTransport.tsx`](components/fx/ShelfTransport.tsx)) sets
+`end: () => "+=" + travel()`: the pin lasts exactly as long as the carriage has
+to travel sideways, so one pixel of wheel is one pixel of specimen. The rate is
+untouched; only the axis changes. The capability rack
+([`components/Rack.tsx`](components/Rack.tsx)) runs `+=45%` of the window, which
+is the pace its own un-pinned version already had — the same wheel distance
+moves the same tween, and what the pin buys is that the heading stops drifting
+away while the rack fills under it.
+
+Both numbers are **derived, not chosen**, and that is the whole argument. Add
+two more cases and `travel()` grows with them; a pin length picked by feel would
+have to be re-picked, and picking again is where a rate quietly stops matching
+the hand on the wheel.
 
 ## Craft rules the code actually follows
 

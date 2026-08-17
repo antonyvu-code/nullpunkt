@@ -973,3 +973,294 @@ putting the trade in front of Antony:
 3. Name what a change could make **worse**, and measure that too. Measuring only
    the intended effect confirms nothing but the intention.
 4. Deep technical record goes in the repo. The conversation stays readable.
+
+---
+
+## 13 · Baseline — measured 15.08.2026
+
+The first baseline this project has had in one place. Built page, `next start` on
+localhost, 1440×900, cold cache, counting stopped at `load`, `transferSize` read
+from **inside the page** via Resource Timing. Five runs, **four valid**.
+
+| | median | spread |
+|---|---|---|
+| transferSize at `load` | **483.7 KB** | 0 |
+| requests at `load` | **22** | 0 |
+| LCP | **1464 ms** | 1152 … 1544 |
+| CLS | **0** | 0 … 0 |
+| TTFB | 987 ms | 700 … 1036 |
+| `load` | 1165 ms | 894 … 1213 |
+
+Every run asserted itself before its numbers were believed: `location.href`,
+`docHeight` **15931**, **4** pin-spacers, **17** headings, exactly one `h1`. One
+run in five attached to the wrong target and was discarded — the trap
+`scripts/README.md` documents, hit in both versions of the instrument.
+
+**The first instrument was thrown away rather than quoted.** It counted bytes
+from CDP `Network` events, which arrive from every target in the browser, and
+produced a ±47% spread with one request count coming out **negative**. It also
+reported LCP as `null` (`getEntriesByType` returns nothing for LCP — it needs a
+`PerformanceObserver` with `buffered: true`) and CLS as `0` because the variable
+was initialised and never observed. None of that failed loudly.
+
+**Bytes are deterministic here, timings are not.** KB spread 0 against an LCP
+spread of 392 ms. A byte figure can be quoted from one run; a timing figure
+cannot. Caveat in the other direction: `overflowX` measured 0 in one probe run at
+1440 and 575 in two `shots.mjs` runs at the same width — a page with animation
+state needs several runs even for a "static" number.
+
+**CLS 0 confirms `pinType: "transform"`** independently of the comment in
+`fx/ShelfTransport.tsx` that records the 0.583 + 0.836 it replaced.
+
+**P3 headroom is 16.3 KB.** One more webfont breaks the budget.
+
+**The timings are an upper bound, not field data.** A fresh Chrome profile per
+run plus a local server put ~987 ms into TTFB alone; production measured 69 ms on
+08.08. With no analytics there is no CrUX and nothing to validate against — which
+is why testing on a real phone, a real tablet and a GPU-less machine is not a
+nicety, it is the only substitute available.
+
+**Measuring script:** it lives in the session scratchpad, not in `scripts/`.
+Whether measurement scripts move into the repo as regression tests is still
+Antony's open decision (ZIELE §10d-bis), and two Playwright scripts have already
+been lost that way.
+
+---
+
+## 14 · The third quadrant — tablet, first measured 15.08.2026
+
+The site gates **motion on width** (`min-width: 768px` in `Rack`,
+`ShelfTransport`, `AccentScroll`) and its **accent probe on hover**
+(`@media (hover: none)` in `globals.css`). Those are two different axes, and a
+tablet is where they disagree: wide enough for both pins, with no hover to drive
+the index.
+
+**Resizing a window does not make a touch device.** Measured against
+`about:blank`:
+
+| | hover | pointer |
+|---|---|---|
+| 1440 | hover | fine |
+| 820, width changed only | hover | fine |
+| 820 + `mobile: true` | hover | fine |
+| 820 + touch emulation | **none** | **coarse** |
+
+So every "responsive check" done by resizing — including this repo's own phone
+conditions in `shots.mjs` — had been testing a **narrow desktop**. The
+`[data-probed]` path, the entire substitute for hover on touch, had never once
+run. That includes the reduced-motion review of 14.08.
+
+`scripts/cdp.mjs` now takes `touch: true`, and every launch asserts its own
+quadrant before returning. `shots.mjs` runs six conditions:
+
+| condition | hover | ptr | docHeight | overflowX | headings |
+|---|---|---|---|---|---|
+| Desktop 1440 · motion | hover | fine | 15931 | 575 | 17 |
+| Desktop 1440 · reduced | hover | fine | 10677 | 0 | 17 |
+| Tablet 820×1180 portrait | none | coarse | 18954 | 468 | 17 |
+| Tablet 1366×1024 landscape | none | coarse | 17730 | 548 | 17 |
+| Phone 390×844 · motion | none | coarse | 15339 | 0 | 17 |
+| Phone 390×844 · reduced | none | coarse | 13035 | 0 | 17 |
+
+**17 headings in all six** — the structure holds in every quadrant, which was
+never demonstrable before.
+
+**`overflowX` is a motion artefact, not a tablet bug.** 468–575px wherever the
+drivers run, 0 on the phone (below 768, no driver) and under reduced motion. The
+elements crossing the right edge are `[data-transport-track]` and its contents,
++1798px, each clipped by its own container; `html { overflow-x: clip }` holds and
+the reachable `scrollX` is **0** at every width. Nothing scrolls sideways.
+
+**The gate itself — decided 15.08.2026: leave it, wait for a real device.** An
+iPad with no keyboard currently gets the **full pin machinery**, because it is
+≥768 wide. The comment in `Rack.tsx` states the intent as *"reduced motion and
+the phone get no driver"*, but `min-width: 768px` means *"not the phone"* — so
+the tablet is included by default rather than by decision, and a tablet is also
+the device most likely to thermally throttle under a 4545-particle hero running
+continuously.
+
+Antony chose not to change it until a real tablet has been looked at. That is the
+hard law applied to itself: **no fix before a measurement**, and everything known
+about this cell so far comes from emulation, which has already been shown to lie
+in both directions at 390. The candidate change, if the device says so, is one
+media-query condition — gate on `pointer: fine` instead of, or as well as, width.
+
+---
+
+## 15 · Ship checklist — moved here 15.08.2026
+
+This list lived in `ZIELE.md` §10c-bis until today. It is project work, not a
+personal goal, and ZIELE is neither: it holds the career target and the protocol
+Antony and I work by. Moving it keeps that file to what only the two of us need.
+ZIELE now carries a one-line pointer to here.
+
+### State as measured 13.08.2026
+
+- `https://nullpunkt.vercel.app` returns **404** — not blocked behind a login,
+  **no alias points at that address at all**. This matches the 08.08 decision to
+  go dark, but it is a different mechanism than "still running behind auth".
+- The newest **Production** deployment was four days old (`jc8jgsuo9`). Five
+  commits from 13.08 — the carriage, six cases, the transition, the OFFIZIN
+  typefaces — exist **only as protected previews**.
+- pnpm pinning passed its first test: Vercel read `packageManager` and built with
+  **v11.18.0**, 35s, green. But the log states the lockfile was produced by
+  **pnpm@10.x** — 11.18 reads it without rewriting it. The real test is the first
+  `pnpm install` that rewrites the lockfile in 11.x format.
+
+### Before the Bewerbung goes out (~08.09.2026)
+
+- [ ] **Bring `nullpunkt.vercel.app` back up (alias).** This is the address that
+      goes in the email.
+      **Decided 15.08.2026 — stay dark until close to the send date.** Two things
+      settled today and not to be re-asked: the 404 is **not** Deployment
+      Protection, it is a missing alias; and on **Hobby, Vercel Authentication
+      does not protect production** (previews and deployment URLs only), so
+      "locking the main page" was never an option that existed.
+- [ ] **Return the GitHub repo to public.** `antonyvu-code/nullpunkt` was set to
+      **PRIVATE** on 15.08.2026: keeping the site dark while the source stayed
+      public only covered half, and the hidden half is the half that makes the
+      impression — the first 50ms, the hero, the scroll. Reverse with
+      `gh repo edit antonyvu-code/nullpunkt --visibility public
+      --accept-visibility-change-consequences`. **Existing forks were detached and
+      do not reattach.** The other 27 repos are unchanged.
+      *This must go back to public before sending: a private repo is not evidence
+      an agency can read, and `OFFEN.md` — a logbook that records the faults of
+      its own instruments — is the rarest thing in this portfolio.*
+- [ ] `vercel deploy --prod`, or better `vercel promote <preview-url>`: promoting
+      re-points the alias **without rebuilding**, so what ships is the artifact
+      that was verified rather than a fresh build of the same source.
+- [ ] **A real phone.** ~10 minutes, the device is already here, **not deferred**.
+      It is the most likely device a recruiter opens the link on; DPR 3 settles
+      the one open question — the NULLPUNKT lettering breaking into visible grain
+      at an emulated 390×844 (§8b) may resolve itself, so **do not fix the
+      halftone before looking**; and it is the worst thermal case. Scroll the
+      whole page, wait a few minutes, scroll again: throttling only appears after
+      ~15 minutes of continuous use, and the hero is 4545 particles running the
+      whole time.
+- [ ] **A machine without hardware acceleration.** One command:
+      `chrome --disable-gpu` on this machine. Not identical to a weak machine, but
+      far closer than headless SwiftShader, which produced **10/4 FPS** where
+      Chrome with a GPU gives 60.
+- [ ] **A real tablet — deferred on condition, 15.08.2026.** The only item that
+      needs hardware that may not be here. Condition: *when a device is available,
+      or **an explicit, written acceptance of the risk before sending***. What is
+      being accepted: the tablet cell (≥768px **and** `hover: none`) currently
+      takes the full pin machinery **by default rather than by decision** — §14.
+- [ ] **Run `pnpm install` once** so the lockfile moves to 11.x format, then
+      rebuild. Do not let that first run land on the day of sending;
+      `ERR_PNPM_OUTDATED_LOCKFILE` is a common build failure and it would fire at
+      the most expensive possible moment.
+- [x] ~~Look at the `prefers-reduced-motion` build **by eye**.~~ **Done
+      14.08.2026.** Structure sound: 0 elements carrying content that paints
+      nothing, 17 headings, no horizontal overflow, at both 1440 and 390. Static
+      hero settled at **`--passer 0.38 → 0.18`** — see §8a.
+
+### ⚠ The timing risk, larger than any single item above
+
+The final week before ~08.09 has accumulated **four things that have never once
+run**: bringing the alias back · returning the repo to public · `pnpm install` on
+the 11.x lockfile · and the device tests. That is exactly the risk `ZIELE.md` §9
+names — **piling N never-run tasks into the last week** — and the list grew by one
+on 15.08 purely as a consequence of a decision to hide.
+
+**Antony decided 15.08.2026 not to fix a date**, keeping "close to the send date".
+The cost, stated and accepted: nothing schedules these, so the default is that
+they all land in the same week, and the first failure of any of them has no buffer
+behind it. The cheap two — the phone and `--disable-gpu` — are not blocked by any
+of this and should simply be done in the next session.
+
+---
+
+## 16 · No hardware acceleration — measured 15.08.2026, and it found a real defect
+
+`chrome --disable-gpu` against the built page. **The flag was proved, not
+assumed:** the unmasked WebGL renderer goes from
+`ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 Ti, D3D11)` to **no WebGL context at
+all**. That is harsher than a weak GPU — it is no GPU stack whatsoever.
+
+### Frame times through the hero
+
+One instrument, one session, 45 wheel steps from the top. Headless rAF is
+unthrottled (`scripts/README.md` trap 4), so these are **ratios, not fps a
+reader would see**.
+
+| | GPU | `--disable-gpu` | |
+|---|---|---|---|
+| median frame | **2.8 ms** | **16.7 ms** | 6.0× |
+| p95 frame | 25 ms | 50 ms | 2.0× |
+| worst frame | 191.6 ms | 83.4 ms | *better* |
+| frames > 33 ms | 10 / 603 (1.7%) | **78 / 249 (31%)** | 18× the rate |
+| frames > 100 ms | 1 | 0 | |
+
+**The page does not break.** Same `docHeight` 15931, scroll works, `--passer`
+still reaches 1.0000, 17 headings. It is *slower*, not *wrong*: a median frame
+costs 16.7ms, which is the entire 60Hz budget with nothing left over, and roughly
+a third of frames miss it.
+
+**The worst frame is better without the GPU**, which is the opposite of the
+expected result and worth keeping: the GPU path has one 191ms stall — a single
+upload or first paint — while the software path is uniformly slower with no
+catastrophic hitch. Smoothness and peak latency are not the same axis.
+
+### The defect: EchoProbe throws and leaves an empty box
+
+Scrolling the whole page — which the frame-time run never did, it only reached
+7193 of 15931px — wakes `EchoProbe`. With no GPU:
+
+```
+[warning] THREE.WebGPURenderer: WebGPU is not available, running under WebGL2 backend.
+[throw]   TypeError: Cannot read properties of null (reading 'getSupportedExtensions')
+```
+
+Three.js falls back from WebGPU to WebGL2 exactly as designed, then dereferences
+a **null** context, because WebGL2 is not there either. The canvas stays at its
+default **300×150 intrinsic** (never initialised; 631×394 on the GPU run) and
+paints nothing. On the GPU run: **0** console errors.
+
+So a reader without hardware acceleration gets a **632×395 empty rectangle**
+where README promises *"One card renders live instead of from a screenshot"* —
+one of the five decisions the project is presented on.
+
+**The craft floor has no rule for this.** M4 requires a composed still frame for
+`prefers-reduced-motion`; nothing covers *the GPU is absent*. Those are different
+conditions and only one of them is currently designed for.
+
+### Fixed the same day — crash only, appearance still open
+
+Antony's call: stop the crash, leave what the card *shows* for later. Two guards
+in `EchoProbe.tsx`, and **the first one had to be written twice**:
+
+1. **A backend check before the dynamic import**, so a machine that cannot use
+   the card does not download 252KB to find out. The first version gated on
+   `"gpu" in navigator` — which looks right and is worthless: under
+   `--disable-gpu` the property is still there (the interface exists, the adapter
+   does not), so the gate passed, the chunk came down, and the renderer warned
+   and threw anyway. Measured after that attempt: **the throw was gone, the
+   download was not**, and the comment claiming otherwise was wrong. The gate is
+   now a real context on a throwaway canvas — `webgl2 || webgl`. Both backends
+   come off the same GPU stack, so no WebGL means no adapter either.
+2. **`try/catch` around `new WebGPURenderer` and `init()`**, because a present
+   adapter interface still does not promise a working one, and the WebGL2
+   fallback throws rather than returning.
+
+**Verified, `pnpm build` green:**
+
+| | GPU | `--disable-gpu` |
+|---|---|---|
+| console errors/warnings/throws | 0 | **0** (was 2, then 1) |
+| hero canvas | 1440×900, painted | 1440×900, painted |
+| ECHO-1 canvas | 631×394 | 300×150, empty |
+| headings | 17 | 17 |
+
+The card is still an empty 632×395 box without a GPU — silent now, but empty.
+**What it should show instead is open** and is Antony's decision: a static plate
+of a rendered frame, a composed still drawn in Canvas 2D in the same language as
+M4, or no card at all. Note that hiding it collides with the spirit of M2
+(a degraded mode must not lose content).
+
+### ⚠ Check the plan before clicking
+
+The team name `atv1989info-4591's projects` is auto-generated and is most likely
+**Hobby**. Documentation confirms Hobby protects previews and deployment URLs
+only; production domain protection needs **Pro or Enterprise**. Verify the plan
+before changing anything — a wrong move on Vercel is hard to take back.

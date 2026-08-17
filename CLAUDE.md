@@ -11,7 +11,13 @@ statically prerendered), React 19, TypeScript, Tailwind v4, GSAP + ScrollTrigger
 Lenis, Three.js (WebGPU/TSL with WebGL2 fallback). No CMS, no backend, no
 analytics — content lives in `lib/`, the contact form just composes a `mailto:`.
 
-Read `README.md` first — it documents the four places in this codebase where an
+**Where things stand, read this before anything else:** `OFFEN.md` **§13** is the
+measured baseline, **§14** the tablet quadrant, **§15** the ship checklist (what
+is still open before the Bewerbung goes out), **§16** the GPU-less findings. The
+process those stages belong to is `../QUY-TRINH.md`; the goals and the working
+protocol are `../ZIELE.md` — that file wins any disagreement.
+
+Read `README.md` next — it documents the five places in this codebase where an
 actual design decision was made (the accent-borrowing system, the Scope hero,
 the live-rendered EchoProbe card, and the sourced-metric convention), plus the
 contrast and reveal-animation rules the code is expected to keep following.
