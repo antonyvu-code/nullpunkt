@@ -5,6 +5,26 @@ import { site } from "@/lib/site";
 
 const DURATION = 900;
 
+/* ——— HOW BIG THE MARK IS, AND IT IS ONE NUMBER ————————————————————————
+   132px until 18.08.2026, when Antony asked for it larger. Everything the mark
+   is made of is an absolute pixel figure — the lattice pitch, the ring, the
+   arms, the dot radius, the misregistration — so "bigger" had to become one
+   factor rather than five hand-raised numbers that drift apart the next time.
+
+   IT SCALES THE WHOLE DRAWING, NOT JUST ITS OUTLINE. Growing only the ring and
+   the arms while the pitch stayed at 5.5 would hand back a denser mark at a
+   larger size: more dots, finer lattice, a different drawing. A registration
+   mark enlarged on a press is the same mark, so the pitch and the dots grow
+   with it.
+
+   264 IS THE CEILING AND IT IS A PHONE THAT SETS IT. The loader is a column —
+   mark, wordmark, counter — and at 390×844 a 264 mark leaves the column about
+   380px tall in a 844px window, which still reads as centred rather than as
+   filling the screen. Past that the mark starts behaving like a splash screen,
+   which is the one thing an instrument booting must not look like. */
+const KANTE = 220;
+const K = KANTE / 132;
+
 /** The hero's three plates, and the same three directions they slip in.
  *  Additive: apart they are three coloured marks, coincident they sum to ink.
  *  Copied as VALUES rather than imported from Passer.tsx on purpose — this
@@ -61,9 +81,9 @@ export default function Loader() {
 
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d") ?? null;
-    /* Sized here rather than in a ResizeObserver: this box is 132px for the
+    /* Sized here rather than in a ResizeObserver: this box is KANTE px for the
        900ms it exists and nothing can resize it in that time. */
-    const CSS = 132;
+    const CSS = KANTE;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     if (canvas) {
       canvas.width = Math.round(CSS * dpr);
@@ -74,9 +94,9 @@ export default function Loader() {
        both are walked at a fixed pitch so every dot sits on the same lattice —
        which is what makes three of them look like three PLATES rather than
        three drawings. */
-    const PITCH = 5.5;
-    const R = 26;
-    const ARM = 40;
+    const PITCH = 5.5 * K;
+    const R = 26 * K;
+    const ARM = 40 * K;
     const punkte: [number, number][] = [];
     for (let a = 0; a < Math.PI * 2; a += PITCH / R) punkte.push([Math.cos(a) * R, Math.sin(a) * R]);
     for (let d = -ARM; d <= ARM; d += PITCH) {
@@ -101,14 +121,14 @@ export default function Loader() {
            a slip a printer would call a misregistration; more than that and the
            three marks read as three objects instead of one impression that has
            not landed yet. */
-        const aus = (1 - e) * 18;
+        const aus = (1 - e) * 18 * K;
         for (const { col, dir } of PLATTEN) {
           const ox = CSS / 2 + Math.cos(dir) * aus;
           const oy = CSS / 2 + Math.sin(dir) * aus;
           ctx.fillStyle = `rgb(${col[0]},${col[1]},${col[2]})`;
           for (const [x, y] of punkte) {
             ctx.beginPath();
-            ctx.arc(ox + x, oy + y, 1.6, 0, Math.PI * 2);
+            ctx.arc(ox + x, oy + y, 1.6 * K, 0, Math.PI * 2);
             ctx.fill();
           }
         }
@@ -139,7 +159,10 @@ export default function Loader() {
         leaving ? "pointer-events-none opacity-0" : "opacity-100"
       }`}
     >
-      <canvas ref={canvasRef} className="h-[132px] w-[132px]" />
+      {/* Inline, not a Tailwind h-[132px]: the size is now one constant and a
+          utility class cannot read it, so the two would have to be kept in step
+          by hand — which is what KANTE exists to stop. */}
+      <canvas ref={canvasRef} style={{ width: KANTE, height: KANTE }} />
       <p className="text-2xl font-medium tracking-tight">{site.name}</p>
       <p className="hud text-muted">
         CALIBRATING FROM ZERO —{" "}

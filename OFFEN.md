@@ -2124,3 +2124,44 @@ so a reader who asks for less motion never had beats travelling and does not now
 either — they get the flat stacked-off layout. No second still frame had to be
 designed for either hand-off, which is the one place today's work was cheaper
 than ZIELE §6.7 usually makes it.
+
+---
+
+## 28 · The loader mark is 220px, and it is one number now — 18.08.2026
+
+Antony asked for it bigger. It was 132px, and everything the registration mark
+is made of was an absolute pixel figure alongside it: lattice pitch 5.5, ring 26,
+arms 40, dot radius 1.6, misregistration 18. Five numbers that all mean "at this
+size" and none of which said so.
+
+`KANTE` is now the size and `K = KANTE / 132` scales all five. **Bigger, not
+denser** — that distinction is the whole of the change: the ring walks at
+`PITCH / R` and the arms at `ARM / PITCH`, both ratios of scaled numbers, so the
+dot COUNT is identical and the drawing is the same drawing enlarged. Growing
+only the ring and the arms would have kept the 5.5 pitch and handed back a finer,
+more crowded mark — a different mark at a larger size. A registration mark
+enlarged on a press is the same mark.
+
+Because the count is unchanged, so is the cost: about a hundred circles a frame,
+exactly as before, for the same 900ms.
+
+Set to **220** (1.67×). Four sizes are side by side in
+`../portfolio-concepts/loader-groesse.html` running the real draw loop — 132,
+176, 220, 264 — and the number is a one-line change if Antony wants another.
+
+**264 is the ceiling, and a phone sets it.** The loader is a column — mark,
+wordmark, counter — and at 390×844 a 264 mark leaves that column about 380px in
+an 844px window, still reading as centred rather than as filling the screen. Past
+that it starts behaving like a splash screen, which is the one thing an
+instrument booting must not look like.
+
+Geometry checked rather than assumed: at 220 the furthest ink from centre is
+`ARM + aus + dot` = 66.7 + 30 + 2.7 = 99.4px against a 110px half-box. The same
+proportional margin the 132 version had, because everything scaled together.
+
+The canvas box moved from a Tailwind `h-[132px] w-[132px]` to an inline style —
+a utility class cannot read `KANTE`, and two numbers kept in step by hand is the
+thing this change exists to remove. Verified in the prerendered HTML:
+`<canvas style="width:220px;height:220px">`.
+
+Still skipped entirely under reduced motion, as before.
