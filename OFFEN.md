@@ -2057,3 +2057,70 @@ transitioned property immediately after the state change measures nothing.**
   second reading — one journey, different hand-offs. Done, see §27.**
 - Everything in §25's "still open" list stands, including that **nobody has seen
   any of today's hovers move on a compositing browser**.
+
+---
+
+## 27 · About hands the frame over twice, and not the same way — 18.08.2026
+
+Antony asked for the three beats to be "phong phú" — richer — and then chose
+between the two readings of his own sentence himself: **not three different
+gestures, one journey with different hand-offs.** That is the smaller ask and
+the better one. The volume, the score and the reason FX.08 exists are untouched;
+every beat still comes up out of the far end, stands at the plane, and passes.
+What is no longer identical is the moment one sentence gives the frame to the
+next, of which a three-beat score has exactly two.
+
+**Nothing in the score moved.** Same `AN`, `HALT`, `AB`, same `TAKT`. That was
+the design constraint, not an accident: `mitte()` translates a beat's place in
+the score into a scroll position for the keyboard focus map, so a hand-off that
+changed the clock would need a second copy of the timing to keep in step — the
+exact failure the note above `TAKT` already names. The difference is carried in
+**how far** a beat goes and **in what order its lines follow**, never in when.
+
+| hand-off | the plate | its lines |
+|---|---|---|
+| 1 · claim → evidence | to `NAH` (+380), as before | retreat to −260, **last line first** |
+| 2 · evidence → promise | to `NAH_WEIT` (**+620**) | do not move at all |
+
+One reads as the claim being **pulled back into the depth**, unwriting itself in
+the reverse of the order it wrote itself out in, while the evidence writes itself
+out underneath — two writings crossing, running opposite ways. Two reads as the
+evidence being **lifted off whole**: one rigid plate, further and therefore
+cleaner, so the promise — the only beat that never departs — arrives into a frame
+nothing is still leaving.
+
+Both stay inside `AB`, so neither outgoing sentence is legible any longer than it
+was. That was the thing to protect: the score is arranged the way it is precisely
+to keep two pieces of running text from ever being readable at once.
+
+### Measured, because a scrubbed effect cannot be read in the app's browser
+
+`scripts/README` trap 2 — the pane does not composite, so the scrub never
+advances and every sample would be the parked state. Driven instead on real
+Chromium through `scripts/cdp.mjs`, walking the 1665px pin in 21 steps and
+reading each beat's `matrix3d` m43 plus beat 0's line elements:
+
+| f | beat 0 | beat 1 | beat 2 | beat 0's line z |
+|---|---|---|---|---|
+| 0.05 | −130 | −1150 | −1150 | [−4, −27, −89, −206] ← arriving, first line first |
+| 0.35 | 259 | −561 | −1150 | **[−34, −82, −130, −177]** ← leaving, last line deepest |
+| 0.40 | 380 | −222 | −1150 | [−137, −184, −232, −260] |
+| 0.65 | 380 | 443 | −534 | held |
+| 0.70 | 380 | **620** | −191 | held |
+| 1.00 | 380 | 620 | **0** | held |
+
+Beat 0 tops out at exactly `NAH`, beat 1 at exactly `NAH_WEIT`, beat 2 never
+leaves the plane, and beat 1's lines read `0` through its whole departure — the
+rigid plate. The reversal is visible in the numbers rather than inferred: on the
+way in the FIRST line is deepest, on the way out the LAST one is.
+
+Sampled once, 21 points, one viewport (1440×900). **Not** yet looked at by a
+human on a compositing browser, which is still the open item §25 left.
+
+### Reduced motion cost nothing here, and that is worth knowing
+
+The whole block is inside `mm.add("(prefers-reduced-motion: no-preference)")`,
+so a reader who asks for less motion never had beats travelling and does not now
+either — they get the flat stacked-off layout. No second still frame had to be
+designed for either hand-off, which is the one place today's work was cheaper
+than ZIELE §6.7 usually makes it.

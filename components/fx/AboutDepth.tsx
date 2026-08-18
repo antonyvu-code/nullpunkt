@@ -89,6 +89,47 @@ const NAH = 380;
  *  gives its own copy, and that is not a coincidence, it is the same volume. */
 const ANSATZ = -260;
 
+/* ——— THE TWO HAND-OFFS, AND THEY ARE NOT ONE HAND-OFF TWICE ——————————
+   Added 18.08.2026 on Antony's call, and the shape of the ask is worth writing
+   down because it constrains this hard: he did NOT ask for three different
+   gestures. The journey stays the one journey — every beat still comes up out
+   of the far end, stands at the plane, and passes — and what differs is the
+   HAND-OFF, the moment one sentence gives the frame to the next. There are
+   exactly two of those on a three-beat score, and they were identical.
+
+   NOTHING HERE TOUCHES THE SCORE. Same AN, HALT, AB, same TAKT, so `mitte()`
+   still returns the position it did and the keyboard focus map at the foot of
+   this file still lands a beat exactly where the wheel would. That is the whole
+   reason the difference is expressed as *how far* and *in what order* a beat
+   leaves, rather than as *when* — a hand-off that changed the clock would be a
+   second copy of the score to keep in step, which the note above TAKT already
+   calls the way a keyboard reader ends up half a beat off.
+
+   ONE · THE CLAIM IS PULLED BACK IN. Its lines retreat as it goes, LAST LINE
+   FIRST — the sentence unwrites itself into the depth in the reverse of the
+   order it wrote itself out in, while the evidence is writing itself out below.
+   Two writings crossing, running opposite ways.
+
+   TWO · THE EVIDENCE IS LIFTED OFF WHOLE. No line move at all: it leaves as one
+   rigid plate and goes further, so the frame is emptied cleanly and the promise
+   — the one beat that never departs — arrives into a frame nothing is still
+   leaving. The argument's last step gets the cleanest air.
+
+   Both stay inside AB, so neither outgoing sentence is legible any longer than
+   before. That mattered: the note on TAKT names a cross-fade between two pieces
+   of running text as the risk this whole score is arranged to avoid, and a
+   hand-off that lingers is exactly how it would come back. */
+const NAH_WEIT = 620;
+const ZEILE_AB = -260;
+const ABGANG = [
+  { z: NAH, zeilenRueckwaerts: true },
+  { z: NAH_WEIT, zeilenRueckwaerts: false },
+] as const;
+/** The hand-off leaving beat i. The last beat never departs, so this is only
+ *  ever asked for i < beats.length - 1; clamped anyway, because a fourth beat
+ *  added to page.tsx should get the last hand-off rather than a crash. */
+const abgang = (i: number) => ABGANG[Math.min(i, ABGANG.length - 1)];
+
 /* ——— AND THE LINES ON THE PLATE ————————————————————————————————————————
    The beat is the plate; these are the lines set on it. Each starts a little
    further back than the plate it rides and lands a little later than the one
@@ -277,7 +318,7 @@ export default function AboutDepth() {
              from a finished statement rather than watching the argument fly
              past their head. */
           if (i !== letzte) {
-            tl.to(el, { z: NAH, opacity: 0, duration: AB, ease: "none" }, t + AN + HALT);
+            tl.to(el, { z: abgang(i).z, opacity: 0, duration: AB, ease: "none" }, t + AN + HALT);
           }
 
           /* ——— THE LINE LAYER ——————————————————————————————————————————
@@ -387,6 +428,28 @@ export default function AboutDepth() {
                   },
                   t,
                 );
+
+                /* ——— AND THE FIRST HAND-OFF UNWRITES THE SENTENCE ————————
+                   Only where the score says so (see ABGANG at the head of this
+                   file). `from: "end"` is the whole gesture: the last line
+                   retreats first, so the claim goes back into the depth in the
+                   reverse of the order it came out of it.
+                   Inside AB and inside the plate's own fade, so it adds no time
+                   and cannot leave an outgoing line legible for longer.
+                   ease "none" for the same reason the plate's travel is: this
+                   is a departure, not an arrival, and nothing is landing. */
+                if (i !== letzte && abgang(i).zeilenRueckwaerts) {
+                  ztl.to(
+                    ziele,
+                    {
+                      z: ZEILE_AB,
+                      duration: AB,
+                      ease: "none",
+                      stagger: { amount: AB * 0.55, from: "end" },
+                    },
+                    t + AN + HALT,
+                  );
+                }
 
                 /* Position 0 — the tweens inside already carry their own `t`,
                    which is the master's clock. A child added at anything else
