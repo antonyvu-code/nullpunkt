@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { site } from "@/lib/site";
-import { L, LangToggle, useLang } from "@/components/Lang";
+import { L, LangToggle } from "@/components/Lang";
 import { useFx } from "@/components/fx/FxProvider";
 import { Walze } from "@/components/Walze";
 
@@ -22,7 +22,6 @@ function fahreZu(ziel: number | HTMLElement) {
 
 export default function Chrome() {
   const pathname = usePathname();
-  const { lang } = useLang();
   const timeRef = useRef<HTMLSpanElement>(null);
   const fpsRef = useRef<HTMLSpanElement>(null);
   const scrRef = useRef<HTMLSpanElement>(null);
@@ -253,7 +252,11 @@ export default function Chrome() {
               >
                 <span className="text-muted-dim">S.{site.sections[marke].n}</span>
                 <span className="hidden md:inline">
-                  <L text={site.sections[marke].label} />
+                  {/* Keyed on the section, so the roller is a new element when
+                      the needle moves rather than one whose characters
+                      transition into the next section's name while the reader
+                      is nowhere near it. */}
+                  <Walze key={site.sections[marke].n} text={site.sections[marke].label} />
                 </span>
                 <span aria-hidden="true" className="opacity-50">
                   {offen ? "▾" : "▸"}
@@ -293,7 +296,10 @@ export default function Chrome() {
                           }}
                         />
                         <span className="text-muted-dim">{s.n}</span>
-                        <span>{s.label[lang]}</span>
+                        {/* The roller reads the language itself, so the label
+                            is handed over as the pair rather than resolved
+                            here — same source, one less place to forget. */}
+                        <Walze text={s.label} />
                       </a>
                     </li>
                   ))}

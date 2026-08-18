@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { projects, type Comparison, type Plate } from "@/lib/projects";
 import AccentSetter from "@/components/AccentSetter";
+import { Walze } from "@/components/Walze";
 
 function PlateFigure({ plate, priority = false }: { plate: Plate; priority?: boolean }) {
   return (
@@ -115,7 +116,13 @@ export default async function CaseStudy({ params }: Props) {
             className="hud accent-t mt-8 inline-block border px-6 py-3.5 text-ink no-underline transition-colors hover:border-accent hover:text-accent"
             style={{ borderColor: "var(--line)" }}
           >
-            VIEW LIVE — {p.liveUrl.replace("https://", "")} ↗
+            {/* No np-zug: this one is a box, and a rule drawn under a label
+                inside its own border is a second frame. The border already
+                answers the pointer. */}
+            <Walze
+              en={`VIEW LIVE — ${p.liveUrl.replace("https://", "")} ↗`}
+              de={`VIEW LIVE — ${p.liveUrl.replace("https://", "")} ↗`}
+            />
           </a>
         )}
       </header>
@@ -200,15 +207,18 @@ export default async function CaseStudy({ params }: Props) {
       >
         <Link
           href="/"
-          className="hud accent-t inline-flex min-h-[44px] items-center text-muted no-underline hover:text-accent"
+          className="hud accent-t np-zug inline-flex min-h-[44px] items-center text-muted no-underline hover:text-accent"
         >
-          ← BACK TO INDEX
+          <Walze en="← BACK TO INDEX" de="← BACK TO INDEX" />
         </Link>
         <Link
           href={`/work/${next.slug}`}
-          className="hud accent-t inline-flex min-h-[44px] items-center text-ink no-underline hover:text-accent"
+          className="hud accent-t np-zug inline-flex min-h-[44px] items-center text-ink no-underline hover:text-accent"
         >
-          NEXT — EXP.{next.index} {next.title.toUpperCase()} →
+          <Walze
+            en={`NEXT — EXP.${next.index} ${next.title.toUpperCase()} →`}
+            de={`NEXT — EXP.${next.index} ${next.title.toUpperCase()} →`}
+          />
         </Link>
       </nav>
     </article>

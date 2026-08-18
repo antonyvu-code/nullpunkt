@@ -1783,9 +1783,10 @@ readings that turned out to be the instrument rather than the page.
 
 ### Open and waiting on Antony
 
-- **Small changes to the frame and the motion.** Named but not yet specified —
-  ask what they are before proposing anything. This is the whole reason stage 4
-  stopped where it did.
+- **Small changes to the frame and the motion.** ~~Named but not yet specified~~
+  — **the MOTION half was specified and done on 18.08.2026, see §25.** The FRAME
+  half is still unnamed; ask before proposing anything. Stage 4 stays paused
+  until it lands.
 - **Field note names are `<span>`s at 4xl–7xl on `/` and `/work`.** The same
   defect class as §23's Defect 2, in the largest type on both pages. Making them
   headings takes the home page from **17 to about 25**, and 17 is the number the
@@ -1817,3 +1818,116 @@ page.
 16 commits today, all on `main`, **not pushed**. Working tree clean, `pnpm build`
 green, and every number quoted above was measured on the built page rather than
 in dev.
+
+---
+
+## 25 · The cylinder turned sideways, and it now runs on 25 labels — 18.08.2026
+
+Antony, unprompted and in two sentences: apply the hover to **all typography a
+reader can hover**, and the current one is *"hơi nhanh và hơi chéo góc"* — a bit
+fast, and a bit diagonal. This is the motion half of §24's first open item.
+
+### The diagonal was never in the code, it was between two axes
+
+`Walze` gives every character its own window with two copies on a roller, and
+the delay has always been dealt out **left to right** along the word. The
+rollers, however, turned **vertically** — the read copy left through the top,
+the waiting one came up from below. Neither half is wrong on its own; put
+together, a vertical travel handed out horizontally is a **diagonal wipe**, and
+that is exactly what Antony read off the screen. Nothing was broken. The two
+directions were simply pointing at different things.
+
+Turning the rollers ninety degrees — read copy leaves **right**, waiting copy
+arrives **from the left** — puts travel and order on the same heading. It also
+puts the roller on the same heading as the rule drawn under the same link, which
+has arrived left-to-right since it was built. One pen, one pass, one gesture;
+before, the pen went one way and the letters another.
+
+### The speed was chosen by looking, not by asking — ZIELE §6.2
+
+Three variants on the same four labels (`hud`, a 1.5rem link, the e-mail, and
+one at 4.5rem), all horizontal, differing only in time:
+
+| | spread | travel | total |
+|---|---|---|---|
+| as shipped | 140ms | 260ms | 400ms |
+| **B — chosen** | **200ms** | **380ms** | **580ms** |
+| C | 280ms | 500ms | 780ms |
+
+Antony took **B**. C read as lag on a nav a pointer crosses quickly; A, the
+existing speed, still read as a flick once the travel had turned horizontal.
+The comparison is kept at `../portfolio-concepts/walze-horizontal-vergleich.html`
+and is standalone — it needs no build and no server.
+
+**The travel moved out of `--dur-ui` into its own `--dur-walze`, and the drawn
+rule moved with it.** They are two halves of one hover; a rule that finishes
+while the letters are still turning is two effects. The old note in `globals.css`
+arguing 260ms *against Trionn's 500ms* still holds and is now written against
+380, which is still under half a second on a page that already trails the wheel.
+
+### Where it runs now — 25 labels, one tier
+
+Antony's call was **every single-line link and button**, and explicitly *not* the
+large display type:
+
+`Chrome` section list (7) + the S.0x button · footer e-mail, Impressum,
+Datenschutz · 404 (2) · `/work` fore-and-aft nav (2) · case page: VIEW LIVE,
+back, next · Impressum and Datenschutz: e-mail and back link (4) · Kontakt: two
+switch tabs and the submit button.
+
+Two deliberate exclusions, both stated where they live:
+
+- **The EN / DE toggle keeps plain text.** `Walze.tsx` imports `useLang` from
+  `Lang.tsx`, so a roller there closes an import cycle Lang → Walze → Lang. Two
+  characters are also the one length where the effect has nothing to say: the
+  spread divides by character count, and a spread over one step is a fade.
+- **`np-zug` was paired onto the links but NOT onto the boxed or tabbed
+  buttons** — VIEW LIVE has a border and the Kontakt switch has a 2px underline
+  that *is* its state. A drawn rule under either says a second thing about the
+  same control.
+
+### What it costs, measured, and the first instrument was thrown away
+
+The page's known hot spot (§12) is one write of `--accent` on `:root`, whose cost
+"tracks the number of elements that INHERIT the property, and nothing else". This
+change adds **275 elements to the home page** (971 → 1246), all of them
+inheritors. That is the thing that could get worse, so it was measured.
+
+**The first instrument failed its own check** and its number is not recorded
+here: writing an unused custom property as a control cost 10.9ms against
+`--accent`'s 14.9ms, i.e. the rig was reading *any* `:root` custom-property write
+rather than the inherited one. It could not separate the variable.
+
+The ablation that replaced it holds the write identical and moves **only the
+element count**, by flattening rollers back to plain text in the live page:
+
+| condition | elements | forced recalc, median of 50 |
+|---|---|---|
+| as shipped today | 1246 | 14.5ms |
+| today's new rollers flattened (yesterday's shape) | 971 | 13.8ms |
+| every roller flattened | 624 | 12.8ms |
+
+**+275 elements bought +0.7ms per accent write, about 5%.** And the ablation says
+something §12 did not: halving the document (1246 → 624) moves the write by only
+12%, so most of that cost is a floor rather than a per-element price. The
+instrument does respond to element count — monotonically, in the right direction
+— which is what makes the 0.7ms admissible; the absolute numbers are **not**
+comparable to §12's, which came off a different rig measuring a scroll section.
+
+Measured in the in-app browser pane, which trap 2 in `scripts/README.md` calls
+fiction for anything frame-dependent. A forced synchronous recalc is not
+frame-dependent, which is why it was measured there and the *look* of the effect
+was not.
+
+### Still open on this (§25)
+
+- **Nobody has seen it move on a compositing browser yet** — the pane does not
+  composite, and the comparison file is a mock of the effect rather than the page
+  itself. `pnpm start` and a real pointer is the check, and it is a minute.
+- The large display type — `ProjectIndex` h2, the case card h3, the field note
+  names at 4xl–7xl — was **excluded by Antony**, not overlooked. Reopening it
+  means answering the field notes' own `group-hover:translate-x-5`, which would
+  then be a second horizontal motion on the same gesture.
+- **Reduced motion is unchanged and still correct**: the window opens, the
+  waiting copy is `display:none`, and the read copy does not move. Verified in
+  the built CSS after the axis change, not assumed.

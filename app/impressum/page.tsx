@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { site } from "@/lib/site";
 import Rechtstext, { Absatz, Block } from "@/components/Rechtstext";
+import { Walze } from "@/components/Walze";
 
 export const metadata: Metadata = {
   title: "Impressum",
@@ -36,7 +37,7 @@ export default function Impressum() {
         <Absatz>
           E-Mail:{" "}
           <a href={`mailto:${site.email}`} className="accent-t text-ink no-underline hover:text-accent">
-            {site.email}
+            <Walze en={site.email} de={site.email} />
           </a>
         </Absatz>
       </Block>
@@ -70,8 +71,8 @@ export default function Impressum() {
       </Block>
 
       <p className="hud mt-16">
-        <Link href="/" className="accent-t text-muted no-underline hover:text-accent">
-          ← ZURÜCK ZUR STARTSEITE
+        <Link href="/" className="accent-t np-zug text-muted no-underline hover:text-accent">
+          <Walze en="← ZURÜCK ZUR STARTSEITE" de="← ZURÜCK ZUR STARTSEITE" />
         </Link>
       </p>
     </Rechtstext>

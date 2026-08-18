@@ -77,6 +77,11 @@ export function LSatz({ text }: { text: Copy }) {
 }
 
 /** EN / DE switch for the header. */
+/* NO WALZE ON EN / DE, and the reason is structural rather than aesthetic:
+   Walze.tsx imports useLang from this file, so a roller here would close an
+   import cycle Lang → Walze → Lang. Two characters are also the one case where
+   the effect has nothing to say — the spread divides by length, and a spread
+   across one step is a plain fade with extra markup. 18.08.2026. */
 export function LangToggle() {
   const { lang, setLang } = useLang();
   return (

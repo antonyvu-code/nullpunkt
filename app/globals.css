@@ -107,10 +107,18 @@
                       effect (see [data-accent-release] below and README.md);
                       over 900ms and therefore stated, as the floor requires.
        --dur-zero     the loader's snap into the crosshair — one beat longer
-                      than --dur-ui so the arrival registers as an event. */
+                      than --dur-ui so the arrival registers as an event.
+       --dur-walze    the cylinder turning a label over, and the rule drawn
+                      under it. It sits above --dur-ui because the roller now
+                      travels ALONG the word rather than across it (see DIE
+                      WALZE below): at 260ms a horizontal pass reads as a flick,
+                      and the thing it is meant to look like is a pass, not a
+                      flick. Both halves of one hover are on this token on
+                      purpose — the drawn rule and the roller must not drift. */
   --dur-accent: 450ms;
   --dur-release: 2s;
   --dur-zero: 500ms;
+  --dur-walze: 380ms;
 
   /* A loop period, not a transition duration — the tier system does not apply
      to something that never ends. Named anyway so it is not a bare number. */
@@ -222,10 +230,14 @@ h3,
    link is one more place the site's one idea shows up rather than a decoration
    laid over it.
 
-   260ms, not Trionn's 500. Their site has no smooth-scroll lag to fight; this
+   380ms, not Trionn's 500. Their site has no smooth-scroll lag to fight; this
    one already trails the wheel by 0.6s, and half a second of underline on top
-   of that is a page that answers late everywhere. --dur-ui is this file's tier
-   for a state change and this is a state change.
+   of that is a page that answers late everywhere.
+   IT WAS 260ms (--dur-ui) UNTIL 18.08.2026, and it moved for the roller rather
+   than for itself: the two are one gesture, the roller needed the longer beat
+   once it started travelling along the word, and a rule that finishes drawing
+   while the letters are still turning is two effects instead of one. Hence
+   --dur-walze on both, rather than a tier on one and a number on the other.
 
    ::after, so .accent-t cannot reach it. That rule is a `transition` shorthand
    declared outside @layer and it matches `.accent-t *` — which would replace
@@ -249,7 +261,7 @@ h3,
   background: var(--accent);
   transform: scaleX(0);
   transform-origin: 100% 50%;
-  transition: transform var(--dur-ui) var(--ease-out);
+  transition: transform var(--dur-walze) var(--ease-out);
 }
 
 .np-zug:hover::after,
@@ -262,6 +274,20 @@ h3,
    The markup is components/Walze.tsx; this is the whole of the behaviour. No
    JavaScript runs — the stagger is a transition-delay read off each character's
    own index, so pointing at a link is one CSS state change and nothing else.
+
+   THE CYLINDER TURNED NINETY DEGREES — 18.08.2026, and this is the whole of the
+   change. The rollers used to run VERTICALLY: the copy being read left through
+   the top while the waiting copy came up from below. The delay has always run
+   left to right along the word, and those two axes together are what a reader
+   sees — a vertical travel dealt out horizontally reads as a DIAGONAL wipe, and
+   Antony read it as exactly that. Nothing about the mechanism was wrong; the two
+   directions were simply at odds. Now the copy being read leaves to the RIGHT
+   and the waiting copy arrives FROM THE LEFT, so travel and order are the same
+   direction and the pass reads as one thing crossing the word.
+   It also puts the roller on the same heading as the rule drawn underneath it,
+   which arrives left-to-right and leaves left-to-right — one pen, one pass, one
+   gesture. The vertical version had the pen going one way and the letters
+   another.
 
    THE SMEAR IS ON THE COPY THAT IS LEAVING, and only there. A blur that peaks
    mid-travel and returns to zero at both ends is a keyframe animation, and a
@@ -309,9 +335,9 @@ h3,
      --dur-ui, the same tier as the drawn rule under these links, so the two
      halves of one hover cannot drift apart. */
   transition:
-    transform var(--dur-ui) var(--ease-out),
-    filter var(--dur-ui) var(--ease-out),
-    opacity var(--dur-ui) var(--ease-out);
+    transform var(--dur-walze) var(--ease-out),
+    filter var(--dur-walze) var(--ease-out),
+    opacity var(--dur-walze) var(--ease-out);
   transition-delay: var(--d, 0ms);
 }
 
@@ -319,7 +345,11 @@ h3,
   position: absolute;
   inset-inline-start: 0;
   top: 0.22em; /* the padding above, so the waiting copy sits on the baseline */
-  transform: translateY(100%);
+  /* -100%, not 100%: the waiting copy stands off the LEFT edge of its own
+     window and walks in behind the one leaving. translateX is physical, not
+     logical — the page is EN/DE and both read left to right, so the direction
+     is stated here once rather than pretended to be direction-agnostic. */
+  transform: translateX(-100%);
   filter: blur(4px);
   opacity: 0;
 }
@@ -329,7 +359,7 @@ a:hover .np-walze .np-walze-a,
 a:focus-visible .np-walze .np-walze-a,
 button:hover .np-walze .np-walze-a,
 button:focus-visible .np-walze .np-walze-a {
-  transform: translateY(-100%);
+  transform: translateX(100%);
   filter: blur(4px);
   opacity: 0;
 }
@@ -339,7 +369,7 @@ a:hover .np-walze .np-walze-b,
 a:focus-visible .np-walze .np-walze-b,
 button:hover .np-walze .np-walze-b,
 button:focus-visible .np-walze .np-walze-b {
-  transform: translateY(0);
+  transform: translateX(0);
   filter: blur(0);
   opacity: 1;
 }

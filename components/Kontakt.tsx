@@ -251,7 +251,10 @@ export default function Kontakt() {
         modus === k ? "border-accent text-accent" : "border-transparent text-muted hover:text-ink"
       }`}
     >
-      {text}
+      {/* No np-zug on the switch: the 2px border under it IS the state, and a
+          second rule drawn under a tab that already carries one would say two
+          things about the same button. */}
+      <Walze en={text} de={text} />
     </button>
   );
 
@@ -334,7 +337,7 @@ export default function Kontakt() {
           type="submit"
           className="hud hud-wide inline-flex min-h-[48px] items-center gap-3 bg-flare px-6 text-bg transition-colors duration-300 hover:bg-ink motion-reduce:transition-none"
         >
-          {t.send}
+          <Walze en={t.send} de={t.send} />
           <span aria-hidden="true">↗</span>
         </button>
         <button

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { L } from "@/components/Lang";
+import { Walze } from "@/components/Walze";
 
 /**
  * 404 — and the reason this file exists at all is a measurement.
@@ -48,16 +49,16 @@ export default function NotFound() {
       <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
         <Link
           href="/"
-          className="accent-t font-display inline-flex min-h-[44px] items-center gap-3 text-2xl font-medium text-ink no-underline hover:text-accent"
+          className="accent-t np-zug font-display inline-flex min-h-[44px] items-center gap-3 text-2xl font-medium text-ink no-underline hover:text-accent"
         >
           <span aria-hidden="true">←</span>
-          <L en="Back to the start" de="Zurück zum Anfang" />
+          <Walze en="Back to the start" de="Zurück zum Anfang" />
         </Link>
         <Link
           href="/work"
-          className="accent-t hud inline-flex min-h-[44px] items-center gap-2 text-muted no-underline hover:text-accent"
+          className="accent-t np-zug hud inline-flex min-h-[44px] items-center gap-2 text-muted no-underline hover:text-accent"
         >
-          <L en="OR OPEN THE FULL ARCHIVE" de="ODER DAS GANZE ARCHIV ÖFFNEN" />
+          <Walze en="OR OPEN THE FULL ARCHIVE" de="ODER DAS GANZE ARCHIV ÖFFNEN" />
           <span aria-hidden="true">↗</span>
         </Link>
       </div>

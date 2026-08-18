@@ -6,10 +6,16 @@ import { useLang, type Copy } from "@/components/Lang";
  * DIE WALZE — a label set on a cylinder, turned by the pointer.
  *
  * Each character sits in its own window with two copies of itself on a roller:
- * the one being read, and the one waiting under it. Pointing at the link turns
- * every roller, one after the next along the word, and the copy that was
- * waiting comes up into the window while the one that was read leaves through
- * the top, smearing as it goes.
+ * the one being read, and the one waiting off to its left. Pointing at the link
+ * turns every roller, one after the next along the word, and the copy that was
+ * waiting walks in from the left while the one that was read leaves to the
+ * right, smearing as it goes.
+ *
+ * THE ROLLERS TURNED SIDEWAYS ON 18.08.2026. They used to run vertically, and
+ * a vertical travel handed out left-to-right is read as a diagonal — the axis
+ * of the delay and the axis of the movement were fighting. Both now point the
+ * same way, which is also the way the rule under the link is drawn. The
+ * reasoning is in globals.css under DIE WALZE; the speeds are below.
  *
  * BORROWED FROM TRIONN, AND ADAPTED RATHER THAN COPIED. Their `.nav-link` is
  * the reference: an `.original` layer and an absolutely positioned `.clone` at
@@ -73,10 +79,19 @@ export function Walze({
      email is longer again.
      Dividing a fixed spread by the character count instead makes every label
      take the same time to turn over: nine letters step coarsely, twenty step
-     finely, both are finished at 140 + 260ms. Computed here rather than in
+     finely, both are finished at 200 + 380ms. Computed here rather than in
      calc(), because dividing by a var() is not something CSS can be relied on
-     to do — and this runs once per render, not once per frame. */
-  const SPUR = 140;
+     to do — and this runs once per render, not once per frame.
+
+     140 UNTIL 18.08.2026, and it went up with the axis. The spread is what
+     separates a pass from a flash: once the rollers travel ALONG the word
+     rather than across it, the spread and the travel are pointed the same way
+     and the eye adds them together instead of seeing them as two things. Three
+     speeds were built side by side on the same four labels — 140/260, 200/380,
+     280/500 — and Antony took the middle one. The slowest read as lag on a nav
+     the pointer crosses quickly; the fastest still read as a flick.
+     Bản so sánh: portfolio-concepts/walze-horizontal-vergleich.html */
+  const SPUR = 200;
   const schritt = SPUR / Math.max(zeichen.length - 1, 1);
 
   return (

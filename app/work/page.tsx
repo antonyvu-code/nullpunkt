@@ -4,6 +4,7 @@ import { projects } from "@/lib/projects";
 import ProjectIndex from "@/components/ProjectIndex";
 import FieldNotes from "@/components/FieldNotes";
 import { L } from "@/components/Lang";
+import { Walze } from "@/components/Walze";
 
 export const metadata: Metadata = {
   title: "All projects",
@@ -126,7 +127,7 @@ export default function WorkIndex() {
         <div className="flex flex-wrap items-baseline justify-between gap-6">
           <Link
             href="/"
-            className="accent-t group font-display inline-flex min-h-[44px] items-center gap-3 text-2xl font-medium text-ink no-underline hover:text-accent md:text-3xl"
+            className="accent-t np-zug group font-display inline-flex min-h-[44px] items-center gap-3 text-2xl font-medium text-ink no-underline hover:text-accent md:text-3xl"
           >
             <span
               aria-hidden="true"
@@ -134,13 +135,13 @@ export default function WorkIndex() {
             >
               ←
             </span>
-            <L en="Back to the start" de="Zurück zum Anfang" />
+            <Walze en="Back to the start" de="Zurück zum Anfang" />
           </Link>
           <Link
             href="/#contact"
-            className="accent-t group font-display inline-flex min-h-[44px] items-center gap-3 text-2xl font-medium text-ink no-underline hover:text-accent md:text-3xl"
+            className="accent-t np-zug group font-display inline-flex min-h-[44px] items-center gap-3 text-2xl font-medium text-ink no-underline hover:text-accent md:text-3xl"
           >
-            <L en="Get in touch" de="Kontakt aufnehmen" />
+            <Walze en="Get in touch" de="Kontakt aufnehmen" />
             <span
               aria-hidden="true"
               className="inline-block transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none"

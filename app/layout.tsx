@@ -8,6 +8,7 @@ import Loader from "@/components/Loader";
 import SmoothScroll from "@/components/SmoothScroll";
 import Reveal from "@/components/Reveal";
 import { LangProvider } from "@/components/Lang";
+import { Walze } from "@/components/Walze";
 import { FxProvider } from "@/components/fx/FxProvider";
 import AccentScroll from "@/components/fx/AccentScroll";
 import DrawLines from "@/components/fx/DrawLines";
@@ -151,24 +152,24 @@ export default function RootLayout({
                 </span>
                 <a
                   href={`mailto:${site.email}`}
-                  className="accent-t inline-flex min-h-[44px] items-center text-muted no-underline hover:text-accent"
+                  className="accent-t np-zug inline-flex min-h-[44px] items-center text-muted no-underline hover:text-accent"
                 >
-                  {site.email}
+                  <Walze en={site.email} de={site.email} />
                 </a>
                 {/* § 5 DDG: leicht erkennbar und unmittelbar erreichbar — also im
                   Fuß jeder Seite, nicht nur auf der Startseite. */}
                 <span className="flex items-center gap-5">
                   <Link
                     href="/impressum"
-                    className="accent-t inline-flex min-h-[44px] items-center text-muted no-underline hover:text-accent"
+                    className="accent-t np-zug inline-flex min-h-[44px] items-center text-muted no-underline hover:text-accent"
                   >
-                    IMPRESSUM
+                    <Walze en="IMPRESSUM" de="IMPRESSUM" />
                   </Link>
                   <Link
                     href="/datenschutz"
-                    className="accent-t inline-flex min-h-[44px] items-center text-muted no-underline hover:text-accent"
+                    className="accent-t np-zug inline-flex min-h-[44px] items-center text-muted no-underline hover:text-accent"
                   >
-                    DATENSCHUTZ
+                    <Walze en="DATENSCHUTZ" de="DATENSCHUTZ" />
                   </Link>
                 </span>
                 <span>© {site.founded}</span>
