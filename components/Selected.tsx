@@ -418,21 +418,31 @@ export default function Selected() {
                     </p>
                   </div>
 
-                  {/* Action — the centre card carries the one filled button. */}
+                  {/* Action — the centre card carries the one filled button.
+                      The three group-hover/-focus/-near colour utilities that
+                      used to sit on the outlined strip are gone: globals.css
+                      (.np-streifen) owns this element's hover colour now, and
+                      it answers [data-near] and [data-probed] as well, which is
+                      what keeps the strip and the develop pass giving one
+                      answer. .accent-t stays, so the strip still obeys the 2s
+                      release the rest of the page fades out on. */}
                   {primary ? (
                     <div
-                      className="flex items-center justify-center gap-2 py-5 font-medium text-bg"
+                      className="np-streifen np-streifen-flare flex items-center justify-center gap-2 py-5 font-medium text-bg"
                       style={{ background: "var(--flare)" }}
                     >
-                      <L en="VIEW CASE" de="CASE ANSEHEN" />
+                      {/* The card is the <a>, so the roller here answers a
+                          pointer anywhere on the specimen rather than only on
+                          the strip — same rule the develop pass follows. */}
+                      <Walze en="VIEW CASE" de="CASE ANSEHEN" />
                       <span aria-hidden="true" className="inline-block h-1.5 w-1.5 bg-bg" />
                     </div>
                   ) : (
                     <div
-                      className="hud accent-t flex items-center justify-center gap-2 border-t py-5 text-ink group-hover:text-accent group-focus-visible:text-accent group-data-[near]:text-accent"
+                      className="hud accent-t np-streifen flex items-center justify-center gap-2 border-t py-5 text-ink"
                       style={{ borderColor: "var(--line)" }}
                     >
-                      <L en="VIEW CASE" de="CASE ANSEHEN" />
+                      <Walze en="VIEW CASE" de="CASE ANSEHEN" />
                       <span
                         aria-hidden="true"
                         className="inline-block transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none"

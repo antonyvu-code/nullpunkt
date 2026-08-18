@@ -1931,3 +1931,129 @@ was not.
 - **Reduced motion is unchanged and still correct**: the window opens, the
   waiting copy is `display:none`, and the read copy does not move. Verified in
   the built CSS after the axis change, not assumed.
+
+---
+
+## 26 · Four things Antony pointed at, and one of them was not there — 18.08.2026
+
+Same afternoon as §25, and the four came in one message with four screenshots.
+
+### The orange box was a text selection
+
+Antony read the four section kickers as inconsistent: FIELD NOTES sat in a solid
+orange block, the other three did not. **It is `::selection`** — `globals.css`
+paints a selection with `--accent` on `--bg`, and the screenshot had the words
+dragged over. All four kickers carry the identical
+`hud hud-wide text-accent accent-t`. Nothing to fix, and worth keeping in this
+file because the same screenshot will be taken again.
+
+**One difference between those sections IS real and is deliberate:** a *railed*
+section (CONTACT) stacks kicker and number inside the left rail column; a
+*railless* one (FIELD NOTES, CAPABILITIES, ABOUT) puts kicker left and number
+right on one row. The page alternates railed and railless on purpose — the note
+at `app/page.tsx:255` argues the one consecutive railless pair. ABOUT looked
+empty in the screenshot for a third reason again: its three beats start
+transparent and are scrubbed, so a still frame of it is a still frame of nothing.
+
+### VIEW CASE had no hover at all on the one card that mattered
+
+The five outlined cards took the accent in their text. The sixth — One Bit From
+Home, the `primary`, filled in `--flare` — **had no hover rule whatsoever**: not
+a colour, not the 4px arrow nudge the others get. A filled button reads as
+already-lit, which is how it stayed inert without anyone noticing. That is what
+"hover không rõ" was pointing at, and it was accurate.
+
+Now `.np-streifen` in `globals.css`: a block of colour arriving **from the left**
+on `--dur-walze`, the same pen as the rule under a link and the rollers in a
+label. Chosen by Antony off `../portfolio-concepts/hover-vergleich-2.html`
+against an always-filled strip that inverts on hover.
+
+- **Fill is `--accent`, text goes to `--bg`.** Measured against all eleven
+  project accents before shipping, not after: worst case **5.49:1** (Gutjahr's
+  brick), best 11.72:1. AA holds on every card with no per-card exception.
+- **The filled card fills with `--ink` instead** — sweeping the accent over
+  `--flare` is one signal colour crossing the other, and `--flare` is the one
+  colour on this page that never changes hands.
+- **It answers `[data-near]` and `[data-probed]`, not `:hover` alone.** The
+  develop pass already does; a strip on `:hover` only would drop out in the 12px
+  dead strip between two cards while the plate stayed developed — two answers to
+  one question, which is the bug that rule exists to prevent.
+- The three `group-hover:`/`group-focus-visible:`/`group-data-[near]:` colour
+  utilities came **off** the outlined strip. One mechanism per property.
+
+**The orange stays.** Antony's call, and the argument for it is that `--flare` is
+not One Bit's colour — it is the page's fixed signal for "this is the primary
+action", and the home page has exactly one place to spend it.
+
+### The CV links were the hardest thing on the page to recognise
+
+Three separate faults, all of them fixed rather than one:
+
+| was | is | why |
+|---|---|---|
+| `--muted`, the dimmest colour on the page | `--ink` | it is the line whose whole job is to be taken up |
+| `↗` at 50% | `↓`, and the link now carries `download` | ↗ means "opens elsewhere"; a CV is something you take, and now the glyph and the behaviour agree |
+| nothing said what the file was | a tag reading `PDF · 133 KB` | ordinary courtesy for a link that starts a download |
+
+**The size is read off the file at build time** (`dateigroesse()` in
+`app/page.tsx`), never typed into `lib/site.ts`. Every route here is
+prerendered, so the number in the HTML is the number of the PDF that shipped
+with it. A hand-kept KB figure is a sourced-*looking* metric that goes wrong the
+first time a CV is replaced, and this project's own convention is to leave an
+unsourceable number out rather than assert it. Missing file → the tag says `PDF`
+and nothing more. `(PDF)` came out of both labels in `lib/site.ts`.
+
+The tag is **not** `aria-hidden`. A screen reader is precisely the reader who
+should be told the type and weight before the file lands.
+
+### The rollers went into FIELD NOTES with the indent left running
+
+Antony's question was what it would cost; he then chose it **with** the row's
+existing indent rather than instead of it, after looking at both.
+
+So that row now carries two horizontal motions on one gesture: the box travels
+20/36px (200ms in, 700ms out) while the letters turn across 200ms of spread and
+380ms of travel. They point the same way, which is why it reads as one thing
+accelerating. **If it ever reads as busy, the indent is the half to drop** — the
+roller is the whole page's hover language, the indent is only this section's.
+That is written in `FieldNotes.tsx` as well, where the decision would be made.
+
+### What it all costs, and the number moved
+
+| condition | elements | forced `--accent` recalc, median of 50 |
+|---|---|---|
+| after this afternoon | 1632 | 21.2ms |
+| this afternoon's rollers flattened | 1232 | 19.3ms |
+
+**+400 elements bought +1.9ms, about 10%** — VIEW CASE ×6 and eight field-note
+names. Across the whole day the home page went **971 → 1632 elements, +68%**.
+
+**The absolute number is not comparable to §25's** — 1232 elements measured
+19.3ms here against 14.5ms at 1246 this morning, on the same rig and the same
+page. Something other than element count moved between the two runs, so only the
+**within-run delta** is a result. Both deltas agree on the shape: element count
+is real but shallow, ~5ms per thousand elements, against a floor that dominates.
+
+**Worth Antony's attention rather than mine:** §12 measured the accent write at
+~22ms and closed it as "invisible at 60Hz, visible at 240Hz+ with the pointer
+inside SELECTED or FIELD NOTES". The home page now measures 21.2ms — the same
+neighbourhood, on a **360Hz** display (§10). Nothing here is a regression against
+a threshold anyone set; it is the same accepted cost, slightly larger, in a
+section that now has more to invalidate.
+
+### An instrument fault, the second in one day
+
+Setting `[data-near]` and reading the pseudo-element's `transform` back reported
+`scaleX(0)` — the fill looked dead. It was not: a 380ms transition had just
+started, and `getComputedStyle` at t≈0 returns the *start* value, in a browser
+pane that does not composite and so never advances it. Verified by injecting
+`transition: none` first, after which rest reads `scaleX(0)` and `[data-near]`
+reads `scaleX(1)`, text `#050505`, fill `--ink` on the filled card. **Reading a
+transitioned property immediately after the state change measures nothing.**
+
+### Open
+
+- ~~**ABOUT's three beats.**~~ **Asked rather than assumed, and Antony chose the
+  second reading — one journey, different hand-offs. Done, see §27.**
+- Everything in §25's "still open" list stands, including that **nobody has seen
+  any of today's hovers move on a compositing browser**.

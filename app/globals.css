@@ -270,6 +270,84 @@ h3,
   transform-origin: 0 50%;
 }
 
+/* ——— THE STRIP FILLS FROM THE LEFT ————————————————————————————————————
+   VIEW CASE on a specimen card, and until 18.08.2026 the centre card's version
+   of it answered a pointer with NOTHING. The five outlined cards at least took
+   the accent in their text; the one filled in --flare had no hover rule at all,
+   because a filled button reads as already-lit and nobody noticed it was inert.
+   That is what Antony read as "the hover is not clear" — and he was pointing at
+   the one control on the page that genuinely had none.
+
+   IT IS THE SAME PEN AS EVERYTHING ELSE. A block of colour arriving from the
+   left, on the same easing and the same --dur-walze as the rule under a link
+   and the rollers in a label. Not a fade, not a lift: this page draws, and a
+   filled strip that fades in is the one gesture that would not belong.
+
+   --accent, so the strip fills with the colour the card is lending the page —
+   the borrow shows up in one more place instead of a grey UI hover sitting on
+   top of it. The text goes to --bg over it; measured against all eleven project
+   accents the worst case is 5.49:1 (Gutjahr's brick) and the best 11.72:1, so
+   AA holds on every card without a per-card exception.
+
+   THE FILLED CARD FILLS WITH --ink INSTEAD. Sweeping the accent over --flare
+   would be one signal colour crossing another, and --flare is the page's one
+   colour that never changes hands.
+
+   IT FOLLOWS [data-near] AND [data-probed], not :hover alone. The develop pass
+   above answers the NEAREST card because the 12px gap between two cards is a
+   dead strip for :hover — a fill that used :hover only would drop out in that
+   gap while the plate stayed developed, which is two answers to one question. */
+/* No `transition: color` here on purpose. The strip carries .accent-t, whose
+   unlayered shorthand would replace it anyway, and that is the rule that makes
+   the strip fade out with the rest of the page on the 2s release. One
+   mechanism per property. */
+.np-streifen {
+  position: relative;
+  z-index: 0; /* own stacking context, so the fill's -1 stays inside the strip */
+}
+
+.np-streifen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  transition: transform var(--dur-walze) var(--ease-out);
+}
+
+.np-streifen-flare::before {
+  background: var(--ink);
+}
+
+[data-card]:hover .np-streifen::before,
+[data-card]:focus-visible .np-streifen::before,
+[data-card][data-near] .np-streifen::before,
+[data-card][data-probed] .np-streifen::before {
+  transform: scaleX(1);
+  transform-origin: 0 50%;
+}
+
+[data-card]:hover .np-streifen,
+[data-card]:focus-visible .np-streifen,
+[data-card][data-near] .np-streifen,
+[data-card][data-probed] .np-streifen {
+  color: var(--bg);
+}
+
+/* The fill is a transform on a pseudo-element and reverses for free, so it is
+   left running under reduced motion the way the drawn rule is — but the TRAVEL
+   is what carries the meaning, and a strip that snaps full is just a colour
+   change. Snapping is the honest reduced-motion answer here: the state is still
+   legible, nothing crosses the screen. */
+@media (prefers-reduced-motion: reduce) {
+  .np-streifen,
+  .np-streifen::before {
+    transition: none;
+  }
+}
+
 /* ——— DIE WALZE: A LABEL TURNS OVER —————————————————————————————————————
    The markup is components/Walze.tsx; this is the whole of the behaviour. No
    JavaScript runs — the stagger is a transition-delay read off each character's

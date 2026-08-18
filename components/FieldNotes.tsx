@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { fieldNotes, fieldNoteSweep, homeRestAccent } from "@/lib/projects";
 import { useFx } from "@/components/fx/FxProvider";
+import { Walze } from "@/components/Walze";
 
 function setAccent(hex: string) {
   document.documentElement.style.setProperty("--accent", hex);
@@ -187,8 +188,19 @@ export default function FieldNotes() {
                   @layer, so it beats any Tailwind duration utility. That is
                   what we want: the name then obeys the 2s release rule and
                   fades out with the rest of the page. */}
+              {/* THE ROLLER AT 7xl, and Antony chose it WITH the indent still
+                  running — 18.08.2026, after looking at both. Worth writing
+                  down that this row therefore carries two horizontal motions
+                  on one gesture: the box travels 20/36px at 200ms in, and the
+                  letters turn over across 200ms of spread and 380ms of travel.
+                  They point the same way, which is why it reads as one thing
+                  accelerating rather than two things arguing — but if this row
+                  ever feels busy, the indent is the half to drop, not the
+                  roller: the roller is the page's hover language, the indent is
+                  only this section's. Cost, measured: 8 notes, 70 characters,
+                  +210 elements on `/` and again on `/work`. */}
               <span className="accent-t font-display text-4xl font-medium leading-none tracking-tight text-muted group-hover:text-accent md:text-6xl lg:text-7xl">
-                {f.name}
+                <Walze en={f.name} de={f.name} />
               </span>
               <span className="max-w-[36ch] text-sm leading-snug text-muted-dim transition-colors duration-700 group-hover:text-muted group-hover:duration-200 motion-reduce:transition-none">
                 {f.note}

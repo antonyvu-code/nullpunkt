@@ -1,3 +1,5 @@
+import { statSync } from "node:fs";
+import { join } from "node:path";
 import { site } from "@/lib/site";
 import { homeRestAccent } from "@/lib/projects";
 import AccentSetter from "@/components/AccentSetter";
@@ -68,6 +70,23 @@ function swatchColor(k: string, v: string): string | null {
 }
 
 /** Swiss left rail: kicker + a running section number, ruled off from the body. */
+/* ——— HOW BIG IS THE DOCUMENT, ACTUALLY ————————————————————————————————
+   Read off the file during the build, never typed into lib/site.ts. This page
+   is statically prerendered, so the stat runs once at build time and the number
+   in the HTML is always the number of the PDF that shipped with it. The
+   alternative — a KB figure kept by hand — is a sourced-looking metric that
+   goes wrong the first time a CV is replaced, and this project's own convention
+   (lib/projects.ts, `Metric.source`) is that an unsourceable number is left out
+   rather than asserted. Missing file returns null and the tag simply says PDF. */
+function dateigroesse(href: string): string | null {
+  try {
+    const bytes = statSync(join(process.cwd(), "public", href)).size;
+    return `${Math.round(bytes / 1024)} KB`;
+  } catch {
+    return null;
+  }
+}
+
 function Rail({
   kicker,
   n,
@@ -658,20 +677,42 @@ export default function Home() {
               <LSatz text={site.aboutClose} />
             </p>
             <ul className="hud mt-12 flex list-none flex-wrap justify-center gap-x-6 gap-y-3 p-0">
-              {site.links.map((l) => (
-                <li key={l.label}>
-                  <a
-                    href={l.href}
-                    target={l.placeholder ? undefined : "_blank"}
-                    rel="noopener"
-                    className="accent-t np-zug inline-flex items-center gap-1.5 text-muted no-underline hover:text-accent"
-                    title={l.placeholder ? "Placeholder — add real URL" : undefined}
-                  >
-                    <Walze en={l.label} de={l.label} />
-                    <span aria-hidden="true" className="opacity-50">↗</span>
-                  </a>
-                </li>
-              ))}
+              {/* THESE TWO WERE THE HARDEST THING ON THE PAGE TO RECOGNISE AS
+                  CLICKABLE, and Antony said so on 18.08.2026. Three separate
+                  reasons, all fixed here rather than one of them:
+                  · they were --muted, the dimmest colour on the page, on the
+                    one line whose whole job is to be taken up. Now --ink.
+                  · the mark beside them was ↗, which means "opens elsewhere".
+                    A CV is something you TAKE, so it is ↓ and the link now
+                    carries `download` — the glyph and the behaviour agree.
+                  · nothing said what the file was. The tag says PDF and the
+                    real size, which is the ordinary courtesy of any link that
+                    starts a download, and it is NOT aria-hidden: a screen
+                    reader is exactly the reader who should be told before
+                    the file lands. */}
+              {site.links.map((l) => {
+                const groesse = dateigroesse(l.href);
+                return (
+                  <li key={l.label}>
+                    <a
+                      href={l.href}
+                      download={l.placeholder ? undefined : ""}
+                      rel="noopener"
+                      className="accent-t np-zug inline-flex items-center gap-2 text-ink no-underline hover:text-accent"
+                      title={l.placeholder ? "Placeholder — add real URL" : undefined}
+                    >
+                      <Walze en={l.label} de={l.label} />
+                      <span
+                        className="inline-block border px-1.5 py-0.5 text-[0.5625rem] tracking-[0.14em] opacity-75"
+                        style={{ borderColor: "currentColor" }}
+                      >
+                        PDF{groesse ? ` · ${groesse}` : ""}
+                      </span>
+                      <span aria-hidden="true" className="opacity-50">↓</span>
+                    </a>
+                  </li>
+                );
+              })}
             </ul>
 
             {/* Antony Vu is the working name; the CV and the certificates carry

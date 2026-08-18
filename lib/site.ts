@@ -72,8 +72,13 @@ export const site = {
   // an indexed page is permanent for scrapers, and an address cannot be
   // un-leaked by deleting the file. See bewerbung/cv/render.mjs --public.
   links: [
-    { label: "LEBENSLAUF (DE, PDF)", href: "/cv/lebenslauf-anh-tuan-vu.pdf" },
-    { label: "CV (EN, PDF)", href: "/cv/cv-anh-tuan-vu.pdf" },
+    /* "(PDF)" left these labels on 18.08.2026 and moved into a tag beside them,
+       together with the file's real size — see app/page.tsx, where the size is
+       read off the file at build time rather than typed here and left to drift.
+       The labels say WHICH document; the tag says what it is and what it costs
+       to take. */
+    { label: "LEBENSLAUF (DE)", href: "/cv/lebenslauf-anh-tuan-vu.pdf" },
+    { label: "CV (EN)", href: "/cv/cv-anh-tuan-vu.pdf" },
   ] as { label: string; href: string; placeholder?: boolean }[],
   founded: "2026",
   footerNote: "THE LAB OF ANTONY VU",
