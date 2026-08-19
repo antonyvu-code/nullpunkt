@@ -863,7 +863,19 @@ export const homeRestAccent =
 export const fieldNotes: FieldNote[] = [
   { name: "FIELD SCAN", url: "https://nullpunkt-field-scan.vercel.app", note: "The daily digest as a signal console" },
   { name: "CASCADE", url: "https://nullpunkt-cascade.vercel.app", note: "A playable outage — keyboard-driven incident" },
-  { name: "INSPECT MODE", url: "https://nullpunkt-inspect-mode.vercel.app", note: "Raw HTML compiles itself into a page" },
+  /* INSPECT MODE — https://nullpunkt-inspect-mode.vercel.app — unlisted 19.08.2026.
+     Still deployed, nothing deleted; it just stopped being linked from here.
+
+     Two reasons, and the second is the one that decided it. First, it ships with
+     the author's own reminders still on screen: "edit src/skillGraph.js with your
+     own numbers before this goes live", two cards reading "Placeholder Project",
+     and six self-rated skill levels that were never edited. Second — and this
+     would still hold after all that were fixed — it is a personal portfolio for
+     the same person as this site, which makes it a rival to the front page rather
+     than a field note beside it. The other seven entries are experiments; this one
+     is a second answer to the question this site already answers.
+
+     Relist it when it is finished on its own terms, after the Bewerbung is out. */
   { name: "BLOOM", url: "https://nullpunkt-bloom.vercel.app", note: "A garden grown from research mornings" },
   { name: "COLOR FIELD", url: "https://nullpunkt-color-field.vercel.app", note: "Scroll-driven shader field, EXP.02" },
   { name: "SILLAGE", url: "https://nullpunkt-sillage.vercel.app", note: "A perfume label on a video hero" },
