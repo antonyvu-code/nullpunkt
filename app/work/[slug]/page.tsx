@@ -78,7 +78,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const p = projects.find((x) => x.slug === slug);
   if (!p) return {};
-  return { title: `EXP.${p.index} ${p.title}`, description: p.oneLiner };
+  return {
+    title: `EXP.${p.index} ${p.title}`,
+    description: p.oneLiner,
+    /* Without this every case study inherits the root canonical and all twelve
+       tell a crawler they are the home page — twelve duplicates of one URL,
+       which is worse than the nothing they had before 31.08.2026. */
+    alternates: { canonical: `/work/${slug}` },
+  };
 }
 
 export default async function CaseStudy({ params }: Props) {

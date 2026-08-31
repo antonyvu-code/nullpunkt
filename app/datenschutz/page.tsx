@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   title: "Datenschutz",
   description: "Welche Daten diese Seite verarbeitet — und welche nicht.",
   robots: { index: false, follow: true },
+  /* Same reason as Impressum: an inherited canonical of "/" is a false claim,
+     not a missing one. */
+  alternates: { canonical: "/datenschutz" },
 };
 
 /**

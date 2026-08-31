@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   title: "All projects",
   description:
     "Every project from the Nullpunkt lab — catalogued cases with a write-up, and uncatalogued experiments that ship as-is. All deployed, all live.",
+  alternates: { canonical: "/work" },
 };
 
 /**

@@ -8,6 +8,10 @@ export const metadata: Metadata = {
   title: "Impressum",
   description: "Anbieterkennzeichnung nach § 5 DDG.",
   robots: { index: false, follow: true },
+  /* Set even though the page is noindex: without it the route inherits the root
+     layout's canonical and would point at "/", telling a crawler that the
+     Impressum IS the home page. Wrong is worse than absent. */
+  alternates: { canonical: "/impressum" },
 };
 
 /**

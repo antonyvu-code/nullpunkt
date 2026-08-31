@@ -61,8 +61,18 @@ export const metadata: Metadata = {
     default: "Antony Vu — Creative Developer, Berlin · Nullpunkt",
     template: "%s — Nullpunkt",
   },
+  /* 155 CHARACTERS, AND THE NUMBER IS THE POINT. This ran at 263 until the
+     31.08.2026 scan measured it: Google cuts the snippet around 155–160, so the
+     last hundred characters were written for nobody. The cut keeps the three
+     things a recruiter searches on — the name, the city, and that the same
+     person designs and builds — and drops the sentence about agency work, which
+     the page's own header already carries in the largest type on the screen.
+     og:description and twitter:description below are NOT cut: they feed link
+     previews, which have no such limit, and they are the ones that get read
+     when the link is pasted into Slack rather than found in a search result. */
   description:
-    "Antony Vu is a Berlin-based creative developer — a communication designer who designs and builds websites end to end. Nullpunkt is the lab: many distinct sites, each its own world. Open to a permanent role, remote or Berlin — and to white-label work for agencies.",
+    "Antony Vu, Berlin — a communication designer who designs and builds websites end to end. Nullpunkt is the lab: twelve distinct sites, each its own world.",
+  alternates: { canonical: "/" },
   openGraph: {
     title: "Antony Vu — Creative Developer, Berlin · Nullpunkt",
     description:
