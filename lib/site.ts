@@ -66,7 +66,14 @@ export const site = {
     strasse: "Gryphiusstraße 10",
     ort: "10245 Berlin",
   },
-  // GitHub and LinkedIn stay hidden until there is something behind them.
+  // GitHub was hidden until there was something behind it. On 31.08.2026 there
+  // is: 20 of the 29 repositories went public in one pass — the twelve cases and
+  // the field notes whose sites were already live, so the code was the only part
+  // still hidden. LinkedIn stays out; nothing has been built there.
+  // Kept private on purpose: bewerbung, antony-vu, webdesign-digest,
+  // portfolio-concepts (the working notes behind these decisions), plus the four
+  // that have no live page yet and so prove nothing.
+  //
   // The two CVs here are the PUBLIC cut — no postal address, no phone number.
   // The full version with both goes out as an attachment, per application:
   // an indexed page is permanent for scrapers, and an address cannot be
@@ -79,7 +86,13 @@ export const site = {
        to take. */
     { label: "LEBENSLAUF (DE)", href: "/cv/lebenslauf-anh-tuan-vu.pdf" },
     { label: "CV (EN)", href: "/cv/cv-anh-tuan-vu.pdf" },
-  ] as { label: string; href: string; placeholder?: boolean }[],
+    /* GITHUB IS NOT A DOWNLOAD, so it does not get the CVs' treatment. The rule
+       set on 18.08.2026 is that the glyph and the behaviour must agree: ↓ with
+       `download` for a file you take, ↗ with a new tab for a place you go. The
+       tag names the account rather than a file size — same job, which is to say
+       where the reader lands before they click. */
+    { label: "GITHUB", href: "https://github.com/antonyvu-code", extern: true, tag: "ANTONYVU-CODE" },
+  ] as { label: string; href: string; placeholder?: boolean; extern?: boolean; tag?: string }[],
   founded: "2026",
   footerNote: "THE LAB OF ANTONY VU",
   /**

@@ -691,13 +691,18 @@ export default function Home() {
                     reader is exactly the reader who should be told before
                     the file lands. */}
               {site.links.map((l) => {
-                const groesse = dateigroesse(l.href);
+                /* An external link takes the other branch of the 18.08 rule: it
+                   is not taken, it is gone to. No `download`, a new tab, ↗ — and
+                   its tag names the destination instead of a file size, because
+                   there is no file and no cost, only a place. */
+                const groesse = l.extern ? null : dateigroesse(l.href);
                 return (
                   <li key={l.label}>
                     <a
                       href={l.href}
-                      download={l.placeholder ? undefined : ""}
-                      rel="noopener"
+                      download={l.extern || l.placeholder ? undefined : ""}
+                      target={l.extern ? "_blank" : undefined}
+                      rel={l.extern ? "noopener noreferrer" : "noopener"}
                       className="accent-t np-zug inline-flex items-center gap-2 text-ink no-underline hover:text-accent"
                       title={l.placeholder ? "Placeholder — add real URL" : undefined}
                     >
@@ -706,9 +711,9 @@ export default function Home() {
                         className="inline-block border px-1.5 py-0.5 text-[0.5625rem] tracking-[0.14em] opacity-75"
                         style={{ borderColor: "currentColor" }}
                       >
-                        PDF{groesse ? ` · ${groesse}` : ""}
+                        {l.extern ? l.tag : `PDF${groesse ? ` · ${groesse}` : ""}`}
                       </span>
-                      <span aria-hidden="true" className="opacity-50">↓</span>
+                      <span aria-hidden="true" className="opacity-50">{l.extern ? "↗" : "↓"}</span>
                     </a>
                   </li>
                 );
