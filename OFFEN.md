@@ -2197,3 +2197,91 @@ thing this change exists to remove. Verified in the prerendered HTML:
 `<canvas style="width:220px;height:220px">`.
 
 Still skipped entirely under reduced motion, as before.
+
+---
+
+## 29 · The CV links were a 20px target, and I reported them as 10 — 01.09.2026
+
+Looked at the live page on an emulated 390×844, the viewport §8b used, because
+the phone item in §15 was the last one standing. It found one real defect and
+two bad measurements, and the measurements are the more useful half.
+
+### The defect
+
+The three links under the promise — `LEBENSLAUF (DE)`, `CV (EN)`, `GITHUB` — had
+no vertical padding at all. `hud` is 11px type in a 20px line box and the anchor
+is `inline-flex`, which hugs its content, so the target was exactly as tall as
+the text. WCAG 2.5.8 asks for 24px; the craft floor this project keeps for
+anything a finger touches asks for 44. It was under both, on the one row a
+recruiter opens the page on a phone to press.
+
+### The first bad measurement: a rect is not a box
+
+The number first written down was **117×10** and **86×10**. That is
+`getBoundingClientRect`, and inside this section it does not report the box — it
+reports the **projection**. The `<ul>` rides `translateZ(-420px)` (`ZEILE_FERN`
+in `AboutDepth.tsx`) under the frame's perspective, measured scale **0.498**.
+`offsetHeight` says 20 and always did.
+
+The defect survived the correction; the number did not. Worth keeping straight,
+because the two disagree only while the beat is travelling: when the last plate
+lands at the plane z is 0 and rect and box are the same thing. A rect read
+mid-flight describes what the eye sees at that instant, which is a real fact
+about a moving frame and a wrong answer to "how big is the target".
+
+### The second bad measurement: the driver was never running
+
+To find where the row arrives, I swept scroll positions with `window.scrollTo`
+and read the transform at each: z = −420 at all seventeen. That was not the
+page. `scrollTo` goes around Lenis, so ScrollTrigger never updated and every
+beat sat where `park()` leaves it. Repeating the sweep through Lenis's own
+`scrollTo` returned the same numbers, which looked like confirmation and was
+only the same mistake twice.
+
+**The tell was in the data both times.** Every sample reported the beat at
+`opacity: 0`, and the beat's `top` moved linearly with scroll — which a pinned
+element does not do. Two columns of a five-column table said the effect was not
+running, and I read the third. Real wheel events through the pane drive it
+correctly, and that is what the fix was finally verified against.
+
+This is the QUY-TRINH rule — *a measurement is not a result until the instrument
+has proved it is reading the right thing* — and it cost two rounds in one hour.
+The cheap proof was available the whole time: **park() has a signature**
+(opacity 0, z at `ZEILE_FERN`, no pin), so any sample carrying it is a sample of
+the parked page rather than of the effect.
+
+### The fix
+
+`.np-tap` in `globals.css`: `::before`, `inset-block: -12px`, painting nothing —
+it exists only to be touched. `::before` rather than `::after` because `np-zug`'s
+rule already owns the other one and an element has one of each.
+
+**Not on `.np-zug` itself.** That class sits on links all over the page, several
+of them closer together than 24px, and a blanket 12px of slop would have made
+neighbouring targets overlap where today they merely sit close. The links that
+need the area ask for it by name.
+
+And `gap-y-3` → `gap-y-6` on the `<ul>`, which is the other half of the same
+decision: at a 12px row gap two rows of ±12px slop overlap by 12px, and a tap in
+that seam lands on whichever anchor comes later in the DOM — the wrong document,
+silently. At 24px the two rows meet exactly and never cross. It shows only on a
+phone: 240 + 175 + 175 cannot sit on one line at 390px so the row wraps, while
+at 1440 all three fit and `gap-y` is never consulted. The desktop composition is
+untouched.
+
+### Verified
+
+`pnpm build` green, 32 routes still prerendered. Then the **built** output served
+at 390×844 and probed with `elementFromPoint` at the anchor's centre column: 4px
+above and 4px below the visible box return the CV link; 8px out returns the
+neighbouring link's own slop, so the rows meet without overlapping and there is
+no dead band between them. On the live deployment (`2zbvynyfj`, alias moved):
+`::before` at −12/−12, `row-gap: 24px`, `offsetHeight` still 20 — 44px of target
+around an unmoved 20px line of type.
+
+### What this does not settle
+
+The pane emulates **DPR 2**; the phone is **3**. §8b's question — whether the
+NULLPUNKT lettering breaks into visible grain — is untouched by this pass, and
+so is the thermal case. The phone item in §15 stays open, and the halftone stays
+unfixed until it has been looked at on the device.
