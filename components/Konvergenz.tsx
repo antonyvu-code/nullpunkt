@@ -89,7 +89,21 @@ export default function Konvergenz({ children }: { children: React.ReactNode }) 
           <span
             key={c.key}
             aria-hidden="true"
-            className="absolute inset-0 block"
+            /* max-md:hidden — 01.09.2026, and it is the same decision as the
+               one HeroIntro's narrow branch records. The channels ride
+               --schleier, which Passer publishes across the plate's runway: on a
+               desktop the title is under the plate the whole time it is split,
+               and converges to clean ink as the material clears. On a phone the
+               plate now has its own screen and the title lives on the NEXT one,
+               so the split is no longer a fringe seen through material — it is
+               just a heading with coloured edges, arriving before the veil has
+               finished falling. Antony asked for the claim to read white on the
+               phone; this is what was making it not.
+
+               A media query rather than a JS condition, deliberately: the thing
+               being switched off is decoration on the page's most important
+               sentence, and it should not depend on anything running. */
+            className="absolute inset-0 block max-md:hidden"
             style={{
               color: c.color,
               mixBlendMode: "screen",
