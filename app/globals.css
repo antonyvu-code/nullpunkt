@@ -1205,6 +1205,34 @@ button:focus-visible .np-walze .np-walze-b {
   width: 100%;
 }
 
+/* THE SENTENCES HYPHENATE — 01.09.2026, and the language is why.
+   `min-width: 0` above stops the FRAME growing to the longest word; it does
+   nothing about the word itself, which at 390px is still 404px of
+   `Kommunikationsdesigner` inside a 328px box. Measured on the live page with
+   both applied: the widest line goes 404 → 328 and nothing is cut.
+
+   It works because `<html lang>` is already switched by components/Lang.tsx —
+   hyphenation without a language is no hyphenation at all, and with the WRONG
+   language it is worse than none, because the breaks land where that language's
+   dictionary says and a German reader sees an English word cut. Anything that
+   stops keeping `lang` in step with the copy silently breaks this rule too.
+
+   `-webkit-hyphens` is here because the device this was found on is the one that
+   needs it: Safari only dropped the prefix in 17, and a phone two versions back
+   is exactly the phone a recruiter opens the link on.
+
+   `overflow-wrap` is the backstop, not the mechanism. It only ever fires where
+   hyphenation cannot help — no dictionary, or a word with no legal break — and
+   it breaks without a hyphen, which is ugly. It is here because a word cut in
+   half by a clip is worse than a word broken without a hyphen: one is a design
+   compromise, the other looks like the page is broken, which is what Antony
+   saw. */
+[data-satz] {
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  overflow-wrap: break-word;
+}
+
 /* THE SECTION'S NAME, PARKED AT THE TOP OF THE FRAME — 17.08.2026.
    Another cell in the same grid area, so it costs no layout: the beats are all
    at 1/1 and this joins them, pinned to the start edge instead of centred. It
@@ -1243,6 +1271,16 @@ button:focus-visible .np-walze .np-walze-b {
      cell all three would draw on the same line at the top of the frame. */
   border-top-width: 0;
   will-change: transform, opacity;
+  /* AND IT MUST NOT GROW TO FIT ONE GERMAN WORD — 01.09.2026, found on Antony's
+     iPhone and nowhere else. A grid item defaults to `min-width: auto`, which is
+     min-content, which here is the longest word that cannot be broken:
+     `Kommunikationsdesigner` at the phone's 39px. That took the beat to 404px
+     inside a 328px column — and the frame's own `overflow: clip` then shaved 45px
+     off the claim and 17px off the sentence under it, at 390px. English never
+     showed it: `communication designer` is two words, so min-content stays
+     narrow and the beat stays in its column. See the hyphenation rule below;
+     these two are one fix and each is useless alone. */
+  min-width: 0;
 }
 
 /* THE DEVELOPMENT CHANGES HANDS while the beats are stacked, and it is not a
