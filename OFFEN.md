@@ -1174,10 +1174,18 @@ ZIELE now carries a one-line pointer to here.
       *A test nobody would sit through was measuring a state nobody would reach.
       The instrument lesson of §29 and §30, one level up: not "is this reading
       the right thing" but "is this question worth a person's fifteen minutes".*
-- [ ] **A machine without hardware acceleration.** One command:
+- [x] ~~**A machine without hardware acceleration.** One command:
       `chrome --disable-gpu` on this machine. Not identical to a weak machine, but
       far closer than headless SwiftShader, which produced **10/4 FPS** where
-      Chrome with a GPU gives 60.
+      Chrome with a GPU gives 60.~~ **Ran 15.08.2026 — §16, and it found a real
+      defect.** The box is being ticked on 01.09 only because nobody ticked it
+      then: §15's own closing paragraph has said "`--disable-gpu` ran on 15.08"
+      for two weeks while the item above it still read as outstanding.
+      *Worth one line, because the cost is not the tick.* This list is what a
+      session reads to find out where the project stands, and for two weeks it
+      overstated the work left by one item. A checklist that disagrees with the
+      prose under it is worse than no checklist: the prose is right and nobody
+      reads that far.
 - [ ] **A real tablet — deferred on condition, 15.08.2026.** The only item that
       needs hardware that may not be here. Condition: *when a device is available,
       or **an explicit, written acceptance of the risk before sending***. What is
