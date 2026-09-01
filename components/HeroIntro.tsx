@@ -70,7 +70,19 @@ export default function HeroIntro() {
       gsap.set(ALLE, { opacity: 1, x: 0, y: 0, scale: 1 });
     });
 
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
+    /* TWO CONDITIONS RATHER THAN ONE, and the width has to be one of them —
+       01.09.2026. A phone gets the plate first and the copy after (see AB
+       below), which is a different score, not a different duration. Written as
+       gsap.matchMedia conditions rather than a matchMedia read at build time for
+       the reason FX.03 states: a rotation crosses this line, and everything on
+       matchMedia re-evaluates live while everything read once does not. */
+    mm.add(
+      {
+        schmal: "(max-width: 767px) and (prefers-reduced-motion: no-preference)",
+        weit: "(min-width: 768px) and (prefers-reduced-motion: no-preference)",
+      },
+      (ctx) => {
+        const schmal = !!ctx.conditions?.schmal;
       const section = document.querySelector<HTMLElement>("[data-hero-section]");
       if (!section) return;
 
@@ -187,28 +199,47 @@ export default function HeroIntro() {
          least afford two. */
       const kommt = { opacity: 1, x: 0, y: 0, scale: 1, ease: "power2.out" };
 
-      tl.to(TEILE.coord, { ...kommt, duration: 0.6 }, 0)
-        .to(TEILE.readout, { ...kommt, duration: 0.6 }, 0.08)
-        .to(TEILE.kicker, { ...kommt, duration: 0.6 }, 0.2)
-        .to(TEILE.title, { ...kommt, duration: 1.1, ease: "power3.out" }, 0.4)
-        .to(TEILE.manifesto, { ...kommt, duration: 0.7 }, 1.05)
-        .to(TEILE.fig, { ...kommt, duration: 0.5 }, 1.35)
+      /* ——— ON A PHONE THE PLATE GOES FIRST — 01.09.2026 ————————————————————
+         Passer prints IN FRONT of the copy (page.tsx §138), and on a desktop
+         that is the hero's whole idea: the title arrives behind the grain and is
+         read through it while the plates come apart. On a 390px frame the plate
+         does not occupy a column, it occupies the screen, and the same layering
+         buries every word of the section. Antony chose the handover over the
+         layering: the plate takes the frame, gives it up, and then the copy is
+         written on clean ground.
+
+         So the score starts a beat late where it is narrow. 1.05 against a total
+         of 2.77 gives the plate the first ~28 % of the runway to itself, which is
+         where `schleier`'s narrow ramp (0.06 → 0.32, Passer.tsx) has already
+         taken the material to zero. THE TWO NUMBERS ARE ONE DECISION: raise this
+         offset without moving that ramp and the copy writes itself under grain
+         again; lower the ramp without this and the frame is empty for a beat.
+
+         Zero on wide frames, so nothing about the desktop hero moves. */
+      const AB = schmal ? 1.05 : 0;
+
+      tl.to(TEILE.coord, { ...kommt, duration: 0.6 }, AB)
+        .to(TEILE.readout, { ...kommt, duration: 0.6 }, AB + 0.08)
+        .to(TEILE.kicker, { ...kommt, duration: 0.6 }, AB + 0.2)
+        .to(TEILE.title, { ...kommt, duration: 1.1, ease: "power3.out" }, AB + 0.4)
+        .to(TEILE.manifesto, { ...kommt, duration: 0.7 }, AB + 1.05)
+        .to(TEILE.fig, { ...kommt, duration: 0.5 }, AB + 1.35)
         /* The ruled frame arrives a beat before the readings that sit in it —
            the instrument's grid, then what it reads. The cells stagger INSIDE
            this, so the two opacities multiply and the first cell is carried in
            by both. */
-        .to(TEILE.grid, { ...kommt, duration: 0.55 }, 1.42)
+        .to(TEILE.grid, { ...kommt, duration: 0.55 }, AB + 1.42)
         .to(
           TEILE.cells,
           { opacity: 1, y: 0, duration: 0.6, stagger: 0.08, ease: "power2.out" },
-          1.5,
+          AB + 1.5,
         )
         /* A beat of run left over after the last cell lands. The score ends at
            2.42 and the scrub trails the wheel by 0.6s, so without this the last
            readings are still catching up in the frame the pin lets go — the page
            starts moving while the hero is not finished. Same hold, same reason,
            as the one at the foot of Rack.tsx. */
-        .to({}, { duration: 0.35 }, 2.42);
+        .to({}, { duration: 0.35 }, AB + 2.42);
 
       /* ——— AND EVERY TRIGGER BELOW HAS TO BE MEASURED AGAIN ————————————————
          This pin inserts a spacer 2.4 screens tall at the TOP of the document,
@@ -239,13 +270,14 @@ export default function HeroIntro() {
         queueMicrotask(() => ScrollTrigger.refresh());
       }
 
-      return () => {
-        tl.scrollTrigger?.kill();
-        tl.kill();
-        gsap.set(ALLE, { clearProps: "opacity,transform" });
-        if (bar) delete bar.dataset.chromeOff;
-      };
-    });
+        return () => {
+          tl.scrollTrigger?.kill();
+          tl.kill();
+          gsap.set(ALLE, { clearProps: "opacity,transform" });
+          if (bar) delete bar.dataset.chromeOff;
+        };
+      },
+    );
   }, {});
 
   return null;

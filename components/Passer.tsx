@@ -267,6 +267,12 @@ export default function Passer() {
          about it. */
       const S = Math.max(10 * DPR, Math.sqrt(w * h) / 150);
 
+      /* Set here rather than at closure time so a rotation re-decides it: build()
+         is what the ResizeObserver re-runs. See the note at `schleier`. */
+      const schmal = w / DPR < 768;
+      schleierAb = schmal ? 0.06 : 0.3;
+      schleierSpanne = schmal ? 0.26 : 0.62;
+
       mx2.fillStyle = "#fff";
       /* THE FACE IS READ, NOT NAMED. This used to be the string "Bricolage
          Grotesque" written twice, which meant the one place on the site that
@@ -626,8 +632,28 @@ export default function Passer() {
        wheel. Smoothstep rather than a line, so neither end has a corner in it.
        The plates keep separating underneath — the material comes apart AND
        clears. One says the register is lost, the other hands the screen over. */
+    /* ——— THE VEIL LIFTS EARLIER ON A PHONE — 01.09.2026 ————————————————————
+       0.30 → 0.92 is the desktop ramp and it is right there: the title lands
+       around p = 0.60 with the material still at 52 %, and being read THROUGH
+       the grain is the whole point of printing in front of the copy.
+
+       On a 390px frame the same 52 % is not a veil, it is a lid. The plate fills
+       the screen instead of occupying a column of it, so every word of the hero
+       — the claim, the manifesto, FIG.01 — sits under coloured grain. Antony's
+       report was "I don't see this hero section on the phone", and this is what
+       he was looking at.
+
+       He chose the handover rather than the layering: the plate takes the frame
+       first, then gives it up. So the ramp runs 0.06 → 0.32 there, which puts
+       the material at zero well before the copy is written (HeroIntro delays the
+       score by the same amount on the same condition — the two numbers are one
+       decision and drift apart at their peril). What is lost is real: on a phone
+       nobody reads the claim through the grain any more. The alternative was
+       reading it through nothing. */
+    let schleierAb = 0.3;
+    let schleierSpanne = 0.62;
     const schleier = (x: number) => {
-      const t = Math.min(1, Math.max(0, (x - 0.3) / 0.62));
+      const t = Math.min(1, Math.max(0, (x - schleierAb) / schleierSpanne));
       return 1 - t * t * (3 - 2 * t);
     };
 
