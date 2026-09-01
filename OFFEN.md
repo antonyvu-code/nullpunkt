@@ -2250,6 +2250,38 @@ The cheap proof was available the whole time: **park() has a signature**
 (opacity 0, z at `ZEILE_FERN`, no pin), so any sample carrying it is a sample of
 the parked page rather than of the effect.
 
+### The third: the pane had stopped painting
+
+Checking the same fix at 1440 an hour later, `elementFromPoint` reported a `<p>`
+sitting on top of the CV links — which, taken at face value, would have meant the
+links were not clickable on desktop at all. They are. What was on top of them was
+the **Loader**: `position: fixed`, `z-[100]`, still standing at 0%.
+
+It was standing there because the pane had stopped painting.
+`requestAnimationFrame` fired **0 frames in one second** while `document.hidden`
+was `false` and `visibilityState` was `"visible"`. Nothing driven by an animation
+frame advances in that state — not the GSAP ticker, not a single ScrollTrigger on
+the page, and not the loader's own exit. The frozen beats then read as a layout
+fact and the frozen loader as a stacking fact, and neither was one.
+
+**The signature is one line, and it is cheaper than any of the three mistakes:**
+
+```js
+let f = 0; const t = performance.now() + 1000;
+(function tick(){ f++; performance.now() < t ? requestAnimationFrame(tick) : console.log(f) })();
+```
+
+Under ~30 frames in the second, stop measuring. Every `elementFromPoint`, every
+transform, every opacity and every pinned position is then a reading of a stalled
+page. **`document.hidden` does not catch this** — it was `false` the whole time,
+which is exactly why the reading looked trustworthy.
+
+What survives a stall is worth knowing, because it is what the fix was actually
+signed off on: `offsetHeight`, `getBoundingClientRect` widths, `getComputedStyle`
+of a static rule, row gaps — layout does not need a paint. What dies is
+everything an animation frame was supposed to update. That line is the difference
+between the numbers kept from this hour and the ones thrown away.
+
 ### The fix
 
 `.np-tap` in `globals.css`: `::before`, `inset-block: -12px`, painting nothing —
@@ -2285,3 +2317,10 @@ The pane emulates **DPR 2**; the phone is **3**. §8b's question — whether the
 NULLPUNKT lettering breaks into visible grain — is untouched by this pass, and
 so is the thermal case. The phone item in §15 stays open, and the halftone stays
 unfixed until it has been looked at on the device.
+
+And the 1440 check is **numbers only**. Once the pane stopped painting, every
+screenshot at that width came back black, so the desktop side of this is three
+`<li>` measured at `top: 587` with widths 240 / 175 / 175 and five probes that
+all hit — a layout proved, not a composition seen. At 390 the pane was still
+painting and that screenshot is real. Anyone re-checking the desktop view should
+open it in a browser that is actually on screen.
