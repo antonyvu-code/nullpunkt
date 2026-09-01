@@ -2425,3 +2425,122 @@ transitions `color`, so the probe reported "unmoved" and nearly had a working
 Tailwind variant condemned in a code comment. Disable the transition, or read
 after it lands. The correction is in `globals.css` beside the rule, because a
 wrong reason left in a file outlives the afternoon that produced it.
+
+---
+
+## 31 · The hero was a desktop hero shrunk — rebuilt 01.09.2026, afternoon
+
+§30 ended with the density question open and the wordmark still unreadable.
+Raising DPR to 3 did not fix it, and the screenshots proved it in the cleanest
+way available: the second photo is visibly sharper than the first and the letters
+are exactly as illegible.
+
+**That correction is worth more than the fix.** Sharpness and legibility are not
+the same quantity. The dots got crisper because there were more device pixels
+under each of them; the letters stayed unreadable because there were still only
+3.6 raster cells across each one. DPR buys the first and cannot buy the second.
+§30's "density" row named the right difference and drew the wrong conclusion
+from it.
+
+What was actually wrong is one sentence: **the hero was designed at 1440 and the
+phone was being handed a scaled-down copy of it.** Every fix below replaces some
+shrunken desktop idea with a decision taken at the small size. That is the shape
+of the whole afternoon, and it is the thing to check first the next time a page
+"works on mobile".
+
+### The word could not fit and was never going to
+
+| frame | pitch | cells per letter |
+|---|---|---:|
+| 1440 @2 | 10 CSS px | 13.4 × 16.1 |
+| 390 @2 | 10 CSS px | 3.6 × 4.4 |
+| 390 @3 | 10 CSS px | **3.6 × 4.4** |
+
+The pitch is 10 CSS px at every density, so it does not shrink with the frame —
+but the word does, by a factor of four. A glyph needs about 5 columns to survive
+being sampled at all. Two changes, and neither is a compromise:
+
+- **NULLPUNKT breaks in two under a measured floor.** Not a hardcoded
+  breakpoint: the code computes cells-per-letter with the raster's own formula
+  and stacks the word when a letter drops below five. 1440 and 1280 stay on one
+  line and are untouched; 768 stays on one line at 7.2; 390 stacks and gets 6.6.
+  Costs nothing — same pitch, same particle count, and each letter roughly
+  doubles because five have to fit the measure instead of nine.
+- **The word then got its own pitch.** 6.6 clears the floor and is still half of
+  what the desktop draws. `S` seeded both the word and the backing grain, so
+  halving it would have paid four times over the whole frame; decoupled, the
+  backing keeps `S` and the word takes whatever pitch gives its letters twelve
+  columns. Twelve is a FLOOR — `Math.min` — so a frame already drawing better
+  letters keeps its own raster, and 1440 computes 22.4 against S = 20 and does
+  not move. On the phone the word box goes from ~554 cells to ~1858 and the
+  total lands near 2150, still fewer particles than the desktop carries.
+
+### The copy was under the plate the whole time
+
+Passer prints in front of the copy — that is the hero's idea, and at 1440 the
+plate occupies a column of the frame. At 390 it occupies the frame. `--schleier`
+still stood at 52 % when the title landed, so the claim, the manifesto and all of
+FIG.01 were read through coloured grain. "I don't see this hero section on the
+phone" was a literal and accurate description.
+
+**Two attempts, and the third one was Antony's.** The first shortened the veil's
+ramp under 768px; the second delayed the whole score by 1.05 so the plate had the
+frame to itself first. Both worked, and both solved the overlap **by timing it** —
+two numbers in two files that had to be kept in step, and a hero whose payload
+still depended on a timeline running. Antony's answer removed the overlap
+instead: on a narrow frame the plate is one screen tall and the copy is the
+screen after it, in ordinary flow.
+
+Both earlier attempts were then deleted. The narrow veil ramp is gone, the 1.05
+offset is gone, and the narrow branch of `HeroIntro` is three lines. **The code
+after taking his answer is shorter than it was before either of my two.**
+
+### And on a phone the copy does not animate at all
+
+No park, no pin, no score — `gsap.set(ALLE, { opacity: 1 })` and return.
+
+This is the afternoon's real rule, and it was earned twice in one day. Both times
+the page lost its words, and both times for the same reason: **a driver that did
+not run.** Lenis was not driving touch, so no scrub advanced and every part sat
+at the opacity `park()` had left it. Later `requestAnimationFrame` was starved
+and the same thing happened again. On the device a recruiter is most likely to
+open the link on, the name, the claim and the readings are the payload — they
+must not be able to disappear because an effect failed to start. Nothing there is
+parked now, so there is nothing to unpark, and it survives JavaScript being off
+entirely.
+
+The price is stated plainly because it is real: the phone does not get the
+writing, which is one of the better things on this site. The `Konvergenz` colour
+channels went the same way and for the same reason — under 768px they are
+`display: none`, so the claim is clean ink from the first frame rather than a
+heading with coloured edges arriving before the veil has fallen.
+
+### The sentence itself was wrong, and that was Antony's catch
+
+`Entwurf und Umsetzung sind eine Arbeit` — the article does the damage. "eine
+Arbeit" lands as ONE PIECE OF WORK, and slides from there towards "that is quite
+a lot of work". The English claims something harder: one and the SAME job, not
+two roles with a handover. It is the position the whole site takes, so it cannot
+be the one sentence that is vague about it.
+
+Now `Gestalten und Bauen ist dieselbe Arbeit.` — and `gestalten` rather than
+`entwerfen` because entwerfen is the drafting stage only, and because `manifesto`
+three lines below had said "gestalte und baue" all along. Two verbs for one
+activity within a screen of each other is the page disagreeing with itself. The
+singular `ist` is deliberate: two infinitives naming one thing take the singular
+in German, so the grammar makes the same claim the sentence does.
+
+The English followed an hour later — `Designing and building are the same job.`
+It had a milder version of the same fault: naming two THINGS and then calling
+them one job. Both languages now name activities, which also means `<L>` swaps a
+sentence rather than a sentence shape.
+
+Full reasoning lives in `lib/site.ts` beside the strings, where anyone tempted to
+"fix" the singular will read it first.
+
+### Still open
+
+The **thermal test**. DPR 3 is live on the hero and has never been scrolled for
+fifteen minutes on the device. It is now known to buy sharpness and not
+legibility, so if it costs frames or heat, reverting it to 2 costs very little —
+`Math.min(devicePixelRatio, 3)` in `Passer.tsx`, one digit.
