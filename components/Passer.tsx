@@ -184,7 +184,25 @@ export default function Passer() {
     if (!ctx) return;
 
     const root = document.documentElement;
-    const DPR = Math.min(window.devicePixelRatio || 1, 2); // craft floor: cap at 2
+    /* THREE, AND IT IS AN EXPERIMENT RATHER THAN A SETTLED NUMBER — 01.09.2026.
+       This was `Math.min(dpr, 2)`, commented "craft floor: cap at 2". The 2 came
+       from a DevTools trace on a 360Hz desktop whose DPR is 2 — so on that
+       machine the cap never bound, and it was never once measured on a screen
+       where it did. On Antony's iPhone 16e it binds hard: the plate lattice is
+       rendered at 2 and upscaled 1.5×, which is what "the NULLPUNKT lettering is
+       not readable" is a description of.
+
+       WHAT IT COSTS, so the measurement has a hypothesis to beat: 3 is 2.25× the
+       device pixels of 2, on a full-screen canvas carrying 4545 particles. The
+       thermal case §15 names — fifteen minutes of continuous scrolling — is
+       exactly where this will show if it is going to.
+
+       TO REVERT: put the 3 back to 2. Nothing else here depends on it; the plate
+       geometry is all CSS-pixel arithmetic scaled by DPR at draw time. If it does
+       have to come back to 2, the fix is a coarser lattice that survives being
+       upscaled, NOT a finer one — and that is a decision for the eye on the
+       device, per QUY-TRINH stage 4. */
+    const DPR = Math.min(window.devicePixelRatio || 1, 3);
 
     let w = 0;
     let h = 0;

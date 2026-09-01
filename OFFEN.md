@@ -2324,3 +2324,104 @@ screenshot at that width came back black, so the desktop side of this is three
 all hit — a layout proved, not a composition seen. At 390 the pane was still
 painting and that screenshot is real. Anyone re-checking the desktop view should
 open it in a browser that is actually on screen.
+
+---
+
+## 30 · The phone, at last — 01.09.2026, and it found four things
+
+§15's last open item was "a real phone". It ran today, on an iPhone 16e, and it
+was worth every one of the fifteen days it waited. Four reports came back. Three
+were real defects, none of them visible in the preview pane, and they are not
+four unrelated bugs — they are **one emulator differing from one device in
+exactly three ways**, with a bug hiding behind each difference.
+
+| the assumption | the pane | the device | what it hid |
+|---|---|---|---|
+| language | English | **German** | the About frame clipped at 390px |
+| input | pointer | **touch** | nothing appeared on a finger drag |
+| density | DPR 2 | **DPR 3** | the wordmark does not resolve |
+
+That table is the reusable part of this section. Every one of those three is a
+default that a desktop browser will never volunteer, and each was load-bearing.
+
+### The German one, and it is a word
+
+`Ich bin Kommunikationsdesigner…` lost **45px** off its right edge at 390, and
+the sentence under it 17px. English lost nothing, ever.
+
+The frame was 404px wide inside a 328px column. A beat is a grid item, a grid
+item defaults to `min-width: auto`, and `auto` is min-content — which here is the
+longest word that cannot be broken. `Kommunikationsdesigner` at the phone's 39px
+IS that word. `communication designer` is two words, breaks, and never pushed
+anything. The frame's own `overflow: clip` (§22) then did what it was asked and
+cut the overhang off.
+
+Fixed with `min-width: 0` on the beat, plus `hyphens: auto` on the sentences as
+a second line of defence. Verified live at 390: frame 328, all three sentences
+`cutRight: 0`, seventeen lines and none outside the viewport. The hyphenation
+turned out not to fire at all — once the frame stops growing, the compound gets
+a line of its own at 262px of ink — so it is insurance, not mechanism. English at
+390 and German at 1440 are both unchanged, and no line in either hyphenates.
+
+### The touch one, and it is one boolean
+
+Reported as "I drag down and nothing appears, the lines don't come". Exactly
+correct, and the page was behaving properly.
+
+`new Lenis({ lerp: 0.12 })`. Lenis defaults **`syncTouch: false`**, so a finger
+drag was never driven by Lenis at all — the browser scrolled natively, and iOS
+momentum starves `requestAnimationFrame`, which is the loop `gsap.ticker` and
+therefore every scrub on the page hangs off. No ticks, no scrub, and all three
+beats sat where `park()` leaves them: opacity 0, z at `ZEILE_FERN`. **The park
+signature from §29, on real hardware.** Writing that signature down this morning
+is what made this diagnosable this afternoon.
+
+`syncTouch: true`, and the cost is stated in the file: touch scrolling is
+synthetic now and cannot feel exactly like iOS. `syncTouchLerp` and
+`touchInertiaExponent` are deliberately left at their defaults until someone
+judges the feel on a device — tuning them from a desktop is guessing at the one
+thing a desktop cannot show.
+
+### The touch one, again, wearing a different hat
+
+"In FIELD NOTES the project names do not change colour." They could not: the row
+answered `:hover` and `:focus-visible` and nothing else. Twelve rows of display
+type at --muted for the whole section, on the most scroll-driven block on the
+page.
+
+The fix was already in the building. `AccentScroll`'s sweep runs on touch and
+was already mixing the page accent through the notes; `Selected` has answered
+pointer-free since 18.08 via `[data-near]`. The notes had simply never been given
+the same attribute. `near()` is the same guarded setter as `probe()` — guarded
+because `apply()` runs every scroll frame and an unguarded write there is the
+mistake `--deflection` already cost an afternoon for (§4).
+
+### The density one is not fixed, it is now an experiment
+
+Every canvas capped DPR at 2, commented "craft floor: cap at 2". That 2 came
+from a trace on a 360Hz desktop **whose DPR is 2** — so on the machine that
+produced the number, the cap never bound. It had never been measured anywhere it
+did. On a DPR-3 phone it binds hard, and the soft, unreadable wordmark is what
+that looks like.
+
+Two changes, and only one of them is a decision:
+
+- **The loader mark now gets the screen's real density.** A ratio cap charges
+  every canvas the same rate regardless of size; 220×220 at DPR 3 is 189k device
+  pixels, which is nothing, and it is the first thing anyone sees. `dprFor()` in
+  `lib/motion.ts` caps on a **pixel budget** instead. Not a judgement call.
+- **The hero goes to 3, to be measured.** 2.25× the device pixels of 2, on a
+  full-screen canvas carrying 4545 particles. The hypothesis to beat is §15's
+  thermal case: fifteen minutes of continuous scrolling. If it loses, the answer
+  is a COARSER lattice that survives upscaling, not a finer one — and that is a
+  decision for the eye on the device.
+
+### One more instrument, for §29's list
+
+A fourth way to measure the wrong thing turned up while checking the note
+colours: `getComputedStyle` read immediately after setting an attribute returns
+the **starting** value of any transition that attribute triggers. `.accent-t`
+transitions `color`, so the probe reported "unmoved" and nearly had a working
+Tailwind variant condemned in a code comment. Disable the transition, or read
+after it lands. The correction is in `globals.css` beside the rule, because a
+wrong reason left in a file outlives the afternoon that produced it.

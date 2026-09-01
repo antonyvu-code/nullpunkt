@@ -41,3 +41,37 @@ export const MOTION_FPS = 60;
 
 /** Milliseconds between allowed frames, for the hand-rolled loops. */
 export const FRAME_MS = 1000 / MOTION_FPS;
+
+/**
+ * How many device pixels a canvas on this page is allowed to cost.
+ *
+ * WHY A BUDGET AND NOT A RATIO. Every canvas here capped `devicePixelRatio` at
+ * 2 with the same comment — "craft floor: cap at 2" — and that number was
+ * chosen from a DevTools trace on Antony's 360Hz desktop, a machine whose DPR
+ * is 2. It had never been checked against a phone. On 01.09.2026 it was, on an
+ * iPhone 16e at **DPR 3**, and the cap is what the NULLPUNKT wordmark not
+ * resolving looks like: the halftone is drawn at 2 and the browser scales it up
+ * by 1.5, so the lattice softens and the letters stop reading.
+ *
+ * The fault in a ratio cap is that it charges every canvas the same rate
+ * regardless of size. The loader mark is 220×220 CSS px. At DPR 3 that is
+ * 435×435 — 189k device pixels, nothing at all — and it is the FIRST thing a
+ * reader sees. A full-screen hero at 390×844 is 1.32M pixels at DPR 2 and 2.96M
+ * at 3, which is the one that has to be argued for. One number cannot answer
+ * both questions, so this answers the question that actually matters: not "how
+ * dense is the screen" but "how much work is this particular canvas".
+ *
+ * 1.5M is set so the loader mark clears it by a factor of thirty and a
+ * full-screen phone canvas does not clear it at all — the small mark gets the
+ * screen's real density, the big one stays where it was. It is a budget, not a
+ * measurement: if a future canvas lands awkwardly against it, measure that
+ * canvas rather than nudging this number to suit it.
+ */
+export const DPR_BUDGET = 1_500_000;
+
+/** The pixel ratio a canvas of this CSS size may use, given the budget above. */
+export function dprFor(cssW: number, cssH: number, max = 3): number {
+  const dpr = (typeof window === "undefined" ? 1 : window.devicePixelRatio) || 1;
+  const area = Math.max(1, cssW * cssH);
+  return Math.max(1, Math.min(max, dpr, Math.sqrt(DPR_BUDGET / area)));
+}

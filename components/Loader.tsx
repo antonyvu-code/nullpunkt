@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { site } from "@/lib/site";
+import { dprFor } from "@/lib/motion";
 
 const DURATION = 900;
 
@@ -84,7 +85,11 @@ export default function Loader() {
     /* Sized here rather than in a ResizeObserver: this box is KANTE px for the
        900ms it exists and nothing can resize it in that time. */
     const CSS = KANTE;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    /* The mark gets the screen's real density — 01.09.2026. At 220 CSS px it
+       costs 189k device pixels at DPR 3, which is nothing, and it is the first
+       thing anyone sees. The old flat cap at 2 charged it the same rate as a
+       full-screen canvas; lib/motion.ts has the argument. */
+    const dpr = dprFor(CSS, CSS);
     if (canvas) {
       canvas.width = Math.round(CSS * dpr);
       canvas.height = Math.round(CSS * dpr);
