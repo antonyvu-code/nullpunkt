@@ -1186,11 +1186,38 @@ ZIELE now carries a one-line pointer to here.
       overstated the work left by one item. A checklist that disagrees with the
       prose under it is worse than no checklist: the prose is right and nobody
       reads that far.
-- [ ] **A real tablet — deferred on condition, 15.08.2026.** The only item that
-      needs hardware that may not be here. Condition: *when a device is available,
-      or **an explicit, written acceptance of the risk before sending***. What is
-      being accepted: the tablet cell (≥768px **and** `hover: none`) currently
-      takes the full pin machinery **by default rather than by decision** — §14.
+- [x] ~~**A real tablet — deferred on condition, 15.08.2026.**~~ **Condition met
+      01.09.2026 by the second route: Antony accepted the risk in writing, below.**
+      The condition set on 15.08 was *a device, or an explicit written acceptance
+      before sending*. No tablet has been available in the two weeks since, and
+      the Bewerbung is not waiting for one.
+
+      **What Antony accepts, stated so it cannot be read as an oversight later:**
+      the tablet cell — ≥768px **and** `hover: none` — takes the desktop hero and
+      the full pin machinery **by default rather than by decision** (§14). Every
+      change made for the phone on 01.09 is gated at `max-md:`, i.e. under 768px,
+      so a tablet gets the wide composition driven by a finger: the plate printing
+      in front of the copy, the scrubbed hero score, the `Konvergenz` channels,
+      the wordmark on one line. None of it has been seen on the hardware.
+
+      **The risk is materially smaller than it was when the condition was
+      written, and that is why accepting it is reasonable rather than merely
+      convenient.** Three things moved on 01.09, all of them in the tablet's
+      favour and none of them width-gated:
+      · `syncTouch` — a finger drag now drives Lenis, so scrubs advance. This was
+        the defect that made the phone show *nothing*, and a tablet had it too.
+      · the FIELD NOTES accent now has a pointer-free path (`[data-near]`), so a
+        `hover: none` device is no longer a device where the colour never moves.
+      · the word's own raster pitch takes 768px from 7.2 cells per letter to
+        **12.0** — the tablet wordmark improved without anyone aiming at it.
+      What is left unverified is a composition question, not a broken one: does a
+      pinned, scrubbed hero read well at 768–1024 under a thumb.
+
+      **Reversal, if a device ever says it does not:** the phone's answer already
+      exists and is one breakpoint away. `max-md:` → `max-lg:` on the four hero
+      changes gives a tablet the plate's own screen and the static copy, and
+      HeroIntro's narrow branch takes it from there. That is an afternoon, not a
+      redesign — which is the other half of why this is safe to accept now.
 - [x] ~~**Run `pnpm install` once** so the lockfile moves to 11.x format, then
       rebuild. Do not let that first run land on the day of sending;
       `ERR_PNPM_OUTDATED_LOCKFILE` is a common build failure and it would fire at
