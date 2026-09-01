@@ -1151,14 +1151,29 @@ ZIELE now carries a one-line pointer to here.
       31.08.2026** — the alias came back via a `--prod` deploy, so the promote
       route was never needed. Keep the argument for next time: it is still the
       cheaper and safer of the two.
-- [ ] **A real phone.** ~10 minutes, the device is already here, **not deferred**.
-      It is the most likely device a recruiter opens the link on; DPR 3 settles
-      the one open question — the NULLPUNKT lettering breaking into visible grain
-      at an emulated 390×844 (§8b) may resolve itself, so **do not fix the
-      halftone before looking**; and it is the worst thermal case. Scroll the
-      whole page, wait a few minutes, scroll again: throttling only appears after
-      ~15 minutes of continuous use, and the hero is 4545 particles running the
-      whole time.
+- [x] ~~**A real phone.**~~ **Done 01.09.2026** — iPhone 16e, and it found four
+      things in the morning (§30) and rebuilt the hero in the afternoon (§31).
+      It was the most valuable item on this list by a distance.
+      **§8b's question is answered and the answer is no:** the lettering does not
+      resolve itself at DPR 3. It was never a density problem — 3.6 raster cells
+      across a letter is 3.6 cells however sharp they are. See §31.
+      ~~*and it is the worst thermal case… the hero is 4545 particles running the
+      whole time.*~~ **That premise was false, and Antony is the one who
+      questioned the test rather than performing it.** He said he did not want to
+      scroll for fifteen minutes and that nobody looks at Nullpunkt for fifteen
+      minutes. Both true, and the second is the more interesting: the test did not
+      model any visit anyone was ever going to make.
+      Checked in the code instead of on the device, which is where it should have
+      been checked in the first place: `Passer.tsx` gates its draw on
+      `if (!live || disposed) return`, and `live` is written by an
+      IntersectionObserver on the canvas. **The material stops the moment the
+      hero leaves the screen.** The expensive frames are the seconds the hero is
+      actually on it — for a recruiter, well under a minute — and fifteen minutes
+      of continuous particle work cannot be reached by reading the page at all.
+      Only by parking on the hero and putting the phone down.
+      *A test nobody would sit through was measuring a state nobody would reach.
+      The instrument lesson of §29 and §30, one level up: not "is this reading
+      the right thing" but "is this question worth a person's fifteen minutes".*
 - [ ] **A machine without hardware acceleration.** One command:
       `chrome --disable-gpu` on this machine. Not identical to a weak machine, but
       far closer than headless SwiftShader, which produced **10/4 FPS** where
@@ -2538,9 +2553,30 @@ sentence rather than a sentence shape.
 Full reasoning lives in `lib/site.ts` beside the strings, where anyone tempted to
 "fix" the singular will read it first.
 
-### Still open
+### The thermal test was struck rather than run — and DPR 3 stays
 
-The **thermal test**. DPR 3 is live on the hero and has never been scrolled for
-fifteen minutes on the device. It is now known to buy sharpness and not
-legibility, so if it costs frames or heat, reverting it to 2 costs very little —
-`Math.min(devicePixelRatio, 3)` in `Passer.tsx`, one digit.
+The last item on this list was fifteen minutes of continuous scrolling on the
+device, to reach the throttling case §15 had been worrying about since 15.08.
+
+Antony declined it, and was right twice over: he did not want to spend fifteen
+minutes scrolling, and **nobody looks at Nullpunkt for fifteen minutes**. The
+test modelled no visit anyone would make.
+
+The question underneath it was real, though, and it took one line of code rather
+than a quarter of an hour of someone's afternoon. `Passer.tsx` draws behind
+`if (!live || disposed) return`, and `live` is an IntersectionObserver on the
+canvas: **the material stops when the hero leaves the screen.** The premise
+written into §15 — "the hero is 4545 particles running the whole time" — was
+simply wrong. The particles run while the hero is in view and not one frame
+longer.
+
+Which decides the density question on its own. DPR 3 costs 2.25× the fill of 2,
+for the seconds the hero is on screen and for nothing after that, and it buys
+material that is visibly sharper in Antony's own two photographs. **It stays.**
+If a device ever does struggle, the revert is one digit in `Passer.tsx` and
+nothing depends on it.
+
+*The instrument lessons of §29 and §30 were about whether a measurement reads the
+right thing. This one is a level up: whether the question is worth the
+measurement. A test a person will not sit through is a test that does not get
+run, and an item that never runs is not a safeguard — it is a line on a list.*
