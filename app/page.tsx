@@ -676,7 +676,16 @@ export default function Home() {
             >
               <LSatz text={site.aboutClose} />
             </p>
-            <ul className="hud mt-12 flex list-none flex-wrap justify-center gap-x-6 gap-y-3 p-0">
+            {/* gap-y-6, not gap-y-3, and the reason is the hit area rather than
+                the rhythm: .np-tap extends each link 12px above and below its
+                20px line box, so at the old 12px row gap two stacked rows would
+                have overlapped by 12px and a tap in the seam would have landed
+                on whichever came later in the DOM. At 24px they meet exactly and
+                never cross. This only shows on a phone — measured 01.09.2026 at
+                390px, where 240 + 175 + 175 cannot sit on one line and the row
+                wraps; at 1440 the three stay on one row and gap-y is never
+                consulted, so the desktop composition is untouched. */}
+            <ul className="hud mt-12 flex list-none flex-wrap justify-center gap-x-6 gap-y-6 p-0">
               {/* THESE TWO WERE THE HARDEST THING ON THE PAGE TO RECOGNISE AS
                   CLICKABLE, and Antony said so on 18.08.2026. Three separate
                   reasons, all fixed here rather than one of them:
@@ -703,7 +712,7 @@ export default function Home() {
                       download={l.extern || l.placeholder ? undefined : ""}
                       target={l.extern ? "_blank" : undefined}
                       rel={l.extern ? "noopener noreferrer" : "noopener"}
-                      className="accent-t np-zug inline-flex items-center gap-2 text-ink no-underline hover:text-accent"
+                      className="accent-t np-zug np-tap inline-flex items-center gap-2 text-ink no-underline hover:text-accent"
                       title={l.placeholder ? "Placeholder — add real URL" : undefined}
                     >
                       <Walze en={l.label} de={l.label} />

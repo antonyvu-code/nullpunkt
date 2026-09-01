@@ -270,6 +270,37 @@ h3,
   transform-origin: 0 50%;
 }
 
+/* ——— THE TARGET IS BIGGER THAN THE TYPE ————————————————————————————————
+   Measured on the live page 01.09.2026, at 390×844: the two CV links and the
+   GitHub link are `hud` — 11px type in a 20px line box, no padding, because
+   inline-flex hugs its content. WCAG 2.5.8 asks for 24px and the craft floor
+   this project keeps for anything touched asks for 44; the row was under both,
+   and it is the one row on the page a recruiter opens the phone to press.
+
+   ::before, because ::after is already the rule that draws under .np-zug and an
+   element has one of each. It paints nothing — this box exists only to be
+   touched, which is why it carries no background and no border.
+
+   inset-block ONLY. Growing it sideways would push the three targets into each
+   other along a row that is already tight at gap-x-6; vertically the ul now
+   carries gap-y-6 so two wrapped rows meet without overlapping. See app/page.tsx
+   for that half — the two numbers are one decision and neither works alone.
+
+   WHY NOT ON .np-zug ITSELF: that class is on links all over the page, several
+   of them in lists tighter than 24px apart, and a blanket 12px of slop would
+   have made neighbouring targets overlap where today they merely sit close.
+   The links that need the bigger area ask for it by name. */
+.np-tap {
+  position: relative;
+}
+
+.np-tap::before {
+  content: "";
+  position: absolute;
+  inset-block: -12px;
+  inset-inline: 0;
+}
+
 /* ——— THE STRIP FILLS FROM THE LEFT ————————————————————————————————————
    VIEW CASE on a specimen card, and until 18.08.2026 the centre card's version
    of it answered a pointer with NOTHING. The five outlined cards at least took
