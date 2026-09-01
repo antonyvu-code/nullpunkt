@@ -165,7 +165,13 @@ export default function Home() {
           and centring cannot push anything off the top. */}
       <section
         data-hero-section
-        className="relative isolate -mt-28 flex min-h-svh flex-col justify-center pb-10 pt-28"
+        /* max-md:pt-[calc(100svh+7rem)] — the plate's screen, reserved in the
+           layout. Under 768px Passer stops after one screen (its own note has
+           the argument) and the copy takes the next one, in ordinary flow,
+           already visible. justify-start there because centring a column that
+           now begins a screen down would push its foot off the page. The two
+           lengths are one decision: this padding and the host's height. */
+        className="relative isolate -mt-28 flex min-h-svh flex-col justify-center pb-10 pt-28 max-md:justify-start max-md:pt-[calc(100svh+7rem)]"
       >
         {/* The hero's material — three printing plates made of particles, in
             register at the top of the page and coming apart as it scrolls. See

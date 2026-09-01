@@ -267,11 +267,6 @@ export default function Passer() {
          about it. */
       const S = Math.max(10 * DPR, Math.sqrt(w * h) / 150);
 
-      /* Set here rather than at closure time so a rotation re-decides it: build()
-         is what the ResizeObserver re-runs. See the note at `schleier`. */
-      const schmal = w / DPR < 768;
-      schleierAb = schmal ? 0.06 : 0.3;
-      schleierSpanne = schmal ? 0.26 : 0.62;
 
       mx2.fillStyle = "#fff";
       /* THE FACE IS READ, NOT NAMED. This used to be the string "Bricolage
@@ -632,28 +627,16 @@ export default function Passer() {
        wheel. Smoothstep rather than a line, so neither end has a corner in it.
        The plates keep separating underneath — the material comes apart AND
        clears. One says the register is lost, the other hands the screen over. */
-    /* ——— THE VEIL LIFTS EARLIER ON A PHONE — 01.09.2026 ————————————————————
-       0.30 → 0.92 is the desktop ramp and it is right there: the title lands
-       around p = 0.60 with the material still at 52 %, and being read THROUGH
-       the grain is the whole point of printing in front of the copy.
-
-       On a 390px frame the same 52 % is not a veil, it is a lid. The plate fills
-       the screen instead of occupying a column of it, so every word of the hero
-       — the claim, the manifesto, FIG.01 — sits under coloured grain. Antony's
-       report was "I don't see this hero section on the phone", and this is what
-       he was looking at.
-
-       He chose the handover rather than the layering: the plate takes the frame
-       first, then gives it up. So the ramp runs 0.06 → 0.32 there, which puts
-       the material at zero well before the copy is written (HeroIntro delays the
-       score by the same amount on the same condition — the two numbers are one
-       decision and drift apart at their peril). What is lost is real: on a phone
-       nobody reads the claim through the grain any more. The alternative was
-       reading it through nothing. */
-    let schleierAb = 0.3;
-    let schleierSpanne = 0.62;
+    /* ONE RAMP AGAIN, and the detour is worth a line. For part of 01.09.2026
+       this was two ramps: a faster one under 768px, to clear the material off
+       the copy before it was written. That was solving the overlap by timing it.
+       The overlap itself is gone now — on a narrow frame the plate is one screen
+       tall and the copy sits BELOW it (see the host's height, and the section's
+       padding in page.tsx) — so there is nothing to clear off and nothing to
+       keep in step with. Fewer numbers, and the two that are left do not have to
+       agree with anything in another file. */
     const schleier = (x: number) => {
-      const t = Math.min(1, Math.max(0, (x - schleierAb) / schleierSpanne));
+      const t = Math.min(1, Math.max(0, (x - 0.3) / 0.62));
       return 1 - t * t * (3 - 2 * t);
     };
 
@@ -813,13 +796,27 @@ export default function Passer() {
     <div
       ref={hostRef}
       aria-hidden="true"
-      className="pointer-events-none absolute z-10 overflow-hidden"
+      /* ——— UNDER 768px THE PLATE IS ONE SCREEN, NOT THE WHOLE SECTION ————————
+         01.09.2026, and it is the layout half of a decision Antony made after
+         looking at the thing on his own phone. Printing in front of the copy is
+         the hero's idea and it survives at every width where the plate occupies
+         a COLUMN of the frame. At 390px it occupies the frame, and then the
+         claim, the manifesto and the whole of FIG.01 are read through grain that
+         covers them — which is not depth, it is a lid.
+
+         So on a narrow frame the material stops after one screen and the copy
+         follows it down the page instead of living under it. 100svh + 7rem
+         because the section is pulled up under the header by -mt-28: the extra
+         7rem is what makes the VISIBLE plate exactly one screen rather than one
+         screen minus the bar. The section's matching padding is in page.tsx, and
+         the two belong together — change one and the copy either overlaps the
+         material again or floats a header's worth below it. */
+      className="pointer-events-none absolute bottom-0 z-10 overflow-hidden max-md:bottom-auto max-md:h-[calc(100svh+7rem)]"
       style={{
         // The hero now pulls itself up under the header (see app/page.tsx), so
         // the section's own top IS the top of the page — the -7rem that used to
         // cancel main's pt-28 would now hang the material above the document.
         top: 0,
-        bottom: 0,
         /* ——— / 0.84, AND IT IS NOT A FUDGE ————————————————————————————————
            This was `calc(var(--gutter) * -1)` and the material never reached the
            screen. Measured at a 1265px viewport: the canvas ran 16px short of
