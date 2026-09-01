@@ -21,9 +21,36 @@ export const site = {
    * thing every case below demonstrates; it also frames the handover gap as
    * the problem it is, which is the sentence an agency needs to hear.
    */
+  /*
+   * THE GERMAN WAS SAYING SOMETHING ELSE — rewritten 01.09.2026, on Antony's
+   * reading of it on his own phone.
+   *
+   * It was "Entwurf und Umsetzung sind eine Arbeit", and the fault is the
+   * article. "eine Arbeit" lands as ONE PIECE OF WORK — a task, an item — and
+   * from there it slides towards "that is quite a lot of work". The English
+   * claims something different and much harder: that they are the SAME job, one
+   * occupation rather than two roles with a handover between them. That is the
+   * whole position this site takes, so the sentence that carries it cannot be
+   * the one sentence that is vague about it. "dieselbe" closes it.
+   *
+   * AND "gestalten", NOT "entwerfen", which was the other half of the fix.
+   * Entwerfen is the drafting — the Entwurf, the stage before the thing exists.
+   * Gestalten is the whole act of giving something form, and it is the word for
+   * what a Kommunikationsdesigner does; `manifesto` three lines below has said
+   * "gestalte und baue" all along. Two different verbs for one activity, within
+   * a screen of each other, would have been the page disagreeing with itself.
+   * "Design" was considered and does not work: as a verb it is an anglicism, and
+   * as a noun it forces the sentence back into the noun pair this rewrite is
+   * getting away from.
+   *
+   * SINGULAR "ist", and it is not a slip. Two infinitives that name one thing
+   * take the singular in German — "Lesen und Schreiben ist wichtig" — so the
+   * grammar makes the same claim the sentence does. The plural would be correct
+   * and would quietly argue the opposite.
+   */
   tagline: {
     en: "The design and the build are the same job.",
-    de: "Entwurf und Umsetzung sind eine Arbeit.",
+    de: "Gestalten und Bauen ist dieselbe Arbeit.",
   },
   manifesto: {
     en: "Nullpunkt is where I design and build websites — each its own world, solved from the structure up. Communication designer by training, frontend developer by craft: I take a site from blank page to live, and no two look alike.",

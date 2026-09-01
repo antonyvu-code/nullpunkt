@@ -218,7 +218,14 @@ export default function Home() {
               is what a phone reads. */}
           <h1
             data-hero="title"
-            className="mt-6 max-w-5xl text-[clamp(2.75rem,min(8.6vw,12.4vh),7.5rem)] font-medium leading-[0.98] tracking-[-0.02em]"
+            /* max-md:text-white — asked for on 01.09.2026 after looking at the
+               claim on a phone, and it is a deliberate exception to the token.
+               The page's ink is #f2f0eb, a warm off-white that is right against
+               this ground everywhere else. On a small OLED screen, at the size
+               this line takes, the warmth reads as slightly dull rather than as
+               warmth. Pure white only here, only under 768px: the exception is
+               one line of type on one breakpoint, not a second ink. */
+            className="mt-6 max-w-5xl text-[clamp(2.75rem,min(8.6vw,12.4vh),7.5rem)] font-medium leading-[0.98] tracking-[-0.02em] max-md:text-white"
           >
             {/* The title is the instrument now. It arrives with its three colour
                 channels apart and scroll brings them together — see
