@@ -1110,26 +1110,47 @@ ZIELE now carries a one-line pointer to here.
 
 ### Before the Bewerbung goes out (~08.09.2026)
 
-- [ ] **Bring `nullpunkt.vercel.app` back up (alias).** This is the address that
-      goes in the email.
-      **Decided 15.08.2026 — stay dark until close to the send date.** Two things
-      settled today and not to be re-asked: the 404 is **not** Deployment
-      Protection, it is a missing alias; and on **Hobby, Vercel Authentication
-      does not protect production** (previews and deployment URLs only), so
-      "locking the main page" was never an option that existed.
-- [ ] **Return the GitHub repo to public.** `antonyvu-code/nullpunkt` was set to
-      **PRIVATE** on 15.08.2026: keeping the site dark while the source stayed
-      public only covered half, and the hidden half is the half that makes the
-      impression — the first 50ms, the hero, the scroll. Reverse with
-      `gh repo edit antonyvu-code/nullpunkt --visibility public
-      --accept-visibility-change-consequences`. **Existing forks were detached and
-      do not reattach.** The other 27 repos are unchanged.
-      *This must go back to public before sending: a private repo is not evidence
-      an agency can read, and `OFFEN.md` — a logbook that records the faults of
-      its own instruments — is the rarest thing in this portfolio.*
-- [ ] `vercel deploy --prod`, or better `vercel promote <preview-url>`: promoting
+- [x] ~~**Bring `nullpunkt.vercel.app` back up (alias).**~~ **Done 31.08.2026,
+      verified 01.09.2026.** This is the address that goes in the email.
+      *The 15.08 decision, kept as the record:* stay dark until close to the send
+      date. Two things settled that day and not to be re-asked: the 404 was **not**
+      Deployment Protection, it was a missing alias; and on **Hobby, Vercel
+      Authentication does not protect production** (previews and deployment URLs
+      only), so "locking the main page" was never an option that existed.
+      What is live: production `gxfvas76l` (`dpl_CdUTLGag1kcpHHpMDpYteDFGqGPn`),
+      created 31.08 15:50:21 — eight seconds after commit `527a6a5` — with
+      `nullpunkt.vercel.app` aliased onto it. Checked 01.09: **200**, 170 KB,
+      0.18s, and it carries that commit rather than an older build — `/robots.txt`
+      and `/sitemap.xml` both 200, the description is the cut 155-character
+      version, canonical is the absolute URL.
+- [x] ~~**Return the GitHub repo to public.**~~ **Done 01.09.2026.**
+      `antonyvu-code/nullpunkt` was set to **PRIVATE** on 15.08.2026: keeping the
+      site dark while the source stayed public only covered half, and the hidden
+      half is the half that makes the impression — the first 50ms, the hero, the
+      scroll. **Existing forks were detached and do not reattach.** The other 27
+      repos are unchanged.
+      *The reason it had to go back, unchanged:* a private repo is not evidence an
+      agency can read, and `OFFEN.md` — a logbook that records the faults of its
+      own instruments — is the rarest thing in this portfolio.
+      **Two things were checked before the flip, and both are the reason it was
+      safe.** First, exposure: no tracked file carries an env/secret; the only
+      address in tracked source is `lib/site.ts:66`, the Impressum address that
+      §5 DDG puts on the live page anyway; and the two PDFs in `public/cv/` are
+      byte-identical to `cv-en-public.pdf` (133,234 B) and `cv-de-public.pdf`
+      (136,095 B) — the `--public` cuts without address or phone. Nothing became
+      visible that the live site was not already serving. Second, and this one was
+      a real defect: `origin/main` sat **38 commits** behind what was live, because
+      the last four commits went to `metadata-pass` and the 34 before them were
+      never pushed. Opening the repo in that state would have shown a visitor code
+      roughly three weeks older than the site — the opposite of the argument above.
+      Fixed first: `metadata-pass` merged into `main` fast-forward, pushed
+      `d788b62..527a6a5`, so the public default branch is now the live artifact.
+- [x] ~~`vercel deploy --prod`, or better `vercel promote <preview-url>`: promoting
       re-points the alias **without rebuilding**, so what ships is the artifact
-      that was verified rather than a fresh build of the same source.
+      that was verified rather than a fresh build of the same source.~~ **Moot,
+      31.08.2026** — the alias came back via a `--prod` deploy, so the promote
+      route was never needed. Keep the argument for next time: it is still the
+      cheaper and safer of the two.
 - [ ] **A real phone.** ~10 minutes, the device is already here, **not deferred**.
       It is the most likely device a recruiter opens the link on; DPR 3 settles
       the one open question — the NULLPUNKT lettering breaking into visible grain
@@ -1178,6 +1199,17 @@ was nothing to migrate. What is left that has never run: **the alias**, **the
 repo going public**, and **the phone** — and the phone is ten minutes with a
 device that is already in the room. Two of the four were retired by doing them
 early, which is the whole argument for doing the cheap ones out of order.
+
+**01.09.2026 — down to one, and it is the phone.** The alias came back on 31.08,
+the repo went public today, and the risk this section was written about did not
+materialise: nothing landed in the same week, because three of the four were done
+out of order over two weeks. What the last one hid, though, is worth keeping: the
+repo-public item looked like a one-command task and was not — the commits that
+make the site what it is had never been pushed, and the flip would have published
+a three-week-old `main`. **A task that has never run is not the same size as a task
+that has run before**, and this list has now proved that twice: `pnpm install` on
+17.08 turned out to guard against nothing (§17), and this one turned out to hide a
+second task inside it. Both were only measurable by doing them early.
 
 ---
 
