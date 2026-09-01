@@ -173,6 +173,31 @@ export default function FieldNotes() {
             className="group relative block border-b py-6 pl-11 no-underline md:py-7"
             style={{ borderColor: "var(--line)" }}
           >
+            {/* THE POINTER-FREE HALF IS NOT HERE — it is in globals.css, keyed
+                on [data-near], which AccentScroll's sweep writes to the row
+                nearest the read line. That is what gives a phone the answer a
+                pointer gets; without it Antony saw twelve grey names on the
+                device, because hover and focus are the only things this row used
+                to respond to.
+
+                WHY NOT A `group-data-[near]:` UTILITY, which is what this file
+                reached for first — and the honest answer is not the one that was
+                nearly written here. The utility was dropped because setting
+                [data-near] by hand left the computed colour unmoved at
+                rgb(138,135,129); that reading was WRONG. `.accent-t` puts a
+                transition on `color`, so getComputedStyle immediately after the
+                attribute lands returns the transition's STARTING value. With the
+                transition disabled the same test moves cleanly to
+                rgb(255,74,28). The utility may well have worked all along.
+
+                Plain CSS stays anyway, for a reason that survives the correction:
+                it is what colours the cards (globals.css §543), so the two halves
+                of the same idea now read the same way — and it is the version
+                that has actually been measured working.
+
+                Colour only. The indent stays a pointer gesture: a row that
+                slides sideways as you scroll past it is the section moving on
+                its own rather than answering. */}
             <span className="hud accent-t absolute left-0 top-7 text-muted-dim group-hover:text-accent md:top-8">
               F.{String(i + 1).padStart(2, "0")}
             </span>

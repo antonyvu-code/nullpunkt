@@ -546,6 +546,36 @@ button:focus-visible .np-walze .np-walze-b {
    dead strip for :hover and that strip sits at the centre of the window while
    the carriage runs — see the note there. Any list that does not write the
    attribute still develops on hover exactly as before. */
+/* ——— AND THE NOTES GET THE SAME PAIR — 01.09.2026 ——————————————————————
+   Found on Antony's iPhone: in FIELD NOTES the project names never changed
+   colour. They could not. The row answered `:hover` and `:focus-visible` and
+   nothing else, and a phone has neither — twelve rows of display type sitting
+   at --muted for the whole section, on the page's most scroll-driven block.
+
+   [data-near] is written by AccentScroll's sweep, from the note nearest the
+   read line, exactly as it is written for the cards below. The sweep already
+   ran on touch and already mixed the page accent through the notes; what was
+   missing was any element that showed it.
+
+   PLAIN CSS RATHER THAN A `group-data-[near]:` UTILITY — and the first reason
+   written here was wrong, so it is worth keeping the correction. The utility
+   looked dead: setting [data-near] by hand left the name at rgb(138,135,129).
+   That was the instrument. `.accent-t` transitions `color`, and
+   getComputedStyle read immediately after the attribute lands returns the
+   transition's starting value, not its target. With the transition disabled the
+   same probe reads rgb(255,74,28) — the accent — and restores on removal.
+
+   What survives: the cards are coloured from this file (below), so the notes
+   being coloured from this file too makes one idea read one way. That is a
+   reason to prefer it; "the utility does not work" was not.
+
+   :hover LAST, so a pointer still wins over the scroll on a machine that has
+   one. The two answers never disagree by much; when they do, the hand should. */
+#field-notes [data-accent][data-near] .font-display,
+#field-notes [data-accent][data-near] > .hud {
+  color: var(--accent);
+}
+
 [data-card][data-near],
 [data-card]:hover,
 [data-card]:focus-visible {

@@ -39,7 +39,31 @@ export default function SmoothScroll() {
   useEffect(() => {
     if (reduce !== false) return;
     gsap.registerPlugin(ScrollTrigger);
-    const lenis = new Lenis({ lerp: 0.12 });
+    /* syncTouch, and it is the difference between this page working on a phone
+       and not — found on Antony's iPhone 01.09.2026, reported as "I drag down
+       and nothing appears, the lines don't come".
+
+       Lenis defaults `syncTouch` to FALSE, which means a finger drag is not
+       driven by Lenis at all: the browser scrolls natively and Lenis only
+       watches. Native momentum on iOS then starves `requestAnimationFrame` —
+       the same starvation measured at 0 frames/second in the preview pane the
+       same day, OFFEN §29 — so `gsap.ticker` does not tick, no scrub advances,
+       and every beat in the About frame stays exactly where `park()` left it:
+       opacity 0, z at ZEILE_FERN. Nothing appearing is the literal correct
+       behaviour of a timeline that is never asked to move.
+
+       With it on, Lenis owns the touch scroll the way it already owns the
+       wheel: it drives the position from `gsap.ticker`, which is the loop
+       `lenis.on("scroll", ScrollTrigger.update)` below is hanging off. There is
+       no native momentum left to starve the frame.
+
+       THE COST, so the next session does not discover it as a surprise: this
+       makes touch scrolling synthetic. It cannot feel exactly like iOS, and
+       Lenis's own docs say so. The defaults for `syncTouchLerp` and
+       `touchInertiaExponent` are deliberately left alone until someone has
+       judged the feel ON A DEVICE — tuning them from a desktop emulator would
+       be guessing at the one thing an emulator cannot show. */
+    const lenis = new Lenis({ lerp: 0.12, syncTouch: true });
     (window as unknown as { lenis?: Lenis }).lenis = lenis;
     lenis.on("scroll", ScrollTrigger.update);
     const raf = (time: number) => lenis.raf(time * 1000);

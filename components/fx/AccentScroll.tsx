@@ -169,6 +169,31 @@ export default function AccentScroll() {
         probed = el;
       };
 
+      /* THE SAME ANSWER, FOR THE NOTES — 01.09.2026, and it exists because the
+         section had none on a phone. Antony's report: "in FIELD NOTES the
+         project names do not change colour on the phone."
+
+         They could not. The row's name is coloured by `group-hover:text-accent`
+         alone (FieldNotes.tsx), and a phone has no hover and no focus. Selected
+         already solved this for its cards — [data-near] is the pointer-free
+         answer and :hover is the fallback, globals.css §543 — and the notes were
+         simply never given the same treatment.
+
+         NOT [data-probed], deliberately, and the note at the sweep says why: a
+         probed element develops a plate, and a note carries no plate. This marks
+         which note the page is READING, which is a different claim and needs its
+         own attribute. Same guarded shape as probe() above, for the same reason:
+         apply() runs on every scroll frame, and an unguarded write here would
+         invalidate style for the section on all of them — the mistake
+         --deflection already cost an afternoon for (§4). */
+      let gelesen: HTMLElement | null = null;
+      const near = (el: HTMLElement | null) => {
+        if (gelesen === el) return;
+        gelesen?.removeAttribute("data-near");
+        el?.setAttribute("data-near", "");
+        gelesen = el;
+      };
+
       /* The colour the page wears with nothing on the dial — read at apply time,
          not at mount. This component sits above <main> in the tree, so its effect
          runs BEFORE the page's own AccentSetter: reading --accent here on mount
@@ -241,6 +266,7 @@ export default function AccentScroll() {
                no "nearly" to express. */
             deflect(1);
             probe(unter);
+            near(null);
             set(unter?.dataset.accent || rest());
             return;
           }
@@ -287,6 +313,14 @@ export default function AccentScroll() {
                carries a plate to develop, so the probe is parked rather than
                left pointing at whatever the last card was. */
             probe(null);
+            /* Which row the page is reading, as opposed to which colour it is
+               mixing. The sweep interpolates BETWEEN two stops so that the hue
+               never steps; a name, though, is either the one being read or it is
+               not, so this rounds to the nearer of the two rather than trying to
+               express a half-lit row. The colour stays continuous, the marker is
+               discrete, and they disagree only for the frames around the
+               midpoint — where either answer is equally true. */
+            near(noteMarks[span - i < 0.5 ? i : Math.min(i + 1, noteMarks.length - 1)] ?? null);
             set(mix(stops[i], stops[i + 1], span - i));
             return;
           }
@@ -295,6 +329,7 @@ export default function AccentScroll() {
         if (marks.length === 0) {
           deflect(0);
           probe(null);
+          near(null);
           set(rest());
           return;
         }
@@ -330,6 +365,10 @@ export default function AccentScroll() {
            left developed there would claim a specimen is under the probe when
            the needle is sitting on zero. */
         probe(defl === 0 ? null : best);
+        /* Outside the sweep the notes are ordinary stations again, so nothing
+           here is "the note being read" — clearing is what keeps a row from
+           staying lit after the section has scrolled past. */
+        near(null);
         set(defl === 0 ? rest() : best?.dataset.accent || rest());
       };
 
@@ -376,6 +415,9 @@ export default function AccentScroll() {
            bench exists to rule out. */
         deflect(0);
         probe(null);
+        /* Same argument one line up, for the notes: the effect going away must
+           not leave a name standing in the accent with nothing left to move it. */
+        near(null);
       };
     },
     // revertOnUpdate is not optional here. useGSAP only reverts on unmount by
