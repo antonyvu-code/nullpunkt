@@ -262,7 +262,11 @@ export default function Passer() {
       mc.width = w;
       mc.height = h;
       const mx2 = mc.getContext("2d", { willReadFrequently: true })!;
-      let size = Math.min(w * 0.19, h * 0.42);
+      /* THE PITCH IS DECIDED BEFORE THE WORD IS SET, because from 01.09.2026 the
+         word's LAYOUT depends on it. Moved up from below; nothing else changed
+         about it. */
+      const S = Math.max(10 * DPR, Math.sqrt(w * h) / 150);
+
       mx2.fillStyle = "#fff";
       /* THE FACE IS READ, NOT NAMED. This used to be the string "Bricolage
          Grotesque" written twice, which meant the one place on the site that
@@ -275,22 +279,66 @@ export default function Passer() {
       const face =
         getComputedStyle(document.documentElement).getPropertyValue("--font-fira-sans").trim() ||
         '"Fira Sans", sans-serif';
-      mx2.font = `500 ${size}px ${face}`;
       mx2.textAlign = "center";
       mx2.textBaseline = "middle";
-      /* THE WORD HAS TO FIT THE FRAME. The size above is a cap read off the
-         frame's proportions, not a measurement of the word — ten characters at
-         0.19w each run about 1.15 frames wide, so on anything but a tall window
-         the N and the T were cut off by the canvas edge and the material was
-         built from a mask of "ULLPUNK". Measured once, at the real face, and only
-         ever scaled DOWN: where the cap already fits, nothing changes. */
+
+      /* ——— HOW MANY CELLS A LETTER GETS, AND WHY THE WORD BREAKS ——————————
+         Found on Antony's iPhone 01.09.2026: the wordmark was not readable, and
+         raising DPR to 3 changed nothing about it — sharper dots, same illegible
+         letters. Measured with these same formulas:
+
+           1440 @2   13.4 × 16.1 cells per letter
+            390 @2    3.6 ×  4.4
+            390 @3    3.6 ×  4.4   ← identical, which is the whole finding
+
+         The pitch is 10 CSS px at every density (the `10 * DPR` floor), so it
+         does not shrink with the frame — but the word does. A letter set across
+         3.6 cells is not a letter at any sharpness; five is about the floor at
+         which a glyph survives being sampled at all.
+
+         SO THE WORD BREAKS RATHER THAN THE RASTER. The alternative was a finer
+         pitch, and it was priced before it was rejected: matching the desktop's
+         13.4 needs 2.7 CSS px, which is 13.7× the particles — on the device with
+         the least budget and the open thermal question (§15). Two lines cost
+         NOTHING: same pitch, same particle count, and each letter roughly doubles
+         because five have to fit the measure instead of nine.
+
+         It is also the ordinary typographic answer. A nine-letter word squeezed
+         across 390px is the compromise; a stacked lockup on a portrait screen is
+         what a type designer would have drawn in the first place. */
       const maxW = w * 0.84;
-      const gemessen = mx2.measureText("NULLPUNKT").width;
-      if (gemessen > maxW) {
-        size *= maxW / gemessen;
-        mx2.font = `500 ${size}px ${face}`;
+      const SPALTEN_MIN = 5;
+      const bei = (px: number, text: string) => {
+        mx2.font = `500 ${px}px ${face}`;
+        return mx2.measureText(text).width;
+      };
+
+      /* One line, sized exactly as before: a cap off the frame's proportions,
+         scaled DOWN only where the word overruns the measure. Ten characters at
+         0.19w run about 1.15 frames wide, so without this the N and the T were
+         cut off by the canvas edge and the material was built from "ULLPUNK". */
+      let zeilen = ["NULLPUNKT"];
+      let size = Math.min(w * 0.19, h * 0.42);
+      const einzeilig = bei(size, "NULLPUNKT");
+      if (einzeilig > maxW) size *= maxW / einzeilig;
+
+      if (bei(size, "NULLPUNKT") / 9 / S < SPALTEN_MIN) {
+        /* Width-limited or height-limited, whichever binds first — measured at
+           100px and scaled, so the face's real metrics decide rather than an
+           assumed character width. The block is allowed half the frame; WORD_Y
+           still says where its centre sits. */
+        zeilen = ["NULL", "PUNKT"];
+        const je100 = bei(100, "PUNKT");
+        size = Math.min((maxW / je100) * 100, (h * 0.5) / (2 * 0.86));
       }
-      mx2.fillText("NULLPUNKT", w / 2, h * WORD_Y);
+
+      /* 0.86 of the size, which is tighter than any running text and right for a
+         lockup: the two lines have to read as one mark rather than as two words
+         that happen to be stacked. */
+      const zeile = size * 0.86;
+      const y0 = h * WORD_Y - ((zeilen.length - 1) * zeile) / 2;
+      mx2.font = `500 ${size}px ${face}`;
+      zeilen.forEach((z, i) => mx2.fillText(z, w / 2, y0 + i * zeile));
       const md = mx2.getImageData(0, 0, w, h).data;
       const inWord = (px: number, py: number) => {
         const ix = px | 0;
@@ -299,10 +347,10 @@ export default function Passer() {
         return md[(iy * w + ix) * 4 + 3] > 40;
       };
 
-      /* Pitch scales with the frame instead of being a fixed device pixel count,
-         so a 4K display gets a coarser raster rather than eight times the
-         particles. The grain reads the same; the frame budget does not move. */
-      const S = Math.max(10 * DPR, Math.sqrt(w * h) / 150);
+      /* S is defined above the mask now — the word's layout depends on it. Pitch
+         scales with the frame instead of being a fixed device pixel count, so a
+         4K display gets a coarser raster rather than eight times the particles.
+         The grain reads the same; the frame budget does not move. */
       const F = S * 5.0; // backing grain, so the plate is not only the word
       const cx = w * 0.5;
       const cy = h * 0.5;
