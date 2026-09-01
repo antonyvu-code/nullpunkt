@@ -408,15 +408,45 @@ export default function Passer() {
          near 100 megapixels, so this sits two orders of magnitude under the
          thing that made backdrop material unaffordable — but it is not free,
          and it is the number to come back to if the hero's frame time moves. */
-      const zelle = (gx: number, gy: number, v: number, korn = 1): Zelle => ({
+      const zelle = (gx: number, gy: number, v: number, korn = 1, pitch = S): Zelle => ({
         gx: gx / SC0,
         gy: gy / SC0,
         v,
         k: 12 + Math.random() * 26, // own spring, so the swarm settles out of step
-        r: (S * korn * (0.36 + Math.random() * 0.3)) / SC0, // under the pitch, or it smears
+        r: (pitch * korn * (0.36 + Math.random() * 0.3)) / SC0, // under the pitch, or it smears
       });
-      for (let y = S * 0.5; y < h; y += S)
-        for (let x = S * 0.5; x < w; x += S) if (inWord(x, y)) raster.push(zelle(x - cx, y - cy, 1));
+
+      /* ——— THE WORD GETS ITS OWN PITCH — 01.09.2026 ————————————————————————
+         Breaking NULLPUNKT into two lines took a phone letter from 3.6 raster
+         columns to 6.6, which clears the floor at which a glyph is a glyph. It
+         does not make it a good letter: the desktop draws the same letter with
+         13.4 columns, and 6.6 against 13.4 is the difference Antony was still
+         looking at when he said it is not sharp yet.
+
+         The pitch cannot simply be halved, because S also seeds the backing
+         grain (F = S × 5) across the WHOLE frame plus its margin, so halving it
+         pays four times over an area the word occupies a fifth of. Decoupled
+         instead: the backing keeps S, the word gets whatever pitch gives its
+         letters a fixed number of columns.
+
+         TWELVE, and it is a floor rather than a target — `Math.min` means a frame
+         that already draws better letters keeps its own raster. Desktop at 1440
+         computes 22.4 against S = 20 and is therefore untouched, which is the
+         property that matters: this refines the starved case and changes nothing
+         else. The clamp at S/3 is the cost ceiling — nine times the cells of the
+         word box is as far as this is allowed to go before it stops being a
+         raster and starts being a photograph.
+
+         What it costs where it fires: at 390 @3 the word box goes from about 490
+         cells to 1680. The backing does not move. */
+      const SPALTEN_ZIEL = 12;
+      const laengste = zeilen.reduce((a, b) => (a.length >= b.length ? a : b));
+      const wortBreite = bei(size, laengste);
+      const SW = Math.max(S / 3, Math.min(S, wortBreite / (laengste.length * SPALTEN_ZIEL)));
+
+      for (let y = SW * 0.5; y < h; y += SW)
+        for (let x = SW * 0.5; x < w; x += SW)
+          if (inWord(x, y)) raster.push(zelle(x - cx, y - cy, 1, 1, SW));
       for (let y = F * 0.5 - RAND; y < h + RAND; y += F)
         for (let x = F * 0.5 - RAND; x < w + RAND; x += F) {
           const v = 0.16 + 0.13 * Math.sin((x * 0.0027) / DPR + (y * 0.0016) / DPR);
