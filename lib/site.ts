@@ -48,8 +48,22 @@ export const site = {
    * grammar makes the same claim the sentence does. The plural would be correct
    * and would quietly argue the opposite.
    */
+  /*
+   * AND THE ENGLISH FOLLOWED THE GERMAN, an hour later on the same day — the
+   * one time this pair has been rewritten in that direction. "The design and
+   * the build" names two THINGS and then claims they are one job, which is a
+   * small contradiction the reader has to step over; the German rewrite named
+   * two ACTIVITIES instead and the contradiction went away. So this one does
+   * too. It also puts both languages on the same grammar, which matters here
+   * more than usual: <L> swaps them in place, and a reader who switches sees
+   * the sentence change shape rather than just change language.
+   *
+   * "are", not "is" — English has no equivalent of the German unity singular,
+   * and "Designing and building is" would read as a mistake rather than as an
+   * argument. The claim carries itself in "the same job".
+   */
   tagline: {
-    en: "The design and the build are the same job.",
+    en: "Designing and building are the same job.",
     de: "Gestalten und Bauen ist dieselbe Arbeit.",
   },
   manifesto: {
